@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/my_nav">
+
+    <fragment
+        android:id="@+id/logFragment"
+        android:name="com.example.bluetoothcontrol.Logs.LogFragment"
+        android:label="fragment_logs"
+        tools:layout="@layout/fragment_log" />
+    <fragment
+        android:id="@+id/readingDataFragment"
+        android:name="com.example.bluetoothcontrol.ReadingData.ReadingDataFragment"
+        android:label="fragment_reading_data"
+        tools:layout="@layout/fragment_reading_data" />
+    <fragment
+        android:id="@+id/writingDataFragment"
+        android:name="com.example.bluetoothcontrol.AboutDevice.WritingDataFragment"
+        android:label="fragment_writing_data"
+        tools:layout="@layout/fragment_about_device" />
+</navigation>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="marginSmall">8dp</dimen>
+    <dimen name="marginNormall">16dp</dimen>
+    <dimen name="marginMax">32dp</dimen>
+    <dimen name="fabMargin">16dp</dimen>
+</resources>

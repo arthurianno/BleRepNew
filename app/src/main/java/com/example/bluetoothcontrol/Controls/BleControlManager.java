@@ -28,6 +28,8 @@ import no.nordicsemi.android.ble.callback.DataReceivedCallback;
 
 public class BleControlManager extends BleManager {
     private static final byte CONFIGURATION_CMD = (byte) 0x04;
+    private static final byte READ_STATE_CMD = (byte) 0x85;
+
     int successfulOperationsCount = 0;
     int failedOperationsCount = 0;
 
@@ -239,12 +241,14 @@ public void loadFirmware(EntireCheck entireCheck) {
 
             // После отправки всех данных прошивки загружаем конфигурацию
             loadConfiguration();
+
         } else {
             Log.e("BleControlManager", "Device is not connected or Control Request characteristic is null");
         }
     } catch (IOException e) {
         e.printStackTrace();
     }
+
 }
     private void writeFirmwareChunk(byte[] data, int address, EntireCheck entireCheck) {
         if (isConnected()) {
@@ -298,6 +302,9 @@ public void loadFirmware(EntireCheck entireCheck) {
             if (bytesRead == CONFIGURATION_SIZE) {
                 // Отправить данные конфигурации по Bluetooth
                 writeConfiguration(buffer,EntireCheck.configurationBootMode);
+                for (int i = 0; i < 10; i++) {
+                    readDeviceState(EntireCheck.sendLastCommandResult,10);
+                }
             } else {
                 Log.e("BleControlManager", "Invalid configuration file size");
             }
@@ -334,9 +341,34 @@ public void loadFirmware(EntireCheck entireCheck) {
             Log.e("BleControlManager", "Device is not connected");
         }
     }
+    public void readDeviceState(EntireCheck entireCheck, int numIterations) {
+        if (isConnected() && controlRequest != null) {
+            BluetoothGattCharacteristic characteristic = controlRequest;
+            ControlViewModel.Companion.getEntireCheckQueue().add(entireCheck);
+            if (characteristic != null) {
+                for (int i = 0; i < numIterations; i++) {
+                    byte[] commandData = new byte[]{BOOT_MODE_START, READ_STATE_CMD};
+                    writeCharacteristic(
+                            characteristic,
+                            commandData,
+                            BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
+                    )
+                            .done(device -> Log.e("BleControlManager", "Read Device State command sent"))
+                            .fail((device, status) -> Log.e("BleControlManager", "Failed to send Read Device State command: " + status))
+                            .enqueue();
+                }
+            } else {
+                Log.e("BleControlManager", "Control Request characteristic is null");
+            }
+        } else {
+            Log.e("BleControlManager", "Device is not connected");
+        }
+    }
 
 
-                                                                                            //// BootMode ////
+
+
+    //// BootMode ////
 
     private  String bytesToHex(byte[] bytes) {
         ByteBuffer buffer = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
@@ -487,6 +519,11 @@ public void loadFirmware(EntireCheck entireCheck) {
                 case configurationBootMode:
                     Log.d("BleControlManager","data " + Arrays.toString(data));
                     handleConfigurationWriteResponse(data);
+                    break;
+                case sendLastCommandResult:
+                    Log.d("BleControlManager","data " + Arrays.toString(data));
+
+                    handleLastCommandResultResponse(data);
                     break;
             }
             requestData.setValue(listOfDataItem);
@@ -726,7 +763,7 @@ public void loadFirmware(EntireCheck entireCheck) {
                     case 0x00:
                         Log.d("BleControlManager", "Configuration write command accepted");
                         // Добавить необходимые действия при успешном принятии команды записи конфигурации
-                        Log.e("BleControlManager", "Configuration write command accepted" + bytesToHex(data));
+                        Log.e("BleControlManager", "Configuration write command accepted " + bytesToHex(data));
                         break;
                     case (byte) 0xFF:
                         Log.e("BleControlManager", "Configuration write command not accepted, invalid format or content");
@@ -739,6 +776,37 @@ public void loadFirmware(EntireCheck entireCheck) {
                 }
             } else {
                 Log.e("BleControlManager", "Invalid response data length for configuration write command");
+            }
+        }
+
+        private void handleLastCommandResultResponse(byte[] data){
+            if (data.length >= 2) {
+                byte flag = data[0];
+                byte cmd = data[1];
+                switch (flag) {
+                    case 0x00:
+                        // Предыдущая команда выполнена успешно
+                        Log.d("BleControlManager", "Previous command executed successfully");
+                        Log.e("BleControlManager", "Answer from device " + bytesToHex(data));
+                        break;
+                    case 0x01:
+                        // Устройство занято обработкой предыдущей команды
+                        Log.e("BleControlManager", "Device is busy processing the previous command");
+                        Log.e("BleControlManager", "Answer from device " + bytesToHex(data));
+                        break;
+                    case 0x02:
+                        // Предшествующая команда завершилась с ошибкой
+                        Log.e("BleControlManager", "Previous command ended with an error");
+                        Log.e("BleControlManager", "Answer from device " + bytesToHex(data));
+                        break;
+                    default:
+                        // Неизвестный флаг
+                        Log.e("BleControlManager", "Unknown flag in response: " + flag);
+                        Log.e("BleControlManager", "Answer from device " + bytesToHex(data));
+                        break;
+                }
+            } else {
+                Log.e("BleControlManager", "Invalid response data length for Read Device State command");
             }
         }
    }

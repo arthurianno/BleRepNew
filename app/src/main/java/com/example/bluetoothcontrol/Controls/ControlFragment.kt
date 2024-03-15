@@ -13,7 +13,11 @@ import androidx.fragment.app.Fragment
 import com.example.bluetoothcontrol.MainActivity
 import com.example.bluetoothcontrol.databinding.FragmentControlBinding
 import android.net.Uri
+import android.util.Log
 import android.widget.Button
+import androidx.fragment.app.activityViewModels
+import com.example.bluetoothcontrol.ReadingData.ReadingDataFragment
+import com.example.bluetoothcontrol.SharedViewModel
 import java.io.File
 
 class ControlFragment : Fragment() {
@@ -24,6 +28,7 @@ class ControlFragment : Fragment() {
     private lateinit var controlModel: BleControlManager
     private var isFirstFileSelected = false
     private lateinit var buttonProcessFiles: Button
+    private val sharedViewModel: SharedViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -37,13 +42,23 @@ class ControlFragment : Fragment() {
         binding.button.setOnClickListener {
             showFileChooser()
         }
+        binding.buttonProcessFiles.setOnClickListener{
+
+        }
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.buttonProcessFiles.setOnClickListener {
-
+        sharedViewModel.selectedDeviceAddress.observe(viewLifecycleOwner){deviceAddress ->
+            if(deviceAddress != null && !controlModel.isConnected){
+                binding.buttonProcessFiles.setOnClickListener{
+                    controlViewModel.connect(deviceAddress)
+                    Log.e(ReadingDataFragment.TAG,"Toggle connection to device with address $deviceAddress")
+                }
+            }else{
+                Log.e(ReadingDataFragment.TAG,"address $deviceAddress is null ")
+            }
         }
     }
 
@@ -73,8 +88,9 @@ class ControlFragment : Fragment() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == 100 && resultCode == Activity.RESULT_OK && data != null) {
             val uri: Uri? = data.data
-            val path: String = uri?.path.toString()
+            val path: String = uri?.path ?: ""
             val file = File(path)
+            Log.d(TAG, "File path: $path")
             val fileName = file.name
 
             if (isFirstFileSelected) {
@@ -95,5 +111,7 @@ class ControlFragment : Fragment() {
         }
         super.onActivityResult(requestCode, resultCode, data)
     }
+
+
 }
 

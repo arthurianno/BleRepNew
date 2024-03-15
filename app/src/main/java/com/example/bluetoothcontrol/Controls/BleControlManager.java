@@ -1,28 +1,33 @@
 package com.example.bluetoothcontrol.Controls;
+
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.content.Context;
-import android.content.res.AssetManager;
 import android.os.Build;
 import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.lifecycle.MutableLiveData;
+
 import com.example.bluetoothcontrol.ReadingData.DataItem;
 
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.io.IOException;
 import java.util.UUID;
+
 import no.nordicsemi.android.ble.BleManager;
 import no.nordicsemi.android.ble.ConnectionPriorityRequest;
 import no.nordicsemi.android.ble.callback.DataReceivedCallback;
@@ -216,7 +221,7 @@ private static boolean isRequestBootMode = false;
 //    }
 public void loadFirmware(EntireCheck entireCheck) {
     String filePath = ControlFragment.Companion.getSelectedFilePathBin();
-    try (InputStream inputStream = new FileInputStream(filePath)) {
+    try (@SuppressLint({"NewApi", "LocalSuppress"}) InputStream inputStream = Files.newInputStream(Paths.get(filePath))) {
         BluetoothGattCharacteristic characteristic = controlRequest;
         if (isConnected() && characteristic != null) {
             long fileSize = inputStream.available(); // Получаем размер файла
@@ -297,7 +302,7 @@ public void loadFirmware(EntireCheck entireCheck) {
 
     public void loadConfiguration() {
         String filePath = ControlFragment.Companion.getSelectedFilePathDat();
-        try (InputStream inputStream = new FileInputStream(filePath)) {
+        try (@SuppressLint({"NewApi", "LocalSuppress"}) InputStream inputStream = Files.newInputStream(Paths.get(filePath))) {
             byte[] buffer = new byte[CONFIGURATION_SIZE];
             int bytesRead = inputStream.read(buffer);
             if (bytesRead == CONFIGURATION_SIZE) {

@@ -297,7 +297,7 @@ public void loadFirmware(EntireCheck entireCheck) {
             int bytesRead = inputStream.read(buffer);
             if (bytesRead == CONFIGURATION_SIZE) {
                 // Отправить данные конфигурации по Bluetooth
-                writeConfiguration(buffer);
+                writeConfiguration(buffer,EntireCheck.configurationBootMode);
             } else {
                 Log.e("BleControlManager", "Invalid configuration file size");
             }
@@ -305,10 +305,10 @@ public void loadFirmware(EntireCheck entireCheck) {
             e.printStackTrace();
         }
     }
-    private void writeConfiguration(byte[] data) {
+    private void writeConfiguration(byte[] data,EntireCheck entireCheck) {
         if (isConnected() && controlRequest != null) {
             BluetoothGattCharacteristic characteristic = controlRequest;
-            //ControlViewModel.Companion.getEntireCheckQueue().add(entireCheck);
+            ControlViewModel.Companion.getEntireCheckQueue().add(entireCheck);
             if (characteristic != null) {
                 // Структура: <start> <cmd> <adr> <num> <config data>
                 byte[] commandData = new byte[data.length + 7]; // Команда + адрес + количество байт данных
@@ -336,7 +336,7 @@ public void loadFirmware(EntireCheck entireCheck) {
     }
 
 
-    //// BootMode ////
+                                                                                            //// BootMode ////
 
     private  String bytesToHex(byte[] bytes) {
         ByteBuffer buffer = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
@@ -467,21 +467,27 @@ public void loadFirmware(EntireCheck entireCheck) {
                 case T10ref_C:
                     Log.d("BleControlManager","data " + Arrays.toString(data));
                     handleT10ref_C(data,EntireCheck.T10ref_C.name());
+                    break;
                 case WRITE:
                     Log.d("BleControlManager","data " + Arrays.toString(data));
                     handleWriteData(data);
+                    break;
                 case default_command:
                     Log.d("BleControlManager","data " + Arrays.toString(data));
                     handleDefaultCommand(data);
+                    break;
                 case BootMode:
                     Log.d("BleControlManager","data " + Arrays.toString(data));
                     handleBootModeResponse(data);
+                    break;
                 case BootModeResponse:
                     Log.d("BleControlManager","data " + Arrays.toString(data));
                     handleBootWriteResponse(data);
-//                case configurationBootMode:
-//                    Log.d("BleControlManager","data " + Arrays.toString(data));
-//                    handleConfigurationWriteResponse(data);
+                    break;
+                case configurationBootMode:
+                    Log.d("BleControlManager","data " + Arrays.toString(data));
+                    handleConfigurationWriteResponse(data);
+                    break;
             }
             requestData.setValue(listOfDataItem);
         }
@@ -659,6 +665,7 @@ public void loadFirmware(EntireCheck entireCheck) {
             } else if (defaultResponse.contains("setraw.error")) {
                 Log.d("BleControlManager", " incorrect command");
             } else if (defaultResponse.contains("boot.ok")) {
+                loadFirmware(EntireCheck.BootModeResponse);
                 Log.d("BleControlManager", "Device entered firmware update mode successfully");
             } else if (defaultResponse.contains("boot.error")) {
                 Log.e("BleControlManager", "Error: Low battery level");
@@ -671,7 +678,6 @@ public void loadFirmware(EntireCheck entireCheck) {
             String bootResponse = new String(data, StandardCharsets.UTF_8);
             if (bootResponse.contains("boot.ok")) {
                 Log.d("BleControlManager", "BOOT correct");
-                loadFirmware(EntireCheck.BootModeResponse);
             } else if(bootResponse.contains("boot.error")) {
                 Log.e("BleControlManager", "ERROR Batt low");
             }else{
@@ -711,28 +717,29 @@ public void loadFirmware(EntireCheck entireCheck) {
                 Log.e("BleControlManager", "Invalid response data length for WRITE command");
             }
         }
-//        private void handleConfigurationWriteResponse(byte[] data) {
-//            if (data.length >= 2) {
-//                byte flag = data[0];
-//                byte cmd = data[1];
-//
-//                switch (flag) {
-//                    case 0x00:
-//                        Log.d("BleControlManager", "Configuration write command accepted");
-//                        // Добавить необходимые действия при успешном принятии команды записи конфигурации
-//                        break;
-//                    case (byte) 0xFF:
-//                        Log.e("BleControlManager", "Configuration write command not accepted, invalid format or content");
-//                        // Добавить необходимые действия при ошибке принятия команды записи конфигурации
-//                        break;
-//                    default:
-//                        Log.e("BleControlManager", "Unknown response flag for configuration write command: " + flag);
-//                        // Добавить необходимые действия при неизвестном флаге ответа на команду записи конфигурации
-//                        break;
-//                }
-//            } else {
-//                Log.e("BleControlManager", "Invalid response data length for configuration write command");
-//            }
-//        }
+        private void handleConfigurationWriteResponse(byte[] data) {
+            if (data.length >= 2) {
+                byte flag = data[0];
+                byte cmd = data[1];
+
+                switch (flag) {
+                    case 0x00:
+                        Log.d("BleControlManager", "Configuration write command accepted");
+                        // Добавить необходимые действия при успешном принятии команды записи конфигурации
+                        Log.e("BleControlManager", "Configuration write command accepted" + bytesToHex(data));
+                        break;
+                    case (byte) 0xFF:
+                        Log.e("BleControlManager", "Configuration write command not accepted, invalid format or content");
+                        // Добавить необходимые действия при ошибке принятия команды записи конфигурации
+                        break;
+                    default:
+                        Log.e("BleControlManager", "Unknown response flag for configuration write command: " + flag);
+                        // Добавить необходимые действия при неизвестном флаге ответа на команду записи конфигурации
+                        break;
+                }
+            } else {
+                Log.e("BleControlManager", "Invalid response data length for configuration write command");
+            }
+        }
    }
 }

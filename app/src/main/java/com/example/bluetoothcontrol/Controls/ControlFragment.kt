@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import com.example.bluetoothcontrol.Devices.DevicesFragment
 import com.example.bluetoothcontrol.MainActivity
 import com.example.bluetoothcontrol.databinding.FragmentControlBinding
 
@@ -28,12 +29,14 @@ class ControlFragment : Fragment() {
     }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.btnBack.setOnClickListener {
-            requireActivity().supportFragmentManager.popBackStack()
-        }
     }
     private fun showToast(message: String) {
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+    }
+
+    companion object {
+        const val TAG = "ControlFragment"
+        fun newInstance() = ControlFragment()
     }
 
 }

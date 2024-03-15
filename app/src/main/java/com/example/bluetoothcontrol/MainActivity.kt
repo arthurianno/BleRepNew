@@ -8,6 +8,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.service.controls.Control
 import android.view.MenuItem
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
@@ -20,6 +21,7 @@ import com.example.bluetoothcontrol.Devices.DevicesFragment
 import com.example.bluetoothcontrol.ReadingData.ReadingDataFragment
 import com.example.bluetoothcontrol.AboutDevice.AboutDeviceFragment
 import com.example.bluetoothcontrol.Controls.BleControlManager
+import com.example.bluetoothcontrol.Controls.ControlFragment
 import com.example.bluetoothcontrol.Controls.ControlViewModel
 import com.example.bluetoothcontrol.Controls.ControlViewModelFactory
 import com.example.bluetoothcontrol.Logs.LogFragment
@@ -79,6 +81,7 @@ class MainActivity : AppCompatActivity(),DevicesAdapter.CallBack {
             R.id.readingDataFragment -> ReadingDataFragment.TAG
             R.id.writingDataFragment -> AboutDeviceFragment.TAG
             R.id.logFragment -> LogFragment.TAG
+            R.id.action_boot -> ControlFragment.TAG
             else -> null
         }
         if (fragmentTag != null && fragmentTag != currentFragmentTag) {
@@ -112,6 +115,7 @@ class MainActivity : AppCompatActivity(),DevicesAdapter.CallBack {
                 ReadingDataFragment.TAG -> ReadingDataFragment.newInstance(devAddress)
                 AboutDeviceFragment.TAG -> AboutDeviceFragment.newInstance()
                 LogFragment.TAG -> LogFragment.newInstance()
+                ControlFragment.TAG -> ControlFragment.newInstance()
                 else -> throw IllegalArgumentException("Unknown fragment tag: $tag")
             }
         }

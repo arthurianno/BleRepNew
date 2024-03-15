@@ -2,7 +2,8 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/my_nav">
+    android:id="@+id/my_nav"
+    app:startDestination="@id/logFragment">
 
     <fragment
         android:id="@+id/logFragment"
@@ -19,4 +20,9 @@
         android:name="com.example.bluetoothcontrol.AboutDevice.WritingDataFragment"
         android:label="fragment_writing_data"
         tools:layout="@layout/fragment_about_device" />
+    <fragment
+        android:id="@+id/action_boot"
+        android:name="com.example.bluetoothcontrol.Controls.ControlFragment"
+        tools:layout="@layout/fragment_control"
+        android:label="ControlFragment" />
 </navigation>

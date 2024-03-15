@@ -12,6 +12,7 @@ import androidx.annotation.RequiresApi;
 import androidx.lifecycle.MutableLiveData;
 import com.example.bluetoothcontrol.ReadingData.DataItem;
 
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -214,8 +215,8 @@ private static boolean isRequestBootMode = false;
 //        }
 //    }
 public void loadFirmware(EntireCheck entireCheck) {
-    AssetManager assetManager = getContext().getAssets();
-    try (InputStream inputStream = assetManager.open("AppOnline_4.5.0.bin")) {
+    String filePath = ControlFragment.Companion.getSelectedFilePathBin();
+    try (InputStream inputStream = new FileInputStream(filePath)) {
         BluetoothGattCharacteristic characteristic = controlRequest;
         if (isConnected() && characteristic != null) {
             long fileSize = inputStream.available(); // Получаем размер файла
@@ -295,8 +296,8 @@ public void loadFirmware(EntireCheck entireCheck) {
     }
 
     public void loadConfiguration() {
-        AssetManager assetManager = getContext().getAssets();
-        try (InputStream inputStream = assetManager.open("AppOnline_4.5.0.dat")) {
+        String filePath = ControlFragment.Companion.getSelectedFilePathDat();
+        try (InputStream inputStream = new FileInputStream(filePath)) {
             byte[] buffer = new byte[CONFIGURATION_SIZE];
             int bytesRead = inputStream.read(buffer);
             if (bytesRead == CONFIGURATION_SIZE) {

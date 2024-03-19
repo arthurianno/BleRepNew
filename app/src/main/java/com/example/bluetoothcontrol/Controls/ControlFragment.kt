@@ -93,12 +93,13 @@ class ControlFragment : Fragment() {
             Log.d(TAG, "File path: $path")
             val fileName = file.name
 
-            if (isFirstFileSelected) {
-                selectedFilePathBin = path
+            if (!isFirstFileSelected) {
+                selectedFilePathBin = uri.toString()
                 binding.fileTwo.text = "File2: $fileName"
                 binding.fileTwo.setTextColor(Color.GREEN)
+                isFirstFileSelected = true
             } else {
-                selectedFilePathDat = path
+                selectedFilePathDat = uri.toString()
                 binding.fileOne.text = "File1: $fileName"
                 binding.fileOne.setTextColor(Color.GREEN)
                 isFirstFileSelected = true

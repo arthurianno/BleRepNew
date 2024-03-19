@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.content.Context;
+import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
 
@@ -51,7 +52,6 @@ public class BleControlManager extends BleManager {
     private static final int MAX_ADDRESS = 0x1FFFF;
     private static final byte BOOT_MODE_START = (byte) 0x24;
     private static final byte FIRMWARE_CHUNK_CMD = (byte) 0x01;
-private static boolean isRequestBootMode = false;
     private static final int CHUNK_SIZE = 128;
     private static final int CONFIGURATION_SIZE = 16;
 
@@ -221,7 +221,7 @@ private static boolean isRequestBootMode = false;
 //    }
 public void loadFirmware(EntireCheck entireCheck) {
     String filePath = ControlFragment.Companion.getSelectedFilePathBin();
-    try (@SuppressLint({"NewApi", "LocalSuppress"}) InputStream inputStream = Files.newInputStream(Paths.get(filePath))) {
+    try (InputStream inputStream = getContext().getContentResolver().openInputStream(Uri.parse(filePath))) {
         BluetoothGattCharacteristic characteristic = controlRequest;
         if (isConnected() && characteristic != null) {
             long fileSize = inputStream.available(); // Получаем размер файла
@@ -260,8 +260,7 @@ public void loadFirmware(EntireCheck entireCheck) {
         if (isConnected()) {
             BluetoothGattCharacteristic characteristic = controlRequest;
             ControlViewModel.Companion.getEntireCheckQueue().add(entireCheck);
-            isRequestBootMode = true;
-            if (characteristic != null && isRequestBootMode) {
+            if (characteristic != null) {
                 int totalBytes = data.length;
 
                 // Отправить основные порции данных размером 128 байт
@@ -302,15 +301,12 @@ public void loadFirmware(EntireCheck entireCheck) {
 
     public void loadConfiguration() {
         String filePath = ControlFragment.Companion.getSelectedFilePathDat();
-        try (@SuppressLint({"NewApi", "LocalSuppress"}) InputStream inputStream = Files.newInputStream(Paths.get(filePath))) {
+        try (InputStream inputStream = getContext().getContentResolver().openInputStream(Uri.parse(filePath))) {
             byte[] buffer = new byte[CONFIGURATION_SIZE];
             int bytesRead = inputStream.read(buffer);
             if (bytesRead == CONFIGURATION_SIZE) {
                 // Отправить данные конфигурации по Bluetooth
                 writeConfiguration(buffer,EntireCheck.configurationBootMode);
-                for (int i = 0; i < 10; i++) {
-                    readDeviceState(EntireCheck.sendLastCommandResult,10);
-                }
             } else {
                 Log.e("BleControlManager", "Invalid configuration file size");
             }
@@ -735,22 +731,18 @@ public void loadFirmware(EntireCheck entireCheck) {
                 switch (flag) {
                     case 0x00:
                         Log.d("BleControlManager", "Command accepted");
-                        isRequestBootMode = true;
                         successfulOperationsCount++;
                         break;
                     case 0x01:
                         Log.d("BleControlManager", "Device busy, retry command");
-                        isRequestBootMode = false;
                         failedOperationsCount++;
                         break;
                     case 0x02:
                         Log.d("BleControlManager", "Previous write command failed");
-                        isRequestBootMode = false;
                         failedOperationsCount++;
                         break;
                     case (byte) 0xFF:
                         Log.d("BleControlManager", "Invalid command format or content");
-                        isRequestBootMode = false;
                         failedOperationsCount++;
                         break;
                     default:

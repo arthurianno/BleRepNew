@@ -36,15 +36,19 @@ public final class FragmentControlBinding implements ViewBinding {
   @NonNull
   public final ProgressBar progressBar;
 
+  @NonNull
+  public final TextView textViewHint;
+
   private FragmentControlBinding(@NonNull ConstraintLayout rootView, @NonNull Button button,
       @NonNull Button buttonProcessFiles, @NonNull TextView fileOne, @NonNull TextView fileTwo,
-      @NonNull ProgressBar progressBar) {
+      @NonNull ProgressBar progressBar, @NonNull TextView textViewHint) {
     this.rootView = rootView;
     this.button = button;
     this.buttonProcessFiles = buttonProcessFiles;
     this.fileOne = fileOne;
     this.fileTwo = fileTwo;
     this.progressBar = progressBar;
+    this.textViewHint = textViewHint;
   }
 
   @Override
@@ -104,8 +108,14 @@ public final class FragmentControlBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.textViewHint;
+      TextView textViewHint = ViewBindings.findChildViewById(rootView, id);
+      if (textViewHint == null) {
+        break missingId;
+      }
+
       return new FragmentControlBinding((ConstraintLayout) rootView, button, buttonProcessFiles,
-          fileOne, fileTwo, progressBar);
+          fileOne, fileTwo, progressBar, textViewHint);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

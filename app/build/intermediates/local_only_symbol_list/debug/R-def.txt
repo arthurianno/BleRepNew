@@ -52,6 +52,7 @@ id readingDataFragment
 id textAddress
 id textName
 id textView3
+id textViewHint
 id wrapStartScan
 id writingDataFragment
 layout activity_main

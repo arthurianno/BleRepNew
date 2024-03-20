@@ -44,6 +44,9 @@ public class BleControlManager extends BleManager {
     private static final ArrayList<DataItem> listOfDataItem = new ArrayList<>();
     private static final byte RAW_START_MARK = 0x21;
     private static final byte RAW_RD = (byte) 0x81;
+    private long startTime;
+    private long endTime;
+
     private static final byte WRITE_CMD = (byte) 0x01;
     private static final byte APPLY_CMD = (byte) 0xEE;
     private static final byte BOOT_RD = (byte) 0x81;
@@ -73,6 +76,26 @@ public class BleControlManager extends BleManager {
     @Override
     protected BleManagerGattCallback getGattCallback() {
         return new BleControlManagerGattCallBacks();
+    }
+    public void startTimer() {
+        startTime = System.currentTimeMillis();
+        long durationInMillis = startTime - startTime; // Получаем 0, как начальное время
+        long hours = (durationInMillis / (1000 * 60 * 60)) % 24;
+        long minutes = (durationInMillis / (1000 * 60)) % 60;
+        long seconds = (durationInMillis / 1000) % 60;
+        long milliseconds = durationInMillis % 1000;
+
+        Log.d("BleControlManager", String.format("Start time: %02d:%02d:%02d.%03d", hours, minutes, seconds, milliseconds));
+    }
+    public void stopTimer() {
+        endTime = System.currentTimeMillis();
+        long durationInMillis = endTime - startTime;
+        long hours = (durationInMillis / (1000 * 60 * 60)) % 24;
+        long minutes = (durationInMillis / (1000 * 60)) % 60;
+        long seconds = (durationInMillis / 1000) % 60;
+        long milliseconds = durationInMillis % 1000;
+
+        Log.d("BleControlManager", String.format("End time: %02d:%02d:%02d.%03d", hours, minutes, seconds, milliseconds));
     }
     public void sendCommand(String command, EntireCheck entireCheck) {
         if (isConnected() && controlRequest != null) {
@@ -224,6 +247,7 @@ public void loadFirmware(EntireCheck entireCheck) {
     try (InputStream inputStream = getContext().getContentResolver().openInputStream(Uri.parse(filePath))) {
         BluetoothGattCharacteristic characteristic = controlRequest;
         if (isConnected() && characteristic != null) {
+            startTimer();
             long fileSize = inputStream.available(); // Получаем размер файла
             int fullChunksCount = (int) (fileSize / CHUNK_SIZE);
             int remainingBytes = (int) (fileSize % CHUNK_SIZE);
@@ -387,8 +411,14 @@ public void loadFirmware(EntireCheck entireCheck) {
                         commandData,
                         BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
                 )
-                        .done(device -> Log.e("BleControlManager", "Configuration data sent"))
-                        .fail((device, status) -> Log.e("BleControlManager", "Failed to send configuration data: " + status))
+                        .done(device -> {
+                            Log.e("BleControlManager", "Configuration data sent");
+                            stopTimer();
+                        })
+                        .fail((device, status) -> {
+                            Log.e("BleControlManager", "Failed to send configuration data: " + status);
+                            stopTimer();
+                        })
                         .enqueue();
             } else {
                 Log.e("BleControlManager", "Control Request characteristic is null");
@@ -744,13 +774,13 @@ public void loadFirmware(EntireCheck entireCheck) {
             } else if (defaultResponse.contains("setraw.error")) {
                 Log.d("BleControlManager", " incorrect command");
             } else if (defaultResponse.contains("boot.ok")) {
-                requestMtu(247)
-                        .done(device -> Log.e("BleControlManager", "MTU request sent "))
-                        .fail((device, status) -> Log.e("BleControlManager", "Failed to send MTU request: " + status))
-                        .enqueue();
                 requestConnectionPriority(ConnectionPriorityRequest.CONNECTION_PRIORITY_HIGH)
                         .done(device -> Log.e("BleControlManager", "Interval request sent"))
                         .fail((device, status) -> Log.e("BleControlManager", "Failed to send Interval request: " + status))
+                        .enqueue();
+                requestMtu(247)
+                        .done(device -> Log.e("BleControlManager", "MTU request sent "))
+                        .fail((device, status) -> Log.e("BleControlManager", "Failed to send MTU request: " + status))
                         .enqueue();
                 loadFirmware(EntireCheck.BootModeResponse);
                 //readFirmware(EntireCheck.writingBootModeData);
@@ -810,6 +840,7 @@ public void loadFirmware(EntireCheck entireCheck) {
                     case 0x00:
                         Log.d("BleControlManager", "Configuration write command accepted");
                         // Добавить необходимые действия при успешном принятии команды записи конфигурации
+                        stopTimer();
                         Log.e("BleControlManager", "Configuration write command accepted " + bytesToHex(data));
                         break;
                     case (byte) 0xFF:

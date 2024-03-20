@@ -15,10 +15,16 @@ import com.example.bluetoothcontrol.databinding.FragmentControlBinding
 import android.net.Uri
 import android.util.Log
 import android.widget.Button
+import androidx.core.net.toUri
+import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.activityViewModels
 import com.example.bluetoothcontrol.ReadingData.ReadingDataFragment
 import com.example.bluetoothcontrol.SharedViewModel
 import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.util.zip.ZipEntry
+import java.util.zip.ZipInputStream
 
 class ControlFragment : Fragment() {
 
@@ -40,7 +46,7 @@ class ControlFragment : Fragment() {
         (activity as? MainActivity)?.showBottomNavigationView()
         buttonProcessFiles = binding.buttonProcessFiles
         binding.button.setOnClickListener {
-            showFileChooser()
+            showZipChooser()
         }
         return binding.root
     }
@@ -70,54 +76,61 @@ class ControlFragment : Fragment() {
         fun newInstance() = ControlFragment()
     }
 
-    private fun showFileChooser() {
-        val intent = Intent(Intent.ACTION_GET_CONTENT)
-        intent.type = "*/*"
+    private fun showZipChooser() {
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
         intent.addCategory(Intent.CATEGORY_OPENABLE)
-        try {
-            startActivityForResult(Intent.createChooser(intent, "Select File"), 100)
-        } catch (ex: Exception) {
-            showToast("Please install a file manager")
-        }
+        intent.type = "application/zip"
+        startActivityForResult(intent, 101)
     }
 
     @SuppressLint("SetTextI18n")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == 100 && resultCode == Activity.RESULT_OK && data != null) {
-            val uri: Uri? = data.data
-            val path: String = uri?.path ?: ""
-            val file = File(path)
-            Log.d(TAG, "File path: $path")
-            val fileName = file.name
+        if (requestCode == 101 && resultCode == Activity.RESULT_OK && data != null) {
+            val uri = data.data
+            uri?.let { zipUri ->
+                try {
+                    requireActivity().contentResolver.openInputStream(zipUri)?.use { inputStream ->
+                        val zipInputStream = ZipInputStream(inputStream)
+                        var entry: ZipEntry?
+                        var binFile: Uri? = null
+                        var datFile: Uri? = null
 
-            val fileException = fileName.substring(fileName.lastIndexOf("."))
-            if (!isFirstFileSelected) {
-                if(fileException.equals(".bin", ignoreCase = true)) {
-                    selectedFilePathBin = uri.toString()
-                    binding.fileTwo.text = "File2: $fileName"
-                    binding.fileTwo.setTextColor(Color.GREEN)
-                    isFirstFileSelected = true
-                }else{
-                    showToast("Выберите файл формата .bin")
-                }
-            } else {
-                if(fileException.equals(".dat", ignoreCase = true)) {
-                    selectedFilePathDat = uri.toString()
-                    binding.fileOne.text = "File1: $fileName"
-                    binding.fileOne.setTextColor(Color.GREEN)
-                    isFirstFileSelected = true
-                }
-            else {
-                showToast("Выберите файл формата .dat")
-                }
-            }
+                        while (zipInputStream.nextEntry.also { entry = it } != null) {
+                            val fileName = entry?.name ?: continue
+                            if (fileName.endsWith(".bin")) {
+                                binFile = createTempFile(fileName, ".bin").toUri()
+                                FileOutputStream(binFile.path).use { outputStream ->
+                                    zipInputStream.copyTo(outputStream)
+                                }
+                            } else if (fileName.endsWith(".dat")) {
+                                datFile = createTempFile(fileName, ".dat").toUri()
+                                FileOutputStream(datFile.path).use { outputStream ->
+                                    zipInputStream.copyTo(outputStream)
+                                }
+                            }
+                        }
 
-            // Проверяем, что оба файла выбраны
-            if (!selectedFilePathBin.isNullOrEmpty() && !selectedFilePathDat.isNullOrEmpty()) {
-                buttonProcessFiles.isEnabled = true // Включаем кнопку, если оба файла выбраны
+                        if (binFile != null && datFile != null) {
+                            // Оба файла найдены и их uri передаются в companion object
+                            selectedFilePathBin = binFile.toString()
+                            selectedFilePathDat = datFile.toString()
+                            binding.fileOne.text = "File1: ${binFile.path?.let { File(it).name }}"
+                            binding.fileTwo.text = "File2: ${datFile.path?.let { File(it).name }}"
+                            binding.fileOne.setTextColor(Color.GREEN)
+                            binding.fileTwo.setTextColor(Color.GREEN)
+                            buttonProcessFiles.isEnabled = true
+                        } else {
+                            showToast("Выберите .bin и .dat файлы внутри .zip папки")
+                        }
+                    }
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                    showToast("Ошибка при обработке .zip файла")
+                }
             }
         }
         super.onActivityResult(requestCode, resultCode, data)
     }
+
 }
 

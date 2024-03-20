@@ -93,16 +93,26 @@ class ControlFragment : Fragment() {
             Log.d(TAG, "File path: $path")
             val fileName = file.name
 
+            val fileException = fileName.substring(fileName.lastIndexOf("."))
             if (!isFirstFileSelected) {
-                selectedFilePathBin = uri.toString()
-                binding.fileTwo.text = "File2: $fileName"
-                binding.fileTwo.setTextColor(Color.GREEN)
-                isFirstFileSelected = true
+                if(fileException.equals(".bin", ignoreCase = true)) {
+                    selectedFilePathBin = uri.toString()
+                    binding.fileTwo.text = "File2: $fileName"
+                    binding.fileTwo.setTextColor(Color.GREEN)
+                    isFirstFileSelected = true
+                }else{
+                    showToast("Выберите файл формата .bin")
+                }
             } else {
-                selectedFilePathDat = uri.toString()
-                binding.fileOne.text = "File1: $fileName"
-                binding.fileOne.setTextColor(Color.GREEN)
-                isFirstFileSelected = true
+                if(fileException.equals(".dat", ignoreCase = true)) {
+                    selectedFilePathDat = uri.toString()
+                    binding.fileOne.text = "File1: $fileName"
+                    binding.fileOne.setTextColor(Color.GREEN)
+                    isFirstFileSelected = true
+                }
+            else {
+                showToast("Выберите файл формата .dat")
+                }
             }
 
             // Проверяем, что оба файла выбраны
@@ -112,7 +122,5 @@ class ControlFragment : Fragment() {
         }
         super.onActivityResult(requestCode, resultCode, data)
     }
-
-
 }
 

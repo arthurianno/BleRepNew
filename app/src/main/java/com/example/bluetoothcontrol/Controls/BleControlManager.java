@@ -78,7 +78,6 @@ public class BleControlManager extends BleManager {
             BluetoothGattCharacteristic characteristic = controlRequest;
             ControlViewModel.Companion.getEntireCheckQueue().add(entireCheck);
             if (characteristic != null) {
-                Log.d("BleControlManager", "message from command version");
                 byte[] data = command.getBytes();
                 writeCharacteristic(characteristic, data, BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT)
                         .done(device -> {
@@ -244,7 +243,6 @@ public void loadFirmware(EntireCheck entireCheck) {
                     writeFirmwareChunk(buffer, fullChunksCount * CHUNK_SIZE, entireCheck); // Передача остаточных данных и адреса
                 }
             }
-
             // После отправки всех данных прошивки загружаем конфигурацию
             loadConfiguration();
 
@@ -327,7 +325,6 @@ public void loadFirmware(EntireCheck entireCheck) {
                 System.arraycopy(address, 0, commandData, 2, 4); // Адрес
                 commandData[6] = (byte) data.length; // Количество байт данных
                 System.arraycopy(data, 0, commandData, 7, data.length); // Данные
-
                 writeCharacteristic(
                         characteristic,
                         commandData,
@@ -507,12 +504,8 @@ public void loadFirmware(EntireCheck entireCheck) {
                     handleWriteData(data);
                     break;
                 case default_command:
-                    Log.d("BleControlManager","data " + Arrays.toString(data));
+                    //Log.d("BleControlManager","data " + Arrays.toString(data));
                     handleDefaultCommand(data);
-                    break;
-                case BootMode:
-                    Log.d("BleControlManager","data " + Arrays.toString(data));
-                    handleBootModeResponse(data);
                     break;
                 case BootModeResponse:
                     Log.d("BleControlManager","data " + Arrays.toString(data));
@@ -521,11 +514,6 @@ public void loadFirmware(EntireCheck entireCheck) {
                 case configurationBootMode:
                     Log.d("BleControlManager","data " + Arrays.toString(data));
                     handleConfigurationWriteResponse(data);
-                    break;
-                case sendLastCommandResult:
-                    Log.d("BleControlManager","data " + Arrays.toString(data));
-
-                    handleLastCommandResultResponse(data);
                     break;
             }
             requestData.setValue(listOfDataItem);
@@ -681,14 +669,6 @@ public void loadFirmware(EntireCheck entireCheck) {
             if (pinResponse.contains("pin.ok")) {
                 Log.d("BleControlManager", "Pin code is correct");
                 //sendCommand("setraw",EntireCheck.default_command);
-                requestMtu(247)
-                        .done(device -> Log.e("BleControlManager", "MTU request sent " + getMtu()))
-                        .fail((device, status) -> Log.e("BleControlManager", "Failed to send MTU request: " + status))
-                        .enqueue();
-                requestConnectionPriority(ConnectionPriorityRequest.CONNECTION_PRIORITY_HIGH)
-                        .done(device -> Log.e("BleControlManager", "Interval request sent"))
-                        .fail((device, status) -> Log.e("BleControlManager", "Failed to send Interval request: " + status))
-                        .enqueue();
                 sendCommand("boot",EntireCheck.default_command);
             } else if (pinResponse.contains("pin.error")) {
                 Log.d("BleControlManager", "Pin code is incorrect");
@@ -704,6 +684,14 @@ public void loadFirmware(EntireCheck entireCheck) {
             } else if (defaultResponse.contains("setraw.error")) {
                 Log.d("BleControlManager", " incorrect command");
             } else if (defaultResponse.contains("boot.ok")) {
+                requestMtu(247)
+                        .done(device -> Log.e("BleControlManager", "MTU request sent "))
+                        .fail((device, status) -> Log.e("BleControlManager", "Failed to send MTU request: " + status))
+                        .enqueue();
+                requestConnectionPriority(ConnectionPriorityRequest.CONNECTION_PRIORITY_HIGH)
+                        .done(device -> Log.e("BleControlManager", "Interval request sent"))
+                        .fail((device, status) -> Log.e("BleControlManager", "Failed to send Interval request: " + status))
+                        .enqueue();
                 loadFirmware(EntireCheck.BootModeResponse);
                 Log.d("BleControlManager", "Device entered firmware update mode successfully");
             } else if (defaultResponse.contains("boot.error")) {
@@ -765,17 +753,16 @@ public void loadFirmware(EntireCheck entireCheck) {
                         break;
                     case (byte) 0xFF:
                         Log.e("BleControlManager", "Configuration write command not accepted, invalid format or content");
-                        // Добавить необходимые действия при ошибке принятия команды записи конфигурации
                         break;
                     default:
                         Log.e("BleControlManager", "Unknown response flag for configuration write command: " + flag);
-                        // Добавить необходимые действия при неизвестном флаге ответа на команду записи конфигурации
                         break;
                 }
             } else {
                 Log.e("BleControlManager", "Invalid response data length for configuration write command");
             }
         }
+
 
         private void handleLastCommandResultResponse(byte[] data){
             if (data.length >= 2) {

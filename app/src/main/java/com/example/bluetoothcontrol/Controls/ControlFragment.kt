@@ -42,9 +42,6 @@ class ControlFragment : Fragment() {
         binding.button.setOnClickListener {
             showFileChooser()
         }
-        binding.buttonProcessFiles.setOnClickListener{
-
-        }
         return binding.root
     }
 

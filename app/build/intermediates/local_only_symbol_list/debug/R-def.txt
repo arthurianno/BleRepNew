@@ -47,6 +47,7 @@ id nameOfAtributeLog
 id nameOfData
 id nameOfDataLog
 id nestedScrollView
+id progressBar
 id readingDataFragment
 id textAddress
 id textName

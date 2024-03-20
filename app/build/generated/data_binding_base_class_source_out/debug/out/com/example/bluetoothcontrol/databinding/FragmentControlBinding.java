@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -32,13 +33,18 @@ public final class FragmentControlBinding implements ViewBinding {
   @NonNull
   public final TextView fileTwo;
 
+  @NonNull
+  public final ProgressBar progressBar;
+
   private FragmentControlBinding(@NonNull ConstraintLayout rootView, @NonNull Button button,
-      @NonNull Button buttonProcessFiles, @NonNull TextView fileOne, @NonNull TextView fileTwo) {
+      @NonNull Button buttonProcessFiles, @NonNull TextView fileOne, @NonNull TextView fileTwo,
+      @NonNull ProgressBar progressBar) {
     this.rootView = rootView;
     this.button = button;
     this.buttonProcessFiles = buttonProcessFiles;
     this.fileOne = fileOne;
     this.fileTwo = fileTwo;
+    this.progressBar = progressBar;
   }
 
   @Override
@@ -92,8 +98,14 @@ public final class FragmentControlBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.progressBar;
+      ProgressBar progressBar = ViewBindings.findChildViewById(rootView, id);
+      if (progressBar == null) {
+        break missingId;
+      }
+
       return new FragmentControlBinding((ConstraintLayout) rootView, button, buttonProcessFiles,
-          fileOne, fileTwo);
+          fileOne, fileTwo, progressBar);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

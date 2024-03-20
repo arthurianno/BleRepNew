@@ -46,6 +46,7 @@ public class BleControlManager extends BleManager {
     private static final byte RAW_RD = (byte) 0x81;
     private static final byte WRITE_CMD = (byte) 0x01;
     private static final byte APPLY_CMD = (byte) 0xEE;
+    private static final byte BOOT_RD = (byte) 0x81;
     private static final byte RAW_ASK = (byte) 0x00;
     private static final byte BOOT_MODE_CMD = (byte) 0x12;
     private static final byte BOOT_MODE_SUCCESS = (byte) 0x00;
@@ -266,11 +267,67 @@ public void loadFirmware(EntireCheck entireCheck) {
                 while (offset < totalBytes) {
                     int chunkSize = Math.min(CHUNK_SIZE, totalBytes - offset);
                     byte[] chunk = Arrays.copyOfRange(data, offset, offset + chunkSize);
-
                     // Структура: <start> <cmd> <adr> <num> <data>
                     byte[] commandData = new byte[chunk.length + 7]; // заголовок + команда + адрес + количество байт данных
                     commandData[0] = BOOT_MODE_START;
                     commandData[1] = FIRMWARE_CHUNK_CMD; // Код команды для отправки порции данных
+
+                    // Адрес и количество данных устанавливаются
+                    byte[] addressBytes = ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(address).array();
+                    System.arraycopy(addressBytes, 0, commandData, 2, 4); // Адрес
+                    commandData[6] = (byte) chunk.length; // Количество байт данных
+                    System.arraycopy(chunk, 0, commandData, 7, chunk.length); // Данные
+
+                    // Отправка порции данных
+                    writeCharacteristic(characteristic, commandData, BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT)
+                            .enqueue();
+                    successfulOperationsCount++;
+                    Log.e("BleControlManager", String.valueOf(successfulOperationsCount));
+
+                    // Увеличение адреса для следующей порции данных
+                    address += chunkSize;
+
+                    offset += chunkSize;
+                }
+            } else {
+                Log.e("BleControlManager", "Control Request characteristic is null");
+            }
+        } else {
+            Log.e("BleControlManager", "Device is not connected");
+        }
+    }
+
+    public void readFirmware(EntireCheck entireCheck) {
+
+            BluetoothGattCharacteristic characteristic = controlRequest;
+            if (isConnected() && characteristic != null) {
+                int fullChunksCount = (int) ( 8192 / CHUNK_SIZE);
+                byte[] buffer = new byte[CHUNK_SIZE];
+                for (int i = 0; i < fullChunksCount; i++) {
+                        readFirmwareChunk(buffer, i * CHUNK_SIZE, entireCheck); // Передача данных и адреса
+                }
+
+            } else {
+                Log.e("BleControlManager", "Device is not connected or Control Request characteristic is null");
+            }
+        }
+
+    private void readFirmwareChunk(byte[] data, int address, EntireCheck entireCheck) {
+        if (isConnected()) {
+            BluetoothGattCharacteristic characteristic = controlRequest;
+            ControlViewModel.Companion.getEntireCheckQueue().add(entireCheck);
+            if (characteristic != null) {
+                int totalBytes = data.length;
+
+                // считать основные порции данных размером 128 байт
+                int offset = 0;
+                while (offset < totalBytes) {
+                    int chunkSize = Math.min(CHUNK_SIZE, totalBytes - offset);
+                    byte[] chunk = Arrays.copyOfRange(data, offset, offset + chunkSize);
+                    // Структура: <start> <cmd> <adr> <num> <data>
+                    byte[] commandData = new byte[chunk.length + 7]; // заголовок + команда + адрес + количество байт данных
+                    commandData[0] = BOOT_MODE_START;
+                    commandData[1] = BOOT_RD; // Код команды для отправки порции данных
 
                     // Адрес и количество данных устанавливаются
                     byte[] addressBytes = ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(address).array();
@@ -515,6 +572,9 @@ public void loadFirmware(EntireCheck entireCheck) {
                     Log.d("BleControlManager","data " + Arrays.toString(data));
                     handleConfigurationWriteResponse(data);
                     break;
+                case writingBootModeData:
+                    Log.d("BleControlManager","data " + Arrays.toString(data));
+
             }
             requestData.setValue(listOfDataItem);
         }
@@ -693,6 +753,7 @@ public void loadFirmware(EntireCheck entireCheck) {
                         .fail((device, status) -> Log.e("BleControlManager", "Failed to send Interval request: " + status))
                         .enqueue();
                 loadFirmware(EntireCheck.BootModeResponse);
+                //readFirmware(EntireCheck.writingBootModeData);
                 Log.d("BleControlManager", "Device entered firmware update mode successfully");
             } else if (defaultResponse.contains("boot.error")) {
                 Log.e("BleControlManager", "Error: Low battery level");

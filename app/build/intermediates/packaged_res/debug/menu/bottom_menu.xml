@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+    <item
+        android:id="@+id/readingDataFragment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:icon="@drawable/baseline_bookmark"
+        android:title="RAW MODE"
+        tools:ignore="HardcodedText" />
+    <item
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:title="LOGS"
+        android:id="@id/logFragment"
+        android:icon="@drawable/baseline_build_circle"
+        tools:ignore="HardcodedText" />
+    <item
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:title="TERMINAL MODE"
+        android:id="@+id/writingDataFragment"
+        android:icon="@drawable/baseline_create"
+        tools:ignore="AlwaysShowAction,HardcodedText" />
+    <item
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:title="BOOT"
+        android:id="@+id/action_boot"
+        android:icon="@drawable/baseline_album_24"
+        tools:ignore="HardcodedText" />
+</menu>

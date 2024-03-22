@@ -626,7 +626,7 @@ public void loadFirmware(EntireCheck entireCheck) {
                     handleDefaultCommand(data);
                     break;
                 case BootModeResponse:
-                    Log.d("BleControlManager","data " + Arrays.toString(data));
+                    Log.d("BleControlManager","data " + Arrays.toString(data) + " " + bytesToHex(data));
                     handleBootWriteResponse(data);
                     break;
                 case configurationBootMode:
@@ -891,8 +891,9 @@ public void loadFirmware(EntireCheck entireCheck) {
                         failedOperationsCount++;
                         break;
                     case (byte) 0xFF:
-                        Log.d("BleControlManager", "Invalid command format or content");
+                        Log.d("BleControlManager", "Invalid command format or content ");
                         failedOperationsCount++;
+
                         break;
                     default:
                         Log.e("BleControlManager", "Unknown response flag: " + flag);

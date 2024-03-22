@@ -60,7 +60,7 @@ class ControlViewModel(private val adapterProvider: BluetoothAdapterProvider, pr
                     showToast("Connection success")
                     _isConnected.postValue(true)
                     Log.d("ControlViewModel", "Connection success ${_isConnected.value}")
-                    if (savedPinCode.isNullOrBlank()) {
+                    if (savedPinCode != null) {
                         controlManager.sendPinCommand(pinCode ?: "", EntireCheck.PIN_CODE_RESULT)
                         savePinCodeForDevice(deviceAddress,pinCode ?: "")
                     }

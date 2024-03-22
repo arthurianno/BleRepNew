@@ -23,9 +23,20 @@ import java.util.Queue
 class ControlViewModel(private val adapterProvider: BluetoothAdapterProvider, private val context: Context): ViewModel() {
     private val controlManager = MainActivity.controlManager
     private val _isConnected = MutableLiveData<Boolean>().apply { value = false }
+    private val sharedPreferences = context.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
     val isConnected: LiveData<Boolean> get() = _isConnected
     var pinCode: String? = null
     private var lastConnectedDevice: BluetoothDevice? = null
+
+
+    init {
+        //  есть ли сохраненный пин-код для устройства
+        val savedPinCode = getSavedPinCode()
+        if (!savedPinCode.isNullOrBlank()) {
+            pinCode = savedPinCode
+        }
+    }
+
 
     fun toggleConnection(deviceAddress: String) {
         if (_isConnected.value == true) {
@@ -37,18 +48,21 @@ class ControlViewModel(private val adapterProvider: BluetoothAdapterProvider, pr
     fun connect(deviceAddress: String) {
         if (_isConnected.value == false) {
             val device = adapterProvider.getAdapter().getRemoteDevice(deviceAddress)
+            lastConnectedDevice = device
+            // Проверяем, есть ли сохраненный пин-код для этого устройства
+            val savedPinCode = getSavedPinCodeForDevice(device.address)
+            if (!savedPinCode.isNullOrBlank()) {
+                pinCode = savedPinCode
+            }
             controlManager.connect(device)
                 .useAutoConnect(false)
                 .done {
                     showToast("Connection success")
                     _isConnected.postValue(true)
                     Log.d("ControlViewModel", "Connection success ${_isConnected.value}")
-                    lastConnectedDevice = device
-                    val savedPinCode = "123"
-                    if (savedPinCode.isNotEmpty()) {
-                        controlManager.sendPinCommand(savedPinCode, EntireCheck.PIN_CODE_RESULT)
-                    } else {
-                        // savePinCode(newlyEnteredPinCode) // Сохранить введенный пин-код
+                    if (savedPinCode.isNullOrBlank()) {
+                        controlManager.sendPinCommand(pinCode ?: "", EntireCheck.PIN_CODE_RESULT)
+                        savePinCodeForDevice(deviceAddress,pinCode ?: "")
                     }
                 }
                 .fail { _, status ->
@@ -116,16 +130,21 @@ class ControlViewModel(private val adapterProvider: BluetoothAdapterProvider, pr
         }
     }
 
-    private fun savePinCode(pinCode: String) {
+
+    private fun getSavedPinCode(): String? {
+        return sharedPreferences.getString(lastConnectedDevice?.address, null)
+    }
+
+    private fun savePinCodeForDevice(deviceAddress: String, pinCode: String) {
         val sharedPreferences = context.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
         val editor = sharedPreferences.edit()
-        editor.putString("pinCode", pinCode)
+        editor.putString(deviceAddress, pinCode)
         editor.apply()
     }
 
-    private fun getSavedPinCode(): String? {
+    fun getSavedPinCodeForDevice(deviceAddress: String): String? {
         val sharedPreferences = context.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
-        return sharedPreferences.getString("pinCode", null)
+        return sharedPreferences.getString(deviceAddress, null)
     }
 
 

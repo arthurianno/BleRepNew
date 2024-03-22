@@ -106,7 +106,7 @@ class DevicesFragment : Fragment(), DevicesAdapter.CallBack {
             sharedViewModel.updateDeviceAddress(deviceAddress)
             sharedViewModel.updateDevName(device.name.toString())
             Log.e("DevicesFragment", "Update address $deviceAddress")
-            showPinInputDialog(deviceAddress)
+            showPinInputDialogOrConnect(deviceAddress)
         }
     }
 
@@ -135,6 +135,30 @@ class DevicesFragment : Fragment(), DevicesAdapter.CallBack {
             }
 
         alertDialogBuilder.create().show()
+    }
+
+    private fun showPinInputDialogOrConnect(deviceAddress: String) {
+        val savedPinCode = controlViewModel.getSavedPinCodeForDevice(deviceAddress)
+        if (savedPinCode != null) {
+            // Пин-код найден в SharedPreferences, используем его для установки соединения
+            controlViewModel.pinCode = savedPinCode
+            val existingReadingDataFragment = parentFragmentManager.findFragmentByTag(ReadingDataFragment.TAG) as? ReadingDataFragment
+            if (existingReadingDataFragment != null && controlViewModel.isConnected.value != false) {
+                parentFragmentManager.beginTransaction()
+                    .addToBackStack(null)
+                    .replace(R.id.fragmentContainer, existingReadingDataFragment)
+                    .commit()
+            } else {
+                val readingDataFragment = ReadingDataFragment.newInstance(deviceAddress)
+                parentFragmentManager.beginTransaction()
+                    .addToBackStack(null)
+                    .replace(R.id.fragmentContainer, readingDataFragment, ReadingDataFragment.TAG)
+                    .commit()
+            }
+        } else {
+            // Пин-код не найден в SharedPreferences, отображаем диалог для ввода пин-кода
+            showPinInputDialog(deviceAddress)
+        }
     }
 
     private val checkLocation = registerForActivityResult(ActivityResultContracts.RequestPermission()){granted ->

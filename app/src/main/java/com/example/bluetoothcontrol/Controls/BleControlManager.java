@@ -15,19 +15,19 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.example.bluetoothcontrol.ReadingData.DataItem;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Objects;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import no.nordicsemi.android.ble.BleManager;
 import no.nordicsemi.android.ble.ConnectionPriorityRequest;
@@ -46,6 +46,8 @@ public class BleControlManager extends BleManager {
     private static final byte RAW_RD = (byte) 0x81;
     private long startTime;
     private long endTime;
+    private boolean battCheck = false;
+    private boolean verCheck = false;
 
     private static final byte WRITE_CMD = (byte) 0x01;
     private static final byte APPLY_CMD = (byte) 0xEE;
@@ -451,6 +453,35 @@ public void loadFirmware(EntireCheck entireCheck) {
         }
     }
 
+    private boolean isSoftwareVersionInRange(String version, String minRange, String maxRange) {
+        String[] currentVersionParts = version.split("\\.");
+        String[] minRangeParts = minRange.split("\\.");
+        String[] maxRangeParts = maxRange.split("\\.");
+
+        // Преобразование строк в числа для сравнения
+        int[] currentVersionNumbers = new int[3];
+        int[] minRangeNumbers = new int[3];
+        int[] maxRangeNumbers = new int[3];
+
+        for (int i = 0; i < 3; i++) {
+            currentVersionNumbers[i] = Integer.parseInt(currentVersionParts[i]);
+            minRangeNumbers[i] = Integer.parseInt(minRangeParts[i]);
+            maxRangeNumbers[i] = Integer.parseInt(maxRangeParts[i]);
+        }
+
+        // Сравнение версии программного обеспечения с диапазоном
+        for (int i = 0; i < 3; i++) {
+            if (currentVersionNumbers[i] < minRangeNumbers[i] || currentVersionNumbers[i] > maxRangeNumbers[i]) {
+                return false;
+            } else if (currentVersionNumbers[i] > minRangeNumbers[i] && currentVersionNumbers[i] < maxRangeNumbers[i]) {
+                return true;
+            }
+        }
+
+        // Если версия программного обеспечения находится в указанном диапазоне
+        return true;
+    }
+
 
 
 
@@ -759,7 +790,8 @@ public void loadFirmware(EntireCheck entireCheck) {
             if (pinResponse.contains("pin.ok")) {
                 Log.d("BleControlManager", "Pin code is correct");
                 //sendCommand("setraw",EntireCheck.default_command);
-                sendCommand("boot",EntireCheck.default_command);
+                sendCommand("version",EntireCheck.default_command);
+                sendCommand("battery",EntireCheck.default_command);
             } else if (pinResponse.contains("pin.error")) {
                 Log.d("BleControlManager", "Pin code is incorrect");
             } else {
@@ -771,7 +803,46 @@ public void loadFirmware(EntireCheck entireCheck) {
             if (defaultResponse.contains("setraw.ok")) {
                 Log.d("BleControlManager", "RAW correct");
                 ControlViewModel.Companion.readDeviceProfile();
-            } else if (defaultResponse.contains("setraw.error")) {
+            } else if (defaultResponse.contains("hw"))  {
+                Pattern pattern = Pattern.compile("sw:(\\d+\\.\\d+\\.\\d+)");
+                Matcher matcher = pattern.matcher(defaultResponse);
+                if (matcher.find()) {
+                    String softwareVersion = matcher.group(1);
+                    Log.d("BleControlManager", "Software Version: " + softwareVersion);
+
+                    // Проверка версии программного обеспечения на соответствие диапазону
+                    if (isSoftwareVersionInRange(Objects.requireNonNull(softwareVersion), "4.5.0", "4.9.9")) {
+                        // Версия программного обеспечения находится в диапазоне
+                        Log.d("BleControlManager", "Software version is in range.");
+                        verCheck = true;
+                    } else {
+                        // Версия программного обеспечения НЕ находится в диапазоне
+                        Log.d("BleControlManager", "Software version is not in range.");
+                        verCheck = false;
+                    }
+                } else {
+                    Log.e("BleControlManager", "Software version not found in response.");
+                }
+            }else if (defaultResponse.contains(".t")) {
+                // Регулярное выражение для извлечения уровня заряда
+                Pattern batteryPattern = Pattern.compile("b(\\d+)");
+                Matcher batteryMatcher = batteryPattern.matcher(defaultResponse);
+                if (batteryMatcher.find()) {
+                    int batteryLevel = Integer.parseInt(Objects.requireNonNull(batteryMatcher.group(1)));
+                    // Проверка уровня заряда
+                    if (batteryLevel == 3) {
+                        Log.d("BleControlManager", "Battery level is normal. " + defaultResponse);
+                        battCheck = true;
+                        sendCommand("boot",EntireCheck.default_command);
+                    } else {
+                        Log.e("BleControlManager", "Battery level is not normal.");
+                        battCheck = false;
+                    }
+                } else {
+                    Log.e("BleControlManager", "Invalid battery response format. " + defaultResponse);
+                    battCheck = false;
+                }
+            }else if (defaultResponse.contains("setraw.error")) {
                 Log.d("BleControlManager", " incorrect command");
             } else if (defaultResponse.contains("boot.ok")) {
                 requestConnectionPriority(ConnectionPriorityRequest.CONNECTION_PRIORITY_HIGH)
@@ -787,7 +858,6 @@ public void loadFirmware(EntireCheck entireCheck) {
                 Log.d("BleControlManager", "Device entered firmware update mode successfully");
             } else if (defaultResponse.contains("boot.error")) {
                 Log.e("BleControlManager", "Error: Low battery level");
-                // Здесь можно добавить код, который будет выполняться при ошибке из-за низкого уровня заряда батареи
             } else {
                 Log.e("BleControlManager", "Invalid response: " + defaultResponse);
             }

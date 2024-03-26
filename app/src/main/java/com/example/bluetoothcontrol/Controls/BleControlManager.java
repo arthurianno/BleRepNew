@@ -892,7 +892,6 @@ public void loadFirmware(EntireCheck entireCheck) {
                     case (byte) 0xFF:
                         Log.d("BleControlManager", "Invalid command format or content ");
                         failedOperationsCount++;
-
                         break;
                     default:
                         Log.e("BleControlManager", "Unknown response flag: " + flag);
@@ -908,7 +907,6 @@ public void loadFirmware(EntireCheck entireCheck) {
 
                 switch (flag) {
                     case 0x00:
-                        Log.d("BleControlManager", "Configuration write command accepted");
                         // Добавить необходимые действия при успешном принятии команды записи конфигурации
                         stage = true;
                         stopTimer();
@@ -916,9 +914,13 @@ public void loadFirmware(EntireCheck entireCheck) {
                         break;
                     case (byte) 0xFF:
                         Log.e("BleControlManager", "Configuration write command not accepted, invalid format or content");
+                        stage = false;
+                        stopTimer();
                         break;
                     default:
                         Log.e("BleControlManager", "Unknown response flag for configuration write command: " + flag);
+                        stage = false;
+                        stopTimer();
                         break;
                 }
             } else {

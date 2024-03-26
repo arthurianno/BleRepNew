@@ -77,11 +77,11 @@ class ControlFragment : Fragment() {
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
     }
 
-    fun startProcess() {
+    private fun startProcess() {
         binding.progressBar.visibility = View.VISIBLE
     }
 
-    fun finishProcess(stage : Boolean) {
+    private fun finishProcess(stage : Boolean) {
         if(stage){
             binding.progressBar.visibility = View.GONE
             binding.checkmark.visibility = View.VISIBLE

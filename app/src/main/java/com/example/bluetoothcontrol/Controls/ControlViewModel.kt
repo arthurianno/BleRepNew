@@ -32,8 +32,10 @@ class ControlViewModel(private val adapterProvider: BluetoothAdapterProvider, pr
     init {
         //  есть ли сохраненный пин-код для устройства
         val savedPinCode = getSavedPinCode()
-        if (!savedPinCode.isNullOrBlank()) {
+        if (savedPinCode != null) {
             pinCode = savedPinCode
+        }else{
+            Log.e("ControlViewModel","PinCode is $pinCode")
         }
     }
 
@@ -51,7 +53,7 @@ class ControlViewModel(private val adapterProvider: BluetoothAdapterProvider, pr
             lastConnectedDevice = device
             // Проверяем, есть ли сохраненный пин-код для этого устройства
             val savedPinCode = getSavedPinCodeForDevice(device.address)
-            if (!savedPinCode.isNullOrBlank()) {
+            if (savedPinCode != null) {
                 pinCode = savedPinCode
             }
             controlManager.connect(device)
@@ -62,6 +64,7 @@ class ControlViewModel(private val adapterProvider: BluetoothAdapterProvider, pr
                     Log.d("ControlViewModel", "Connection success ${_isConnected.value}")
                     if (savedPinCode != null) {
                         controlManager.sendPinCommand(pinCode ?: "", EntireCheck.PIN_CODE_RESULT)
+                        Log.d("ControlViewModel", "Saving PIN-кода for device: $deviceAddress, PIN: $pinCode")
                         savePinCodeForDevice(deviceAddress,pinCode ?: "")
                     }
                 }
@@ -71,6 +74,8 @@ class ControlViewModel(private val adapterProvider: BluetoothAdapterProvider, pr
                 }
                 .enqueue()
             controlManager.setConnectionObserver(connectionObserver)
+        }else{
+            Log.e("ControlViewModel","PinCode is $pinCode")
         }
     }
 
@@ -135,7 +140,7 @@ class ControlViewModel(private val adapterProvider: BluetoothAdapterProvider, pr
         return sharedPreferences.getString(lastConnectedDevice?.address, null)
     }
 
-    private fun savePinCodeForDevice(deviceAddress: String, pinCode: String) {
+    fun savePinCodeForDevice(deviceAddress: String, pinCode: String) {
         val sharedPreferences = context.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
         val editor = sharedPreferences.edit()
         editor.putString(deviceAddress, pinCode)

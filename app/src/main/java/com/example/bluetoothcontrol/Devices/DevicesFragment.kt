@@ -110,14 +110,14 @@ class DevicesFragment : Fragment(), DevicesAdapter.CallBack {
         }
     }
 
-     fun showPinInputDialog(deviceAddress: String) {
+     private fun showPinInputDialog(deviceAddress: String) {
         val editTextPin = EditText(requireContext())
         val alertDialogBuilder = AlertDialog.Builder(requireContext())
             .setTitle("Введите ПИН-КОД")
             .setView(editTextPin)
             .setPositiveButton("OK") { dialog, _ ->
                 val pinCode = editTextPin.text.toString()
-                controlViewModel.pinCode = pinCode
+                controlViewModel.savePinCodeForDevice(deviceAddress,pinCode)
                 dialog.dismiss()
                 val existingReadingDataFragment = parentFragmentManager.findFragmentByTag(ReadingDataFragment.TAG) as? ReadingDataFragment
                 if (existingReadingDataFragment != null && controlViewModel.isConnected.value != false) {
@@ -139,6 +139,7 @@ class DevicesFragment : Fragment(), DevicesAdapter.CallBack {
 
     private fun showPinInputDialogOrConnect(deviceAddress: String) {
         val savedPinCode = controlViewModel.getSavedPinCodeForDevice(deviceAddress)
+        Log.d("ControlViewModel", "Getting saved PIN-Code for device: $deviceAddress, PIN: $savedPinCode")
         if (savedPinCode != null) {
             // Пин-код найден в SharedPreferences, используем его для установки соединения
             controlViewModel.pinCode = savedPinCode

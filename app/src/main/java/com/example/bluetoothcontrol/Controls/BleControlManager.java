@@ -626,7 +626,7 @@ public void loadFirmware(EntireCheck entireCheck) {
                     handleDefaultCommand(data);
                     break;
                 case BootModeResponse:
-                    Log.d("BleControlManager","data " + Arrays.toString(data) + " " + bytesToHex(data));
+                    Log.d("BleControlManager","data array type " + Arrays.toString(data) + " " + " data HEX type " + bytesToHex(data));
                     handleBootWriteResponse(data);
                     break;
                 case configurationBootMode:
@@ -830,7 +830,7 @@ public void loadFirmware(EntireCheck entireCheck) {
                 if (batteryMatcher.find()) {
                     int batteryLevel = Integer.parseInt(Objects.requireNonNull(batteryMatcher.group(1)));
                     // Проверка уровня заряда
-                    if (batteryLevel == 3) {
+                    if (batteryLevel == 3 || batteryLevel == 2) {
                         Log.d("BleControlManager", "Battery level is normal. " + defaultResponse);
                         battCheck = true;
                         sendCommand("boot",EntireCheck.default_command);

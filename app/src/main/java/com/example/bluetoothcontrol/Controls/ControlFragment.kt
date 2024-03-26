@@ -15,6 +15,8 @@ import com.example.bluetoothcontrol.databinding.FragmentControlBinding
 import android.net.Uri
 import android.util.Log
 import android.widget.Button
+import android.widget.ImageView
+import android.widget.ProgressBar
 import androidx.core.net.toUri
 import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.activityViewModels
@@ -26,13 +28,13 @@ import java.io.IOException
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 
+@Suppress("DEPRECATION")
 class ControlFragment : Fragment() {
 
     private var _binding: FragmentControlBinding? = null
     private val binding: FragmentControlBinding get() = _binding!!
     private lateinit var controlViewModel: ControlViewModel
     private lateinit var controlModel: BleControlManager
-    private var isFirstFileSelected = false
     private lateinit var buttonProcessFiles: Button
     private val sharedViewModel: SharedViewModel by activityViewModels()
 
@@ -62,12 +64,33 @@ class ControlFragment : Fragment() {
             }else{
                 Log.e(ReadingDataFragment.TAG,"address $deviceAddress is null ")
             }
+            controlModel.setTimerCallback { stage ->
+                if(stage){
+                    startProcess()
+                }else{
+                    finishProcess(stage)
+                }
+            }
         }
     }
-
     private fun showToast(message: String) {
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
     }
+
+    fun startProcess() {
+        binding.progressBar.visibility = View.VISIBLE
+    }
+
+    fun finishProcess(stage : Boolean) {
+        if(stage){
+            binding.progressBar.visibility = View.GONE
+            binding.checkmark.visibility = View.VISIBLE
+        }else{
+            binding.progressBar.visibility = View.GONE
+            binding.errormark.visibility = View.VISIBLE
+        }
+    }
+
 
     companion object {
         const val TAG = "ControlFragment"

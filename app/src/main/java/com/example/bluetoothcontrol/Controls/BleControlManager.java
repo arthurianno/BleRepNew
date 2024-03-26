@@ -47,12 +47,14 @@ public class BleControlManager extends BleManager {
     private long startTime;
     private long endTime;
     private boolean battCheck = false;
+    private boolean stage = false;
     private boolean verCheck = false;
 
     private static final byte WRITE_CMD = (byte) 0x01;
     private static final byte APPLY_CMD = (byte) 0xEE;
     private static final byte BOOT_RD = (byte) 0x81;
     private static final byte RAW_ASK = (byte) 0x00;
+    private TimerCallback timerCallback;
     private static final byte BOOT_MODE_CMD = (byte) 0x12;
     private static final byte BOOT_MODE_SUCCESS = (byte) 0x00;
     private static final int MAX_ADDRESS = 0x1FFFF;
@@ -81,23 +83,23 @@ public class BleControlManager extends BleManager {
     }
     public void startTimer() {
         startTime = System.currentTimeMillis();
-        long durationInMillis = startTime - startTime; // Получаем 0, как начальное время
-        long hours = (durationInMillis / (1000 * 60 * 60)) % 24;
-        long minutes = (durationInMillis / (1000 * 60)) % 60;
-        long seconds = (durationInMillis / 1000) % 60;
-        long milliseconds = durationInMillis % 1000;
+        long durationInMillis = 0; // Начальное значение таймера
+        if (timerCallback != null) {
+            timerCallback.onTick(stage);
+        }
+        Log.d("BleControlManager", "Start time: " + durationInMillis);
+    }
 
-        Log.d("BleControlManager", String.format("Start time: %02d:%02d:%02d.%03d", hours, minutes, seconds, milliseconds));
+    public void setTimerCallback(TimerCallback callback) {
+        this.timerCallback = callback;
     }
     public void stopTimer() {
         endTime = System.currentTimeMillis();
         long durationInMillis = endTime - startTime;
-        long hours = (durationInMillis / (1000 * 60 * 60)) % 24;
-        long minutes = (durationInMillis / (1000 * 60)) % 60;
-        long seconds = (durationInMillis / 1000) % 60;
-        long milliseconds = durationInMillis % 1000;
-
-        Log.d("BleControlManager", String.format("End time: %02d:%02d:%02d.%03d", hours, minutes, seconds, milliseconds));
+        if (timerCallback != null) {
+            timerCallback.onTick(stage);
+        }
+        Log.d("BleControlManager", "End time: " + durationInMillis);
     }
     public void sendCommand(String command, EntireCheck entireCheck) {
         if (isConnected() && controlRequest != null) {
@@ -249,6 +251,7 @@ public void loadFirmware(EntireCheck entireCheck) {
     try (InputStream inputStream = getContext().getContentResolver().openInputStream(Uri.parse(filePath))) {
         BluetoothGattCharacteristic characteristic = controlRequest;
         if (isConnected() && characteristic != null) {
+            stage = true;
             startTimer();
             long fileSize = inputStream.available(); // Получаем размер файла
             int fullChunksCount = (int) (fileSize / CHUNK_SIZE);
@@ -415,10 +418,12 @@ public void loadFirmware(EntireCheck entireCheck) {
                 )
                         .done(device -> {
                             Log.e("BleControlManager", "Configuration data sent");
+                            stage = true;
                             stopTimer();
                         })
                         .fail((device, status) -> {
                             Log.e("BleControlManager", "Failed to send configuration data: " + status);
+                            stage = false;
                             stopTimer();
                         })
                         .enqueue();
@@ -487,15 +492,19 @@ public void loadFirmware(EntireCheck entireCheck) {
 
     //// BootMode ////
 
-    private  String bytesToHex(byte[] bytes) {
+    private String bytesToHex(byte[] bytes) {
         ByteBuffer buffer = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
         StringBuilder hex = new StringBuilder();
         hex.append("0x");
         while (buffer.hasRemaining()) {
             hex.append(String.format("%02X", buffer.get() & 0xFF));
+            if (buffer.hasRemaining()) {
+                hex.append(","); // Добавляем запятую, если еще остались байты
+            }
         }
         return hex.toString();
     }
+
 
 
 
@@ -618,7 +627,7 @@ public void loadFirmware(EntireCheck entireCheck) {
                     handleT10ref_C(data,EntireCheck.T10ref_C.name());
                     break;
                 case WRITE:
-                    Log.d("BleControlManager","data " + Arrays.toString(data));
+                    Log.d("BleControlManager", " data HEX type " + bytesToHex(data));
                     handleWriteData(data);
                     break;
                 case default_command:
@@ -626,15 +635,15 @@ public void loadFirmware(EntireCheck entireCheck) {
                     handleDefaultCommand(data);
                     break;
                 case BootModeResponse:
-                    Log.d("BleControlManager","data array type " + Arrays.toString(data) + " " + " data HEX type " + bytesToHex(data));
+                    Log.d("BleControlManager", " data HEX type " + bytesToHex(data));
                     handleBootWriteResponse(data);
                     break;
                 case configurationBootMode:
-                    Log.d("BleControlManager","data " + Arrays.toString(data));
+                    Log.d("BleControlManager", " data HEX type " + bytesToHex(data));
                     handleConfigurationWriteResponse(data);
                     break;
                 case writingBootModeData:
-                    Log.d("BleControlManager","data " + Arrays.toString(data));
+                    Log.d("BleControlManager", " data HEX type " + bytesToHex(data));
 
             }
             requestData.setValue(listOfDataItem);
@@ -862,16 +871,6 @@ public void loadFirmware(EntireCheck entireCheck) {
                 Log.e("BleControlManager", "Invalid response: " + defaultResponse);
             }
         }
-        private void handleBootModeResponse(byte[] data) {
-            String bootResponse = new String(data, StandardCharsets.UTF_8);
-            if (bootResponse.contains("boot.ok")) {
-                Log.d("BleControlManager", "BOOT correct");
-            } else if(bootResponse.contains("boot.error")) {
-                Log.e("BleControlManager", "ERROR Batt low");
-            }else{
-                Log.e("BleControlManager", "Invalid BOOT response: " + bootResponse);
-            }
-        }
         private void handleBootWriteResponse(byte[] data) {
             if (data.length >= 2) {
                 byte flag = data[0];
@@ -911,6 +910,7 @@ public void loadFirmware(EntireCheck entireCheck) {
                     case 0x00:
                         Log.d("BleControlManager", "Configuration write command accepted");
                         // Добавить необходимые действия при успешном принятии команды записи конфигурации
+                        stage = true;
                         stopTimer();
                         Log.e("BleControlManager", "Configuration write command accepted " + bytesToHex(data));
                         break;
@@ -958,4 +958,7 @@ public void loadFirmware(EntireCheck entireCheck) {
             }
         }
    }
+    public interface TimerCallback {
+        void onTick(boolean Stage);
+    }
 }

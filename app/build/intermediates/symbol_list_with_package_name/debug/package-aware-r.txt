@@ -3029,7 +3029,9 @@ drawable baseline_bluetooth_24
 drawable baseline_bluetooth_disabled_24
 drawable baseline_bookmark
 drawable baseline_build_circle
+drawable baseline_check_24
 drawable baseline_clear_24
+drawable baseline_close_24
 drawable baseline_create
 drawable baseline_home
 drawable btn_checkbox_checked_mtrl
@@ -3264,6 +3266,7 @@ id chain2
 id chains
 id checkbox
 id checked
+id checkmark
 id chronometer
 id circle_center
 id clear_text
@@ -3334,6 +3337,7 @@ id end
 id endToStart
 id enterAlways
 id enterAlwaysCollapsed
+id errormark
 id exitUntilCollapsed
 id expand_activities_button
 id expanded_menu

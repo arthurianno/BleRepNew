@@ -15,7 +15,9 @@ drawable baseline_bluetooth_24
 drawable baseline_bluetooth_disabled_24
 drawable baseline_bookmark
 drawable baseline_build_circle
+drawable baseline_check_24
 drawable baseline_clear_24
+drawable baseline_close_24
 drawable baseline_create
 drawable baseline_home
 drawable ic_launcher_background
@@ -30,10 +32,12 @@ id button
 id buttonProcessFiles
 id buttonRDData
 id buttonWRData
+id checkmark
 id containerLayout
 id dataRecView
 id deviceName
 id devicesRecycler
+id errormark
 id fileOne
 id fileTwo
 id fragmentContainer

@@ -5,9 +5,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewbinding.ViewBinding;
@@ -19,10 +20,13 @@ import java.lang.String;
 
 public final class FragmentReadingDataBinding implements ViewBinding {
   @NonNull
-  private final ConstraintLayout rootView;
+  private final RelativeLayout rootView;
 
   @NonNull
-  public final ConstraintLayout DataFrag;
+  public final RelativeLayout DataFrag;
+
+  @NonNull
+  public final ImageButton backButton;
 
   @NonNull
   public final Button buttonRDData;
@@ -36,12 +40,13 @@ public final class FragmentReadingDataBinding implements ViewBinding {
   @NonNull
   public final NestedScrollView nestedScrollView;
 
-  private FragmentReadingDataBinding(@NonNull ConstraintLayout rootView,
-      @NonNull ConstraintLayout DataFrag, @NonNull Button buttonRDData,
-      @NonNull Button buttonWRData, @NonNull RecyclerView dataRecView,
+  private FragmentReadingDataBinding(@NonNull RelativeLayout rootView,
+      @NonNull RelativeLayout DataFrag, @NonNull ImageButton backButton,
+      @NonNull Button buttonRDData, @NonNull Button buttonWRData, @NonNull RecyclerView dataRecView,
       @NonNull NestedScrollView nestedScrollView) {
     this.rootView = rootView;
     this.DataFrag = DataFrag;
+    this.backButton = backButton;
     this.buttonRDData = buttonRDData;
     this.buttonWRData = buttonWRData;
     this.dataRecView = dataRecView;
@@ -50,7 +55,7 @@ public final class FragmentReadingDataBinding implements ViewBinding {
 
   @Override
   @NonNull
-  public ConstraintLayout getRoot() {
+  public RelativeLayout getRoot() {
     return rootView;
   }
 
@@ -75,7 +80,13 @@ public final class FragmentReadingDataBinding implements ViewBinding {
     // This is done to optimize the compiled bytecode for size and performance.
     int id;
     missingId: {
-      ConstraintLayout DataFrag = (ConstraintLayout) rootView;
+      RelativeLayout DataFrag = (RelativeLayout) rootView;
+
+      id = R.id.backButton;
+      ImageButton backButton = ViewBindings.findChildViewById(rootView, id);
+      if (backButton == null) {
+        break missingId;
+      }
 
       id = R.id.buttonRDData;
       Button buttonRDData = ViewBindings.findChildViewById(rootView, id);
@@ -101,8 +112,8 @@ public final class FragmentReadingDataBinding implements ViewBinding {
         break missingId;
       }
 
-      return new FragmentReadingDataBinding((ConstraintLayout) rootView, DataFrag, buttonRDData,
-          buttonWRData, dataRecView, nestedScrollView);
+      return new FragmentReadingDataBinding((RelativeLayout) rootView, DataFrag, backButton,
+          buttonRDData, buttonWRData, dataRecView, nestedScrollView);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

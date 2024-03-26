@@ -24,6 +24,7 @@ drawable ic_scan
 id ClearRecycler
 id DataFrag
 id action_boot
+id backButton
 id bottomNavBar
 id button
 id buttonProcessFiles

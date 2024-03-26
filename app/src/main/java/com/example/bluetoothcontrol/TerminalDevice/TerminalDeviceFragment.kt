@@ -6,19 +6,19 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.example.bluetoothcontrol.MainActivity
-import com.example.bluetoothcontrol.databinding.FragmentAboutDeviceBinding
+import com.example.bluetoothcontrol.databinding.FragmentTerminalDeviceBinding
 
 
 class TerminalDeviceFragment(): Fragment() {
 
-    private var _binding: FragmentAboutDeviceBinding? = null
-    private val binding: FragmentAboutDeviceBinding get() = _binding!!
+    private var _binding: FragmentTerminalDeviceBinding? = null
+    private val binding: FragmentTerminalDeviceBinding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentAboutDeviceBinding.inflate(inflater, container, false)
+        _binding = FragmentTerminalDeviceBinding.inflate(inflater, container, false)
         return (binding.root)
     }
 

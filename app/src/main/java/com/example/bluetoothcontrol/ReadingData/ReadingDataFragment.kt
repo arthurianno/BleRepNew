@@ -63,7 +63,7 @@ class ReadingDataFragment : Fragment(),ReadingDataAdapter.CallBackOnReadingItem 
        sharedViewModel.selectedDeviceAddress.observe(viewLifecycleOwner){deviceAddress ->
            if(deviceAddress != null && !bleControlManager.isConnected){
                binding.buttonRDData.setOnClickListener{
-                   controlViewModel.connect(deviceAddress)
+                   controlViewModel.connect(deviceAddress,"RAW")
                    Log.e(TAG,"Toggle connection to device with address $deviceAddress")
                }
            }else{

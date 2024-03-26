@@ -38,16 +38,7 @@ class ControlViewModel(private val adapterProvider: BluetoothAdapterProvider, pr
             Log.e("ControlViewModel","PinCode is $pinCode")
         }
     }
-
-
-    fun toggleConnection(deviceAddress: String) {
-        if (_isConnected.value == true) {
-            disconnect()
-        } else {
-            connect(deviceAddress)
-        }
-    }
-    fun connect(deviceAddress: String) {
+    fun connect(deviceAddress: String,mode: String) {
         if (_isConnected.value == false) {
             val device = adapterProvider.getAdapter().getRemoteDevice(deviceAddress)
             lastConnectedDevice = device
@@ -63,7 +54,7 @@ class ControlViewModel(private val adapterProvider: BluetoothAdapterProvider, pr
                     _isConnected.postValue(true)
                     Log.d("ControlViewModel", "Connection success ${_isConnected.value}")
                     if (savedPinCode != null) {
-                        controlManager.sendPinCommand(pinCode ?: "", EntireCheck.PIN_CODE_RESULT)
+                        controlManager.sendPinCommand(pinCode ?: "", EntireCheck.PIN_CODE_RESULT,mode)
                         Log.d("ControlViewModel", "Saving PIN-кода for device: $deviceAddress, PIN: $pinCode")
                         savePinCodeForDevice(deviceAddress,pinCode ?: "")
                     }
@@ -127,13 +118,13 @@ class ControlViewModel(private val adapterProvider: BluetoothAdapterProvider, pr
         }
     }
 
-    fun sendCommand(command: String) {
-        if (isConnected.value == true) {
-            controlManager.sendCommand(command,EntireCheck.default_command)
-        } else {
-            Log.e("ControlViewModel", "Device is not connected")
-        }
-    }
+//    fun sendCommand(command: String) {
+//        if (isConnected.value == true) {
+//            controlManager.sendCommand(command,EntireCheck.default_command)
+//        } else {
+//            Log.e("ControlViewModel", "Device is not connected")
+//        }
+//    }
 
 
     private fun getSavedPinCode(): String? {

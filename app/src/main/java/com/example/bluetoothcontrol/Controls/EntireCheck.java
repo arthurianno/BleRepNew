@@ -11,5 +11,5 @@ public enum EntireCheck {
     CRC32,
     PIN_CODE_RESULT,
     I_0UA, I_2UA, I_10UA, I_20UA, I_30UA, I_40UA, I_60UA, SETUP_OPERATOR,
-    Tref_mV,R1_Ohm,Uw,Uref,T10ref_C,WRITE, default_command,BootMode,BootModeResponse, configurationBootMode,sendLastCommandResult,writingBootModeData
+    Tref_mV,R1_Ohm,Uw,Uref,T10ref_C,WRITE, default_command,BootMode,BootModeResponse, configurationBootMode,sendLastCommandResult,writingBootModeData, batteryLevel, softVer
 }

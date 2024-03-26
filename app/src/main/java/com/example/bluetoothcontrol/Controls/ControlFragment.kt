@@ -58,8 +58,8 @@ class ControlFragment : Fragment() {
         sharedViewModel.selectedDeviceAddress.observe(viewLifecycleOwner){deviceAddress ->
             if(deviceAddress != null && !controlModel.isConnected){
                 binding.buttonProcessFiles.setOnClickListener{
-                    controlViewModel.connect(deviceAddress)
-                    Log.e(ReadingDataFragment.TAG,"Toggle connection to device with address $deviceAddress")
+                    controlViewModel.connect(deviceAddress,"BOOT")
+                    Log.e(ReadingDataFragment.TAG," connection to device with address $deviceAddress")
                 }
             }else{
                 Log.e(ReadingDataFragment.TAG,"address $deviceAddress is null ")

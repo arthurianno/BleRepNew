@@ -46,6 +46,7 @@ public class BleControlManager extends BleManager {
     private static final byte RAW_RD = (byte) 0x81;
     private long startTime;
     private long endTime;
+    private String changedMode;
     private boolean battCheck = false;
     private boolean stage = false;
     private boolean verCheck = false;
@@ -200,10 +201,11 @@ public class BleControlManager extends BleManager {
     }
 
 
-    public void sendPinCommand(String pinCode, EntireCheck entireCheck) {
+    public void sendPinCommand(String pinCode, EntireCheck entireCheck, String mode) {
         if (isConnected() && controlRequest != null) {
             BluetoothGattCharacteristic characteristic = controlRequest;
             ControlViewModel.Companion.getEntireCheckQueue().add(entireCheck);
+            changedMode = mode;
             if (characteristic != null) {
                 // Добавляем префикс "pin." к пин-коду
                 String formattedPinCode = "pin." + pinCode;
@@ -644,6 +646,16 @@ public void loadFirmware(EntireCheck entireCheck) {
                     break;
                 case writingBootModeData:
                     Log.d("BleControlManager", " data HEX type " + bytesToHex(data));
+                    break;
+                case batteryLevel:
+                    Log.d("BleControlManager", " data HEX type " + bytesToHex(data));
+                    handleCheckBattLevel(data,changedMode);
+                    break;
+                case softVer:
+                    Log.d("BleControlManager", " data HEX type " + bytesToHex(data));
+                    handleCheckSoftwareVersion(data);
+                    break;
+
 
             }
             requestData.setValue(listOfDataItem);
@@ -799,22 +811,19 @@ public void loadFirmware(EntireCheck entireCheck) {
             if (pinResponse.contains("pin.ok")) {
                 Log.d("BleControlManager", "Pin code is correct");
                 //sendCommand("setraw",EntireCheck.default_command);
-                sendCommand("version",EntireCheck.default_command);
-                sendCommand("battery",EntireCheck.default_command);
+                sendCommand("version",EntireCheck.softVer);
             } else if (pinResponse.contains("pin.error")) {
                 Log.d("BleControlManager", "Pin code is incorrect");
             } else {
                 Log.e("BleControlManager", "Invalid pin code response: " + pinResponse);
             }
         }
-        private void handleDefaultCommand(byte[] data) {
-            String defaultResponse = new String(data, StandardCharsets.UTF_8);
-            if (defaultResponse.contains("setraw.ok")) {
-                Log.d("BleControlManager", "RAW correct");
-                ControlViewModel.Companion.readDeviceProfile();
-            } else if (defaultResponse.contains("hw"))  {
+
+        private void handleCheckSoftwareVersion(byte[] data){
+            String softWareResponse = new String(data, StandardCharsets.UTF_8);
+            if(softWareResponse.contains("hw")){
                 Pattern pattern = Pattern.compile("sw:(\\d+\\.\\d+\\.\\d+)");
-                Matcher matcher = pattern.matcher(defaultResponse);
+                Matcher matcher = pattern.matcher(softWareResponse);
                 if (matcher.find()) {
                     String softwareVersion = matcher.group(1);
                     Log.d("BleControlManager", "Software Version: " + softwareVersion);
@@ -824,6 +833,7 @@ public void loadFirmware(EntireCheck entireCheck) {
                         // Версия программного обеспечения находится в диапазоне
                         Log.d("BleControlManager", "Software version is in range.");
                         verCheck = true;
+                        sendCommand("battery",EntireCheck.batteryLevel);
                     } else {
                         // Версия программного обеспечения НЕ находится в диапазоне
                         Log.d("BleControlManager", "Software version is not in range.");
@@ -832,25 +842,44 @@ public void loadFirmware(EntireCheck entireCheck) {
                 } else {
                     Log.e("BleControlManager", "Software version not found in response.");
                 }
-            }else if (defaultResponse.contains(".t")) {
+            }
+        }
+        private void handleCheckBattLevel(byte[] data, String mode) {
+            String battLevelReponse = new String(data, StandardCharsets.UTF_8);
+            if (battLevelReponse.contains(".t")) {
                 // Регулярное выражение для извлечения уровня заряда
                 Pattern batteryPattern = Pattern.compile("b(\\d+)");
-                Matcher batteryMatcher = batteryPattern.matcher(defaultResponse);
+                Matcher batteryMatcher = batteryPattern.matcher(battLevelReponse);
                 if (batteryMatcher.find()) {
                     int batteryLevel = Integer.parseInt(Objects.requireNonNull(batteryMatcher.group(1)));
                     // Проверка уровня заряда
                     if (batteryLevel == 3 || batteryLevel == 2) {
-                        Log.d("BleControlManager", "Battery level is normal. " + defaultResponse);
+                        Log.d("BleControlManager", "Battery level is normal. " + battLevelReponse);
                         battCheck = true;
-                        sendCommand("boot",EntireCheck.default_command);
+                        if(Objects.equals(mode, "BOOT")){
+                            sendCommand("boot", EntireCheck.default_command);
+                        }else if (Objects.equals(mode,"RAW")){
+                            sendCommand("setraw", EntireCheck.default_command);
+                        }else{
+                            Log.e("BleControlManager", "Mode is undefined" + mode);
+                        }
                     } else {
                         Log.e("BleControlManager", "Battery level is not normal.");
                         battCheck = false;
                     }
                 } else {
-                    Log.e("BleControlManager", "Invalid battery response format. " + defaultResponse);
+                    Log.e("BleControlManager", "Invalid battery response format. " + battLevelReponse);
                     battCheck = false;
                 }
+            }
+        }
+
+
+        private void handleDefaultCommand(byte[] data) {
+            String defaultResponse = new String(data, StandardCharsets.UTF_8);
+            if (defaultResponse.contains("setraw.ok")) {
+                Log.d("BleControlManager", "RAW correct");
+                ControlViewModel.Companion.readDeviceProfile();
             }else if (defaultResponse.contains("setraw.error")) {
                 Log.d("BleControlManager", " incorrect command");
             } else if (defaultResponse.contains("boot.ok")) {

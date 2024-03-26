@@ -36,6 +36,7 @@ class DevicesViewModel(adapterProvider: BluetoothAdapterProvider): ViewModel() {
     fun clearData(){
         devices.value = null
         _devices.value = null
+        foundDevices.clear()
     }
     private fun buildSettings() =
         ScanSettings.Builder()
@@ -45,15 +46,16 @@ class DevicesViewModel(adapterProvider: BluetoothAdapterProvider): ViewModel() {
     private fun buildFilter() =
         listOf(
             ScanFilter.Builder()
-                .setDeviceName(FILTER_NAME)
                 .build()
         )
 
     @SuppressLint("MissingPermission")
     fun startScan(){
+        clearScanCache()
         if(callback == null) {
             callback = BleScanCallBack()
             scanner = adapter.bluetoothLeScanner
+
             scanner?.startScan(filters, settings, callback)
             Log.e("DevicesViewModel","StartScanning")
         }
@@ -73,6 +75,11 @@ class DevicesViewModel(adapterProvider: BluetoothAdapterProvider): ViewModel() {
             Log.e("DevicesViewModel","StopScanning")
         }
     }
+    @SuppressLint("MissingPermission")
+    fun clearScanCache() {
+        scanner?.flushPendingScanResults(callback)
+        Log.e("DevicesViewModel","CASH IS CLEARED")
+    }
 
 
     inner class BleScanCallBack: ScanCallback(){
@@ -84,21 +91,23 @@ class DevicesViewModel(adapterProvider: BluetoothAdapterProvider): ViewModel() {
             super.onBatchScanResults(results)
         }
 
+        @SuppressLint("MissingPermission")
         override fun onScanResult(callbackType: Int, result: ScanResult?) {
             if (result != null) {
                 foundDevices[result.device.address] = result.device
+                Log.d("BleScanCallBack", "Found device: ${result.device.name}, Address: ${result.device.address}")
             }
             _devices.postValue(foundDevices.values.toList())
             super.onScanResult(callbackType, result)
         }
 
         override fun onScanFailed(errorCode: Int) {
-
+            foundDevices.clear()
             Log.e("BluetoothScanner", "OnScanFailed")
         }
     }
     companion object{
-        var FILTER_NAME = "SatelliteOnline0002"
+        var FILTER_NAME = "SatelliteOnline[0-9]{4}"
     }
 }
 

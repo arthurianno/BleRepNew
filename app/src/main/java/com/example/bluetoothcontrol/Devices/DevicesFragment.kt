@@ -102,10 +102,12 @@ class DevicesFragment : Fragment(), DevicesAdapter.CallBack {
     @SuppressLint("MissingPermission")
     override fun onItemClick(device: BluetoothDevice) {
         val deviceAddress = device.address
+        val deviceName = device.name.toString()
         if (deviceAddress != null) {
             sharedViewModel.updateDeviceAddress(deviceAddress)
-            sharedViewModel.updateDevName(device.name.toString())
+            sharedViewModel.updateDevName(deviceName)
             Log.e("DevicesFragment", "Update address $deviceAddress")
+            Log.e("DevicesFragment", "Update name $deviceName")
             showPinInputDialogOrConnect(deviceAddress)
         }
     }
@@ -164,6 +166,7 @@ class DevicesFragment : Fragment(), DevicesAdapter.CallBack {
 
     private val checkLocation = registerForActivityResult(ActivityResultContracts.RequestPermission()){granted ->
         if(granted){
+            viewModel.clearScanCache()
             viewModel.startScan()
         }
     }

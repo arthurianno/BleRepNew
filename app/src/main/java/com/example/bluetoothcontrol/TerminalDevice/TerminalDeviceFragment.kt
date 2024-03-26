@@ -1,4 +1,4 @@
-package com.example.bluetoothcontrol.AboutDevice
+package com.example.bluetoothcontrol.TerminalDevice
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -9,7 +9,7 @@ import com.example.bluetoothcontrol.MainActivity
 import com.example.bluetoothcontrol.databinding.FragmentAboutDeviceBinding
 
 
-class AboutDeviceFragment(): Fragment() {
+class TerminalDeviceFragment(): Fragment() {
 
     private var _binding: FragmentAboutDeviceBinding? = null
     private val binding: FragmentAboutDeviceBinding get() = _binding!!
@@ -33,7 +33,7 @@ class AboutDeviceFragment(): Fragment() {
         const val TAG = "AboutDeviceFragment"
 
         @JvmStatic
-        fun newInstance() = AboutDeviceFragment()
+        fun newInstance() = TerminalDeviceFragment()
     }
 
 

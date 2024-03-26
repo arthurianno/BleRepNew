@@ -8,7 +8,6 @@ import android.content.Intent
 import android.content.IntentFilter
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.service.controls.Control
 import android.view.MenuItem
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
@@ -19,7 +18,7 @@ import androidx.lifecycle.Observer
 import com.example.bluetoothcontrol.Devices.DevicesAdapter
 import com.example.bluetoothcontrol.Devices.DevicesFragment
 import com.example.bluetoothcontrol.ReadingData.ReadingDataFragment
-import com.example.bluetoothcontrol.AboutDevice.AboutDeviceFragment
+import com.example.bluetoothcontrol.TerminalDevice.TerminalDeviceFragment
 import com.example.bluetoothcontrol.Controls.BleControlManager
 import com.example.bluetoothcontrol.Controls.ControlFragment
 import com.example.bluetoothcontrol.Controls.ControlViewModel
@@ -79,7 +78,7 @@ class MainActivity : AppCompatActivity(),DevicesAdapter.CallBack {
     private fun handleBottomNavigationItemSelection(menuItem: MenuItem) {
         val fragmentTag = when (menuItem.itemId) {
             R.id.readingDataFragment -> ReadingDataFragment.TAG
-            R.id.writingDataFragment -> AboutDeviceFragment.TAG
+            R.id.writingDataFragment -> TerminalDeviceFragment.TAG
             R.id.logFragment -> LogFragment.TAG
             R.id.action_boot -> ControlFragment.TAG
             else -> null
@@ -113,7 +112,7 @@ class MainActivity : AppCompatActivity(),DevicesAdapter.CallBack {
         } else {
             when (tag) {
                 ReadingDataFragment.TAG -> ReadingDataFragment.newInstance(devAddress)
-                AboutDeviceFragment.TAG -> AboutDeviceFragment.newInstance()
+                TerminalDeviceFragment.TAG -> TerminalDeviceFragment.newInstance()
                 LogFragment.TAG -> LogFragment.newInstance()
                 ControlFragment.TAG -> ControlFragment.newInstance()
                 else -> throw IllegalArgumentException("Unknown fragment tag: $tag")

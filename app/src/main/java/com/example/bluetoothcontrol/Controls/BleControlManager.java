@@ -494,7 +494,7 @@ public void loadFirmware(EntireCheck entireCheck) {
 
     //// BootMode ////
 
-    private String bytesToHex(byte[] bytes) {
+    private String bytesToHexLogs(byte[] bytes) {
         ByteBuffer buffer = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
         StringBuilder hex = new StringBuilder();
         hex.append("0x");
@@ -503,6 +503,15 @@ public void loadFirmware(EntireCheck entireCheck) {
             if (buffer.hasRemaining()) {
                 hex.append(","); // Добавляем запятую, если еще остались байты
             }
+        }
+        return hex.toString();
+    }
+    private  String bytesToHex(byte[] bytes) {
+        ByteBuffer buffer = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
+        StringBuilder hex = new StringBuilder();
+        hex.append("0x");
+        while (buffer.hasRemaining()) {
+            hex.append(String.format("%02X", buffer.get() & 0xFF));
         }
         return hex.toString();
     }
@@ -629,7 +638,7 @@ public void loadFirmware(EntireCheck entireCheck) {
                     handleT10ref_C(data,EntireCheck.T10ref_C.name());
                     break;
                 case WRITE:
-                    Log.d("BleControlManager", " data HEX type " + bytesToHex(data));
+                    Log.d("BleControlManager", " data HEX type " + bytesToHexLogs(data));
                     handleWriteData(data);
                     break;
                 case default_command:
@@ -637,22 +646,22 @@ public void loadFirmware(EntireCheck entireCheck) {
                     handleDefaultCommand(data);
                     break;
                 case BootModeResponse:
-                    Log.d("BleControlManager", " data HEX type " + bytesToHex(data));
+                    Log.d("BleControlManager", " data HEX type " + bytesToHexLogs(data));
                     handleBootWriteResponse(data);
                     break;
                 case configurationBootMode:
-                    Log.d("BleControlManager", " data HEX type " + bytesToHex(data));
+                    Log.d("BleControlManager", " data HEX type " + bytesToHexLogs(data));
                     handleConfigurationWriteResponse(data);
                     break;
                 case writingBootModeData:
-                    Log.d("BleControlManager", " data HEX type " + bytesToHex(data));
+                    Log.d("BleControlManager", " data HEX type " + bytesToHexLogs(data));
                     break;
                 case batteryLevel:
-                    Log.d("BleControlManager", " data HEX type " + bytesToHex(data));
+                    Log.d("BleControlManager", " data HEX type " + bytesToHexLogs(data));
                     handleCheckBattLevel(data,changedMode);
                     break;
                 case softVer:
-                    Log.d("BleControlManager", " data HEX type " + bytesToHex(data));
+                    Log.d("BleControlManager", " data HEX type " + bytesToHexLogs(data));
                     handleCheckSoftwareVersion(data);
                     break;
 
@@ -829,7 +838,7 @@ public void loadFirmware(EntireCheck entireCheck) {
                     Log.d("BleControlManager", "Software Version: " + softwareVersion);
 
                     // Проверка версии программного обеспечения на соответствие диапазону
-                    if (isSoftwareVersionInRange(Objects.requireNonNull(softwareVersion), "4.5.0", "4.9.9")) {
+                    if (isSoftwareVersionInRange(Objects.requireNonNull(softwareVersion), "4.0.9", "4.9.9")) {
                         // Версия программного обеспечения находится в диапазоне
                         Log.d("BleControlManager", "Software version is in range.");
                         verCheck = true;
@@ -939,7 +948,7 @@ public void loadFirmware(EntireCheck entireCheck) {
                         // Добавить необходимые действия при успешном принятии команды записи конфигурации
                         stage = true;
                         stopTimer();
-                        Log.e("BleControlManager", "Configuration write command accepted " + bytesToHex(data));
+                        Log.e("BleControlManager", "Configuration write command accepted " + bytesToHexLogs(data));
                         break;
                     case (byte) 0xFF:
                         Log.e("BleControlManager", "Configuration write command not accepted, invalid format or content");
@@ -966,22 +975,22 @@ public void loadFirmware(EntireCheck entireCheck) {
                     case 0x00:
                         // Предыдущая команда выполнена успешно
                         Log.d("BleControlManager", "Previous command executed successfully");
-                        Log.e("BleControlManager", "Answer from device " + bytesToHex(data));
+                        Log.e("BleControlManager", "Answer from device " + bytesToHexLogs(data));
                         break;
                     case 0x01:
                         // Устройство занято обработкой предыдущей команды
                         Log.e("BleControlManager", "Device is busy processing the previous command");
-                        Log.e("BleControlManager", "Answer from device " + bytesToHex(data));
+                        Log.e("BleControlManager", "Answer from device " + bytesToHexLogs(data));
                         break;
                     case 0x02:
                         // Предшествующая команда завершилась с ошибкой
                         Log.e("BleControlManager", "Previous command ended with an error");
-                        Log.e("BleControlManager", "Answer from device " + bytesToHex(data));
+                        Log.e("BleControlManager", "Answer from device " + bytesToHexLogs(data));
                         break;
                     default:
                         // Неизвестный флаг
                         Log.e("BleControlManager", "Unknown flag in response: " + flag);
-                        Log.e("BleControlManager", "Answer from device " + bytesToHex(data));
+                        Log.e("BleControlManager", "Answer from device " + bytesToHexLogs(data));
                         break;
                 }
             } else {

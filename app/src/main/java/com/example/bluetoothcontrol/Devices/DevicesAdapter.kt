@@ -25,6 +25,7 @@ class DevicesAdapter(private val callback:CallBack,private val sharedViewModel: 
     @SuppressLint("NotifyDataSetChanged")
     fun clear(){
         this.items.clear()
+        this.clear()
         notifyDataSetChanged()
         Log.e("DeviceAdapter", "Devices list is cleared")
     }

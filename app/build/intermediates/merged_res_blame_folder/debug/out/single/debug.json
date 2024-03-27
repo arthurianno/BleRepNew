@@ -32,28 +32,20 @@
         "source": "C:\\Users\\user\\.gradle\\daemon\\8.3\\com.example.bluetoothcontrol.app-main-50:\\mipmap-mdpi\\ic_launcher.webp"
     },
     {
-        "merged": "C:\\Users\\user\\.gradle\\daemon\\8.3\\com.example.bluetoothcontrol.app-merged_res-48:\\menu_bottom_menu.xml.flat",
-        "source": "C:\\Users\\user\\.gradle\\daemon\\8.3\\com.example.bluetoothcontrol.app-main-50:\\menu\\bottom_menu.xml"
-    },
-    {
         "merged": "C:\\Users\\user\\.gradle\\daemon\\8.3\\com.example.bluetoothcontrol.app-merged_res-48:\\drawable_baseline_home.xml.flat",
         "source": "C:\\Users\\user\\.gradle\\daemon\\8.3\\com.example.bluetoothcontrol.app-main-50:\\drawable\\baseline_home.xml"
+    },
+    {
+        "merged": "C:\\Users\\user\\.gradle\\daemon\\8.3\\com.example.bluetoothcontrol.app-merged_res-48:\\menu_bottom_menu.xml.flat",
+        "source": "C:\\Users\\user\\.gradle\\daemon\\8.3\\com.example.bluetoothcontrol.app-main-50:\\menu\\bottom_menu.xml"
     },
     {
         "merged": "C:\\Users\\user\\.gradle\\daemon\\8.3\\com.example.bluetoothcontrol.app-merged_res-48:\\drawable_baseline_bluetooth_24.xml.flat",
         "source": "C:\\Users\\user\\.gradle\\daemon\\8.3\\com.example.bluetoothcontrol.app-main-50:\\drawable\\baseline_bluetooth_24.xml"
     },
     {
-        "merged": "com.example.bluetoothcontrol.app-merged_res-48:/navigation_my_nav.xml.flat",
-        "source": "com.example.bluetoothcontrol.app-main-50:/navigation/my_nav.xml"
-    },
-    {
         "merged": "C:\\Users\\user\\.gradle\\daemon\\8.3\\com.example.bluetoothcontrol.app-merged_res-48:\\drawable_baseline_close_24.xml.flat",
         "source": "C:\\Users\\user\\.gradle\\daemon\\8.3\\com.example.bluetoothcontrol.app-main-50:\\drawable\\baseline_close_24.xml"
-    },
-    {
-        "merged": "com.example.bluetoothcontrol.app-merged_res-48:/layout_item_term.xml.flat",
-        "source": "com.example.bluetoothcontrol.app-main-50:/layout/item_term.xml"
     },
     {
         "merged": "C:\\Users\\user\\.gradle\\daemon\\8.3\\com.example.bluetoothcontrol.app-merged_res-48:\\mipmap-xxxhdpi_ic_launcher.webp.flat",
@@ -112,6 +104,10 @@
         "source": "C:\\Users\\user\\.gradle\\daemon\\8.3\\com.example.bluetoothcontrol.app-main-50:\\mipmap-xhdpi\\ic_launcher.webp"
     },
     {
+        "merged": "com.example.bluetoothcontrol.app-merged_res-48:/layout_fragment_reading_data.xml.flat",
+        "source": "com.example.bluetoothcontrol.app-main-50:/layout/fragment_reading_data.xml"
+    },
+    {
         "merged": "C:\\Users\\user\\.gradle\\daemon\\8.3\\com.example.bluetoothcontrol.app-merged_res-48:\\xml_data_extraction_rules.xml.flat",
         "source": "C:\\Users\\user\\.gradle\\daemon\\8.3\\com.example.bluetoothcontrol.app-main-50:\\xml\\data_extraction_rules.xml"
     },
@@ -140,16 +136,20 @@
         "source": "C:\\Users\\user\\.gradle\\daemon\\8.3\\com.example.bluetoothcontrol.app-main-50:\\navigation\\my_nav.xml"
     },
     {
+        "merged": "C:\\Users\\user\\.gradle\\daemon\\8.3\\com.example.bluetoothcontrol.app-merged_res-48:\\layout_fragment_terminal_device.xml.flat",
+        "source": "C:\\Users\\user\\.gradle\\daemon\\8.3\\com.example.bluetoothcontrol.app-main-50:\\layout\\fragment_terminal_device.xml"
+    },
+    {
         "merged": "C:\\Users\\user\\.gradle\\daemon\\8.3\\com.example.bluetoothcontrol.app-merged_res-48:\\layout_fragment_reading_data.xml.flat",
         "source": "C:\\Users\\user\\.gradle\\daemon\\8.3\\com.example.bluetoothcontrol.app-main-50:\\layout\\fragment_reading_data.xml"
     },
     {
-        "merged": "com.example.bluetoothcontrol.app-merged_res-48:/layout_fragment_terminal_device.xml.flat",
-        "source": "com.example.bluetoothcontrol.app-main-50:/layout/fragment_terminal_device.xml"
-    },
-    {
         "merged": "C:\\Users\\user\\.gradle\\daemon\\8.3\\com.example.bluetoothcontrol.app-merged_res-48:\\drawable_ic_launcher_foreground.xml.flat",
         "source": "C:\\Users\\user\\.gradle\\daemon\\8.3\\com.example.bluetoothcontrol.app-main-50:\\drawable\\ic_launcher_foreground.xml"
+    },
+    {
+        "merged": "C:\\Users\\user\\.gradle\\daemon\\8.3\\com.example.bluetoothcontrol.app-merged_res-48:\\layout_item_term.xml.flat",
+        "source": "C:\\Users\\user\\.gradle\\daemon\\8.3\\com.example.bluetoothcontrol.app-main-50:\\layout\\item_term.xml"
     },
     {
         "merged": "C:\\Users\\user\\.gradle\\daemon\\8.3\\com.example.bluetoothcontrol.app-merged_res-48:\\drawable_baseline_bluetooth_disabled_24.xml.flat",

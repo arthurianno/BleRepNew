@@ -82,6 +82,8 @@ class DevicesFragment : Fragment(), DevicesAdapter.CallBack {
                 viewModel.stopScan()
                 devicesAdapter.clear()
                 viewModel.clearData()
+                viewModel.clearScanCache()
+
             }
         }
 
@@ -166,6 +168,7 @@ class DevicesFragment : Fragment(), DevicesAdapter.CallBack {
                             .commit()
                     }
                 }else{
+                    controlViewModel.disconnect()
                     showPinInputDialog(deviceAddress)
                 }
             }
@@ -177,7 +180,6 @@ class DevicesFragment : Fragment(), DevicesAdapter.CallBack {
 
     private val checkLocation = registerForActivityResult(ActivityResultContracts.RequestPermission()){granted ->
         if(granted){
-            viewModel.clearScanCache()
             viewModel.startScan()
         }
     }

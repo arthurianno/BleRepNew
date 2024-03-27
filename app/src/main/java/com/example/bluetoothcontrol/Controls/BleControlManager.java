@@ -831,7 +831,6 @@ public void loadFirmware(EntireCheck entireCheck) {
             String pinResponse = new String(data, StandardCharsets.UTF_8);
             if (pinResponse.contains("pin.ok")) {
                 Log.d("BleControlManager", "Pin code is correct");
-                //sendCommand("setraw",EntireCheck.default_command);
                 sendCommand("version",EntireCheck.softVer);
             } else if (pinResponse.contains("pin.error")) {
                 Log.d("BleControlManager", "Pin code is incorrect");

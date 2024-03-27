@@ -107,7 +107,7 @@ class DevicesViewModel(adapterProvider: BluetoothAdapterProvider): ViewModel() {
         }
     }
     companion object{
-        var FILTER_NAME = "SatelliteOnline0002"
+        var FILTER_NAME = "SatelliteOnline0000"
     }
 }
 

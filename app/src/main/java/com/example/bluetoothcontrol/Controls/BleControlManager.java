@@ -56,6 +56,7 @@ public class BleControlManager extends BleManager {
     private static final byte BOOT_RD = (byte) 0x81;
     private static final byte RAW_ASK = (byte) 0x00;
     private TimerCallback timerCallback;
+    private PinCallback pinCallback;
     private static final byte BOOT_MODE_CMD = (byte) 0x12;
     private static final byte BOOT_MODE_SUCCESS = (byte) 0x00;
     private static final int MAX_ADDRESS = 0x1FFFF;
@@ -93,6 +94,9 @@ public class BleControlManager extends BleManager {
 
     public void setTimerCallback(TimerCallback callback) {
         this.timerCallback = callback;
+    }
+    public void setPinCallback(PinCallback callback) {
+        this.pinCallback = callback;
     }
     public void stopTimer() {
         endTime = System.currentTimeMillis();
@@ -1000,5 +1004,8 @@ public void loadFirmware(EntireCheck entireCheck) {
    }
     public interface TimerCallback {
         void onTick(boolean Stage);
+    }
+    public interface PinCallback {
+        void onPin(String pin);
     }
 }

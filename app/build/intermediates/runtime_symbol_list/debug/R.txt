@@ -3538,6 +3538,7 @@ int id radio 0x7f090185
 int id ratio 0x7f090186
 int id readingDataFragment 0x7f090187
 int id rectangles 0x7f090188
+int id recyclerView 0x7f090220
 int id report_drawn 0x7f090189
 int id reverseSawtooth 0x7f09018a
 int id right 0x7f09018b
@@ -3624,6 +3625,7 @@ int id tag_transition_group 0x7f0901db
 int id tag_unhandled_key_event_manager 0x7f0901dc
 int id tag_unhandled_key_listeners 0x7f0901dd
 int id tag_window_insets_animation_callback 0x7f0901de
+int id terminalWrite 0x7f090221
 int id text 0x7f0901df
 int id text2 0x7f0901e0
 int id textAddress 0x7f0901e1
@@ -3818,16 +3820,17 @@ int layout design_navigation_menu_item 0x7f0c002a
 int layout design_text_input_end_icon 0x7f0c002b
 int layout design_text_input_start_icon 0x7f0c002c
 int layout dropdown_item 0x7f0c002d
-int layout fragment_about_device 0x7f0c002e
 int layout fragment_control 0x7f0c002f
 int layout fragment_devices 0x7f0c0030
 int layout fragment_log 0x7f0c0031
 int layout fragment_reading_data 0x7f0c0032
+int layout fragment_terminal_device 0x7f0c0075
 int layout ime_base_split_test_activity 0x7f0c0033
 int layout ime_secondary_split_test_activity 0x7f0c0034
 int layout item_device 0x7f0c0035
 int layout item_log 0x7f0c0036
 int layout item_reading_data 0x7f0c0037
+int layout item_term 0x7f0c0076
 int layout m3_alert_dialog 0x7f0c0038
 int layout m3_alert_dialog_actions 0x7f0c0039
 int layout m3_alert_dialog_title 0x7f0c003a

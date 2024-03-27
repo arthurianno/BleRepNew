@@ -35,6 +35,16 @@
           <theme>@style/Theme.BluetoothControl</theme>
         </config>
       </layout>
+      <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/item_reading_data.xml">
+        <config>
+          <theme>@style/Theme.BluetoothControl</theme>
+        </config>
+      </layout>
+      <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/item_term.xml">
+        <config>
+          <theme>@style/Theme.BluetoothControl</theme>
+        </config>
+      </layout>
       <layout url="file://$PROJECT_DIR$/app/src/main/res/menu/bottom_menu.xml">
         <config>
           <theme>@style/Theme.BluetoothControl</theme>
@@ -52,9 +62,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a8314497-fcb8-4ed6-a36e-c40f8c41b73d" name="Changes" comment="Upd checkmark errorMark and progress bar">
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/bluetoothcontrol/TerminalDevice/TerminalDeviceFragment.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/bluetoothcontrol/TerminalDevice/TerminalDeviceFragment.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/fragment_about_device.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/fragment_terminal_device.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/navigation/my_nav.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/navigation/my_nav.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/layout/item_term.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/build/intermediates/compile_and_runtime_not_namespaced_r_class_jar/debug/R.jar" beforeDir="false" afterPath="$PROJECT_DIR$/app/build/intermediates/compile_and_runtime_not_namespaced_r_class_jar/debug/R.jar" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/bluetoothcontrol/Controls/BleControlManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/bluetoothcontrol/Controls/BleControlManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/bluetoothcontrol/Devices/DevicesViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/bluetoothcontrol/Devices/DevicesViewModel.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/bluetoothcontrol/TerminalDevice/TerminalAdapter.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/bluetoothcontrol/TerminalDevice/TerminalAdapter.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -74,6 +87,7 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Kotlin Class" />
+        <option value="layoutResourceFile" />
       </list>
     </option>
   </component>
@@ -328,7 +342,15 @@
       <option name="project" value="LOCAL" />
       <updated>1711457591461</updated>
     </task>
-    <option name="localTasksCounter" value="18" />
+    <task id="LOCAL-00018" summary="Upd checkmark errorMark and progress bar">
+      <option name="closed" value="true" />
+      <created>1711457970227</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1711457970227</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">

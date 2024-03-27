@@ -19,7 +19,7 @@
         android:id="@+id/writingDataFragment"
         android:name="com.example.bluetoothcontrol.TerminalDevice.WritingDataFragment"
         android:label="fragment_writing_data"
-        tools:layout="@layout/fragment_about_device" />
+        tools:layout="@layout/fragment_terminal_device" />
     <fragment
         android:id="@+id/action_boot"
         android:name="com.example.bluetoothcontrol.Controls.ControlFragment"

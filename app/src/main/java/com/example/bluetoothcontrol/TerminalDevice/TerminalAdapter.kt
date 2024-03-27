@@ -2,6 +2,7 @@ package com.example.bluetoothcontrol.TerminalDevice
 
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.example.bluetoothcontrol.databinding.ItemTermBinding
 
 class TerminalAdapter : RecyclerView.Adapter<TerminalAdapter.TerminalViewHolder>() {
     override fun onCreateViewHolder(
@@ -11,8 +12,10 @@ class TerminalAdapter : RecyclerView.Adapter<TerminalAdapter.TerminalViewHolder>
         TODO("Not yet implemented")
     }
 
-    class TerminalViewHolder: RecyclerView.ViewHolder() {
+     inner class TerminalViewHolder(private val binding: ItemTermBinding): RecyclerView.ViewHolder(binding.root) {
+         fun bind(){
 
+         }
     }
 
     override fun onBindViewHolder(holder: TerminalAdapter.TerminalViewHolder, position: Int) {

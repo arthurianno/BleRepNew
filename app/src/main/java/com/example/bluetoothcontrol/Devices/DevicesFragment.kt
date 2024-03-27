@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.bluetoothcontrol.App
+import com.example.bluetoothcontrol.Controls.BleControlManager
 import com.example.bluetoothcontrol.Controls.ControlViewModel
 import com.example.bluetoothcontrol.MainActivity
 import com.example.bluetoothcontrol.R
@@ -34,6 +35,7 @@ class DevicesFragment : Fragment(), DevicesAdapter.CallBack {
     private val sharedViewModel: SharedViewModel by activityViewModels()
     private lateinit var devicesAdapter: DevicesAdapter
     private lateinit var controlViewModel: ControlViewModel
+    private lateinit var bleControlManager: BleControlManager
     private val viewModel: DevicesViewModel by viewModels {
         DeviceViewModelFactory((requireActivity().application as App).adapterProvider)
     }
@@ -52,6 +54,7 @@ class DevicesFragment : Fragment(), DevicesAdapter.CallBack {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         controlViewModel = (requireActivity() as MainActivity).getControlViewModelFromMain()
+        bleControlManager = (requireActivity() as MainActivity).getControlManagerFromMain()
     }
 
     // Ссылка при уничтожении не остается на старый View

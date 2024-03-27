@@ -95,7 +95,6 @@ class DevicesViewModel(adapterProvider: BluetoothAdapterProvider): ViewModel() {
         override fun onScanResult(callbackType: Int, result: ScanResult?) {
             if (result != null) {
                 foundDevices[result.device.address] = result.device
-                Log.d("BleScanCallBack", "Found device: ${result.device.name}, Address: ${result.device.address}")
             }
             _devices.postValue(foundDevices.values.toList())
             super.onScanResult(callbackType, result)

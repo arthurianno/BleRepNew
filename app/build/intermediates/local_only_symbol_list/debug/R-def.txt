@@ -54,6 +54,8 @@ id nameOfDataLog
 id nestedScrollView
 id progressBar
 id readingDataFragment
+id recyclerView
+id terminalWrite
 id textAddress
 id textName
 id textView3
@@ -62,14 +64,15 @@ id wrapStartScan
 id writingDataFragment
 layout activity_main
 layout dropdown_item
-layout fragment_about_device
 layout fragment_control
 layout fragment_devices
 layout fragment_log
 layout fragment_reading_data
+layout fragment_terminal_device
 layout item_device
 layout item_log
 layout item_reading_data
+layout item_term
 menu bottom_menu
 mipmap ic_launcher
 mipmap ic_launcher_round

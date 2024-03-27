@@ -208,7 +208,12 @@ public class BleControlManager extends BleManager {
     public void sendPinCommand(String pinCode, EntireCheck entireCheck, String mode) {
         if (isConnected() && controlRequest != null) {
             BluetoothGattCharacteristic characteristic = controlRequest;
-            ControlViewModel.Companion.getEntireCheckQueue().add(entireCheck);
+            if(Objects.equals(mode,"CHECKPIN")){
+                ControlViewModel.Companion.getEntireCheckQueue().add(EntireCheck.CHECK_PIN_RESULT);
+            }else{
+                ControlViewModel.Companion.getEntireCheckQueue().add(entireCheck);
+            }
+
             changedMode = mode;
             if (characteristic != null) {
                 // Добавляем префикс "pin." к пин-коду
@@ -825,6 +830,18 @@ public void loadFirmware(EntireCheck entireCheck) {
                 Log.d("BleControlManager", "Pin code is correct");
                 //sendCommand("setraw",EntireCheck.default_command);
                 sendCommand("version",EntireCheck.softVer);
+            } else if (pinResponse.contains("pin.error")) {
+                Log.d("BleControlManager", "Pin code is incorrect");
+            } else {
+                Log.e("BleControlManager", "Invalid pin code response: " + pinResponse);
+            }
+        }
+
+        @RequiresApi(api = Build.VERSION_CODES.O)
+        private void handlePinCodeCheck(byte[] data) {
+            String pinResponse = new String(data, StandardCharsets.UTF_8);
+            if (pinResponse.contains("pin.ok")) {
+                Log.d("BleControlManager", "Pin code is correct");
             } else if (pinResponse.contains("pin.error")) {
                 Log.d("BleControlManager", "Pin code is incorrect");
             } else {

@@ -148,18 +148,25 @@ class DevicesFragment : Fragment(), DevicesAdapter.CallBack {
         if (savedPinCode != null) {
             // Пин-код найден в SharedPreferences, используем его для установки соединения
             controlViewModel.pinCode = savedPinCode
-            val existingReadingDataFragment = parentFragmentManager.findFragmentByTag(ReadingDataFragment.TAG) as? ReadingDataFragment
-            if (existingReadingDataFragment != null && controlViewModel.isConnected.value != false) {
-                parentFragmentManager.beginTransaction()
-                    .addToBackStack(null)
-                    .replace(R.id.fragmentContainer, existingReadingDataFragment)
-                    .commit()
-            } else {
-                val readingDataFragment = ReadingDataFragment.newInstance(deviceAddress)
-                parentFragmentManager.beginTransaction()
-                    .addToBackStack(null)
-                    .replace(R.id.fragmentContainer, readingDataFragment, ReadingDataFragment.TAG)
-                    .commit()
+            controlViewModel.connect(deviceAddress,"CHECKPIN")
+            bleControlManager.setPinCallback {
+                if(it == "CORRECT"){
+                    val existingReadingDataFragment = parentFragmentManager.findFragmentByTag(ReadingDataFragment.TAG) as? ReadingDataFragment
+                    if (existingReadingDataFragment != null && controlViewModel.isConnected.value != false) {
+                        parentFragmentManager.beginTransaction()
+                            .addToBackStack(null)
+                            .replace(R.id.fragmentContainer, existingReadingDataFragment)
+                            .commit()
+                    } else {
+                        val readingDataFragment = ReadingDataFragment.newInstance(deviceAddress)
+                        parentFragmentManager.beginTransaction()
+                            .addToBackStack(null)
+                            .replace(R.id.fragmentContainer, readingDataFragment, ReadingDataFragment.TAG)
+                            .commit()
+                    }
+                }else{
+                    showPinInputDialog(deviceAddress)
+                }
             }
         } else {
             // Пин-код не найден в SharedPreferences, отображаем диалог для ввода пин-кода

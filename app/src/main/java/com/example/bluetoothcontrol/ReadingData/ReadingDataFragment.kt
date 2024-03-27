@@ -124,7 +124,6 @@ class ReadingDataFragment : Fragment(),ReadingDataAdapter.CallBackOnReadingItem 
 
     private fun showWriteDialog() {
         val changedItemsCount = adapterReading.items.count { it.isValueChanged }
-
         val builder = AlertDialog.Builder(requireContext())
         builder.setTitle("Запись данных")
             .setMessage("Вы уверены, что хотите записать данные? Количество измененных элементов: $changedItemsCount")

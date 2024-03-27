@@ -1,5 +1,6 @@
 package com.example.bluetoothcontrol
 
+import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
 import android.content.Context
@@ -19,6 +20,9 @@ interface BluetoothAdapterProvider {
 
     fun getContext() : Context
 
+    fun enableBluetooth()
+    fun disableBluetooth()
+
     class Base(private val context: Context): BluetoothAdapterProvider{
         override fun getAdapter(): BluetoothAdapter {
             val manager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
@@ -28,6 +32,23 @@ interface BluetoothAdapterProvider {
         override fun getContext(): Context {
             return context
         }
+        @SuppressLint("MissingPermission")
+        override fun enableBluetooth() {
+            val adapter = getAdapter()
+            if (!adapter.isEnabled) {
+                adapter.enable()
+            }
+        }
+
+        @SuppressLint("MissingPermission")
+        override fun disableBluetooth() {
+            val adapter = getAdapter()
+            if (adapter.isEnabled) {
+                adapter.disable()
+            }
+        }
+
+
 
     }
 }

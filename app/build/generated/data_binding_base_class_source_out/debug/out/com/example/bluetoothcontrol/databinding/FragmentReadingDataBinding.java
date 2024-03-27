@@ -5,7 +5,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -26,9 +25,6 @@ public final class FragmentReadingDataBinding implements ViewBinding {
   public final RelativeLayout DataFrag;
 
   @NonNull
-  public final ImageButton backButton;
-
-  @NonNull
   public final Button buttonRDData;
 
   @NonNull
@@ -41,12 +37,10 @@ public final class FragmentReadingDataBinding implements ViewBinding {
   public final NestedScrollView nestedScrollView;
 
   private FragmentReadingDataBinding(@NonNull RelativeLayout rootView,
-      @NonNull RelativeLayout DataFrag, @NonNull ImageButton backButton,
-      @NonNull Button buttonRDData, @NonNull Button buttonWRData, @NonNull RecyclerView dataRecView,
-      @NonNull NestedScrollView nestedScrollView) {
+      @NonNull RelativeLayout DataFrag, @NonNull Button buttonRDData, @NonNull Button buttonWRData,
+      @NonNull RecyclerView dataRecView, @NonNull NestedScrollView nestedScrollView) {
     this.rootView = rootView;
     this.DataFrag = DataFrag;
-    this.backButton = backButton;
     this.buttonRDData = buttonRDData;
     this.buttonWRData = buttonWRData;
     this.dataRecView = dataRecView;
@@ -82,12 +76,6 @@ public final class FragmentReadingDataBinding implements ViewBinding {
     missingId: {
       RelativeLayout DataFrag = (RelativeLayout) rootView;
 
-      id = R.id.backButton;
-      ImageButton backButton = ViewBindings.findChildViewById(rootView, id);
-      if (backButton == null) {
-        break missingId;
-      }
-
       id = R.id.buttonRDData;
       Button buttonRDData = ViewBindings.findChildViewById(rootView, id);
       if (buttonRDData == null) {
@@ -112,8 +100,8 @@ public final class FragmentReadingDataBinding implements ViewBinding {
         break missingId;
       }
 
-      return new FragmentReadingDataBinding((RelativeLayout) rootView, DataFrag, backButton,
-          buttonRDData, buttonWRData, dataRecView, nestedScrollView);
+      return new FragmentReadingDataBinding((RelativeLayout) rootView, DataFrag, buttonRDData,
+          buttonWRData, dataRecView, nestedScrollView);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

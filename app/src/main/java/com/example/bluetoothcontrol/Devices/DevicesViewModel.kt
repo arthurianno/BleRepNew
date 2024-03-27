@@ -12,6 +12,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.bluetoothcontrol.BluetoothAdapterProvider
+import com.example.bluetoothcontrol.ReadingData.ReadingDataFragment
 
 
 class DevicesViewModel(adapterProvider: BluetoothAdapterProvider): ViewModel() {
@@ -22,6 +23,7 @@ class DevicesViewModel(adapterProvider: BluetoothAdapterProvider): ViewModel() {
     private val adapter = adapterProvider.getAdapter()
     private var scanner: BluetoothLeScanner? = null
     private var callback: BleScanCallBack? = null
+    var enableCheck = false
 
     private val settings: ScanSettings
     private val filters: List<ScanFilter>
@@ -46,7 +48,6 @@ class DevicesViewModel(adapterProvider: BluetoothAdapterProvider): ViewModel() {
     private fun buildFilter() =
         listOf(
             ScanFilter.Builder()
-                .setDeviceName(FILTER_NAME)
                 .build()
         )
 
@@ -61,10 +62,10 @@ class DevicesViewModel(adapterProvider: BluetoothAdapterProvider): ViewModel() {
             Log.e("DevicesViewModel","StartScanning")
         }
     }
-
     override fun onCleared() {
         super.onCleared()
         stopScan()
+        clearScanCache()
     }
 
     @SuppressLint("MissingPermission")

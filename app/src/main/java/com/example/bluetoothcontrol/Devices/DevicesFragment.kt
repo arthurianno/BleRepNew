@@ -82,8 +82,6 @@ class DevicesFragment : Fragment(), DevicesAdapter.CallBack {
                 viewModel.stopScan()
                 devicesAdapter.clear()
                 viewModel.clearData()
-                viewModel.clearScanCache()
-
             }
         }
 
@@ -101,6 +99,7 @@ class DevicesFragment : Fragment(), DevicesAdapter.CallBack {
             }
         }
     }
+
     private fun showToast(message: String) {
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
     }

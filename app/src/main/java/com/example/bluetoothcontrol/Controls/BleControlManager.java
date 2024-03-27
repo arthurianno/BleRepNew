@@ -615,6 +615,9 @@ public void loadFirmware(EntireCheck entireCheck) {
                     Log.d("BleControlManager","data " + Arrays.toString(data));
                     handlePinCodeResult(data);
                     break;
+                case CHECK_PIN_RESULT:
+                    handlePinCodeCheck(data);
+                    break;
                 case I_0UA:
                 case I_2UA:
                 case I_10UA:
@@ -842,8 +845,14 @@ public void loadFirmware(EntireCheck entireCheck) {
             String pinResponse = new String(data, StandardCharsets.UTF_8);
             if (pinResponse.contains("pin.ok")) {
                 Log.d("BleControlManager", "Pin code is correct");
+                if (pinCallback != null) {
+                    pinCallback.onPin("CORRECT");
+                }
             } else if (pinResponse.contains("pin.error")) {
                 Log.d("BleControlManager", "Pin code is incorrect");
+                if (pinCallback != null) {
+                    pinCallback.onPin("INCORRECT");
+                }
             } else {
                 Log.e("BleControlManager", "Invalid pin code response: " + pinResponse);
             }

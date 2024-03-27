@@ -46,6 +46,7 @@ class DevicesViewModel(adapterProvider: BluetoothAdapterProvider): ViewModel() {
     private fun buildFilter() =
         listOf(
             ScanFilter.Builder()
+                .setDeviceName(FILTER_NAME)
                 .build()
         )
 
@@ -106,7 +107,7 @@ class DevicesViewModel(adapterProvider: BluetoothAdapterProvider): ViewModel() {
         }
     }
     companion object{
-        var FILTER_NAME = "SatelliteOnline[0-9]{4}"
+        var FILTER_NAME = "SatelliteOnline0002"
     }
 }
 

@@ -151,6 +151,7 @@ class DevicesFragment : Fragment(), DevicesAdapter.CallBack {
             controlViewModel.connect(deviceAddress,"CHECKPIN")
             bleControlManager.setPinCallback {
                 if(it == "CORRECT"){
+                    controlViewModel.disconnect()
                     val existingReadingDataFragment = parentFragmentManager.findFragmentByTag(ReadingDataFragment.TAG) as? ReadingDataFragment
                     if (existingReadingDataFragment != null && controlViewModel.isConnected.value != false) {
                         parentFragmentManager.beginTransaction()

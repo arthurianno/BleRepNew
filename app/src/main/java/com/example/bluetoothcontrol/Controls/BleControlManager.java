@@ -50,6 +50,7 @@ public class BleControlManager extends BleManager {
     private boolean battCheck = false;
     private boolean stage = false;
     private boolean verCheck = false;
+    private int versionSoft = 0;
 
     private static final byte WRITE_CMD = (byte) 0x01;
     private static final byte APPLY_CMD = (byte) 0xEE;
@@ -57,6 +58,7 @@ public class BleControlManager extends BleManager {
     private static final byte RAW_ASK = (byte) 0x00;
     private TimerCallback timerCallback;
     private PinCallback pinCallback;
+    private int sliseSize;
     private static final byte BOOT_MODE_CMD = (byte) 0x12;
     private static final byte BOOT_MODE_SUCCESS = (byte) 0x00;
     private static final int MAX_ADDRESS = 0x1FFFF;
@@ -497,6 +499,18 @@ public void loadFirmware(EntireCheck entireCheck) {
         // Если версия программного обеспечения находится в указанном диапазоне
         return true;
     }
+    private int compareSoftwareVersion(String version1, String version2) {
+        String[] parts1 = version1.split("\\.");
+        String[] parts2 = version2.split("\\.");
+
+        for (int i = 0; i < Math.min(parts1.length, parts2.length); i++) {
+            int part1 = Integer.parseInt(parts1[i]);
+            int part2 = Integer.parseInt(parts2[i]);
+            if (part1 < part2) return -1;
+            if (part1 > part2) return 1;
+        }
+        return Integer.compare(parts1.length, parts2.length);
+    }
 
 
 
@@ -674,7 +688,7 @@ public void loadFirmware(EntireCheck entireCheck) {
                     break;
                 case softVer:
                     Log.d("BleControlManager", " data HEX type " + bytesToHexLogs(data));
-                    handleCheckSoftwareVersion(data);
+                    handleCheckSoftwareVersion(data,changedMode);
                     break;
 
 
@@ -857,7 +871,7 @@ public void loadFirmware(EntireCheck entireCheck) {
             }
         }
 
-        private void handleCheckSoftwareVersion(byte[] data){
+        private void handleCheckSoftwareVersion(byte[] data,String mode){
             String softWareResponse = new String(data, StandardCharsets.UTF_8);
             if(softWareResponse.contains("hw")){
                 Pattern pattern = Pattern.compile("sw:(\\d+\\.\\d+\\.\\d+)");
@@ -865,19 +879,31 @@ public void loadFirmware(EntireCheck entireCheck) {
                 if (matcher.find()) {
                     String softwareVersion = matcher.group(1);
                     Log.d("BleControlManager", "Software Version: " + softwareVersion);
-
-                    // Проверка версии программного обеспечения на соответствие диапазону
-                    if (isSoftwareVersionInRange(Objects.requireNonNull(softwareVersion), "4.0.9", "4.9.9")) {
-                        // Версия программного обеспечения находится в диапазоне
-                        Log.d("BleControlManager", "Software version is in range.");
-                        verCheck = true;
-                        sendCommand("battery",EntireCheck.batteryLevel);
+                    if (compareSoftwareVersion(Objects.requireNonNull(softwareVersion), "4.5.0") < 0 && Objects.equals(mode, "RAW")) {
+                        // Версия меньше чем 4.5.0
+                        // Устанавливаем значение переменной в 108
+                        sliseSize = 108;
+                        Log.e("BleControlManager", "Software version less then 4.5.0.");
+                    } else if (softwareVersion.equals("4.5.0")) {
+                        // Версия равна 4.5.0
+                        // Устанавливаем значение переменной в 128
+                        sliseSize = 128;
+                        Log.e("BleControlManager", "Software version is 4.5.0.");
+                        sendCommand("setraw", EntireCheck.default_command);
                     } else {
-                        // Версия программного обеспечения НЕ находится в диапазоне
-                        Log.d("BleControlManager", "Software version is not in range.");
-                        verCheck = false;
+                        // Проверка версии программного обеспечения на соответствие диапазону
+                        if (isSoftwareVersionInRange(Objects.requireNonNull(softwareVersion), "4.0.9", "4.9.9")) {
+                            // Версия программного обеспечения находится в диапазоне
+                            Log.d("BleControlManager", "Software version is in range.");
+                            verCheck = true;
+                            sendCommand("battery", EntireCheck.batteryLevel);
+                        } else {
+                            // Версия программного обеспечения НЕ находится в диапазоне
+                            Log.d("BleControlManager", "Software version is not in range.");
+                            verCheck = false;
+                        }
                     }
-                } else {
+                }else {
                     Log.e("BleControlManager", "Software version not found in response.");
                 }
             }
@@ -917,7 +943,7 @@ public void loadFirmware(EntireCheck entireCheck) {
             String defaultResponse = new String(data, StandardCharsets.UTF_8);
             if (defaultResponse.contains("setraw.ok")) {
                 Log.d("BleControlManager", "RAW correct");
-                ControlViewModel.Companion.readDeviceProfile();
+                ControlViewModel.Companion.readDeviceProfile(sliseSize);
             }else if (defaultResponse.contains("setraw.error")) {
                 Log.d("BleControlManager", " incorrect command");
             } else if (defaultResponse.contains("boot.ok")) {

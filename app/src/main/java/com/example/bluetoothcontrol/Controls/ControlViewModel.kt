@@ -24,6 +24,7 @@ class ControlViewModel(private val adapterProvider: BluetoothAdapterProvider, pr
     private val controlManager = MainActivity.controlManager
     private val _isConnected = MutableLiveData<Boolean>().apply { value = false }
     private val sharedPreferences = context.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+    var sliceSize = 0;
     val isConnected: LiveData<Boolean> get() = _isConnected
     var pinCode: String? = null
     private var lastConnectedDevice: BluetoothDevice? = null
@@ -147,8 +148,8 @@ class ControlViewModel(private val adapterProvider: BluetoothAdapterProvider, pr
 
     companion object {
         val entireCheckQueue: Queue<EntireCheck> = LinkedList()
-        fun readDeviceProfile() {
-            if (controlManager.isConnected) {
+        fun readDeviceProfile(sliseSize: Int) {
+            if (controlManager.isConnected && sliseSize == 128) {
                 // Чтение каждого поля из структуры UIC_slope_t
                 controlManager.readData(0x00, 0x04, EntireCheck.I_0UA); // i_0uA
                 controlManager.readData(0x04, 0x04, EntireCheck.I_2UA); // i_2uA
@@ -173,6 +174,28 @@ class ControlViewModel(private val adapterProvider: BluetoothAdapterProvider, pr
                 controlManager.readData(0x70, 0x0C, EntireCheck.RESERV) // reserv
                 controlManager.readData(0x6C, 0x04, EntireCheck.LOCAL_TIME_SH) // localTimeShift
                 controlManager.readData(0x7C, 0x04, EntireCheck.CRC32) // crc32
+            }else{
+                // Чтение каждого поля из структуры UIC_slope_t
+                controlManager.readData(0x00, 0x04, EntireCheck.I_0UA); // i_0uA
+                controlManager.readData(0x04, 0x04, EntireCheck.I_2UA); // i_2uA
+                controlManager.readData(0x08, 0x04, EntireCheck.I_10UA); // i_10uA
+                controlManager.readData(0x0C, 0x04, EntireCheck.I_20UA); // i_20uA
+                controlManager.readData(0x10, 0x04, EntireCheck.I_30UA); // i_30uA
+                controlManager.readData(0x14, 0x04, EntireCheck.I_40UA); // i_40uA
+                controlManager.readData(0x18, 0x04, EntireCheck.I_60UA); // i_60uA
+                // Чтение каждого поля из структуры
+                controlManager.readData(0x1C, 0x04, EntireCheck.Tref_mV); // Tref_mV
+                controlManager.readData(0x20, 0x04, EntireCheck.R1_Ohm); // R1_Ohm
+                controlManager.readData(0x24, 0x04, EntireCheck.Uref); // Uref
+                controlManager.readData(0x28, 0x04, EntireCheck.Uw); // Uw
+                controlManager.readData(0x2C, 0x04, EntireCheck.T10ref_C); // T10ref_C
+                // Чтение каждого поля из структуры DeviceProfile_t
+                controlManager.readData(0x30, 0x04, EntireCheck.SETUP_TIME); // setupTime
+                controlManager.readData(0x34, 0x04, EntireCheck.POW_VOLT); // powVoltK
+                controlManager.readData(0x38, 0x04, EntireCheck.CONFIG_WORD); // configWord
+                controlManager.readData(0x3C, 0x10, EntireCheck.SETUP_OPERATOR); // setupOperator
+                controlManager.readData(0x4C, 0x10, EntireCheck.HW_VER); // hw_ver
+                controlManager.readData(0x5C, 0x10, EntireCheck.SER_NUM); // serialNumber
             }
         }
     }

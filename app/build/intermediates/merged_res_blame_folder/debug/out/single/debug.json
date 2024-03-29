@@ -1,19 +1,7 @@
 [
     {
-        "merged": "com.example.bluetoothcontrol.app-merged_res-48:/drawable_baseline_circle_yellow.xml.flat",
-        "source": "com.example.bluetoothcontrol.app-main-50:/drawable/baseline_circle_yellow.xml"
-    },
-    {
         "merged": "C:\\Users\\user\\.gradle\\daemon\\8.3\\com.example.bluetoothcontrol.app-merged_res-48:\\mipmap-xxhdpi_ic_launcher.webp.flat",
         "source": "C:\\Users\\user\\.gradle\\daemon\\8.3\\com.example.bluetoothcontrol.app-main-50:\\mipmap-xxhdpi\\ic_launcher.webp"
-    },
-    {
-        "merged": "com.example.bluetoothcontrol.app-merged_res-48:/drawable_baseline_circle_red.xml.flat",
-        "source": "com.example.bluetoothcontrol.app-main-50:/drawable/baseline_circle_red.xml"
-    },
-    {
-        "merged": "com.example.bluetoothcontrol.app-merged_res-48:/drawable_baseline_circle_green.xml.flat",
-        "source": "com.example.bluetoothcontrol.app-main-50:/drawable/baseline_circle_green.xml"
     },
     {
         "merged": "C:\\Users\\user\\.gradle\\daemon\\8.3\\com.example.bluetoothcontrol.app-merged_res-48:\\mipmap-hdpi_ic_launcher.webp.flat",
@@ -42,6 +30,10 @@
     {
         "merged": "C:\\Users\\user\\.gradle\\daemon\\8.3\\com.example.bluetoothcontrol.app-merged_res-48:\\mipmap-mdpi_ic_launcher.webp.flat",
         "source": "C:\\Users\\user\\.gradle\\daemon\\8.3\\com.example.bluetoothcontrol.app-main-50:\\mipmap-mdpi\\ic_launcher.webp"
+    },
+    {
+        "merged": "C:\\Users\\user\\.gradle\\daemon\\8.3\\com.example.bluetoothcontrol.app-merged_res-48:\\drawable_baseline_circle_yellow.xml.flat",
+        "source": "C:\\Users\\user\\.gradle\\daemon\\8.3\\com.example.bluetoothcontrol.app-main-50:\\drawable\\baseline_circle_yellow.xml"
     },
     {
         "merged": "C:\\Users\\user\\.gradle\\daemon\\8.3\\com.example.bluetoothcontrol.app-merged_res-48:\\drawable_baseline_home.xml.flat",
@@ -134,6 +126,14 @@
     {
         "merged": "C:\\Users\\user\\.gradle\\daemon\\8.3\\com.example.bluetoothcontrol.app-merged_res-48:\\mipmap-anydpi-v26_ic_launcher.xml.flat",
         "source": "C:\\Users\\user\\.gradle\\daemon\\8.3\\com.example.bluetoothcontrol.app-main-50:\\mipmap-anydpi-v26\\ic_launcher.xml"
+    },
+    {
+        "merged": "C:\\Users\\user\\.gradle\\daemon\\8.3\\com.example.bluetoothcontrol.app-merged_res-48:\\drawable_baseline_circle_red.xml.flat",
+        "source": "C:\\Users\\user\\.gradle\\daemon\\8.3\\com.example.bluetoothcontrol.app-main-50:\\drawable\\baseline_circle_red.xml"
+    },
+    {
+        "merged": "C:\\Users\\user\\.gradle\\daemon\\8.3\\com.example.bluetoothcontrol.app-merged_res-48:\\drawable_baseline_circle_green.xml.flat",
+        "source": "C:\\Users\\user\\.gradle\\daemon\\8.3\\com.example.bluetoothcontrol.app-main-50:\\drawable\\baseline_circle_green.xml"
     },
     {
         "merged": "C:\\Users\\user\\.gradle\\daemon\\8.3\\com.example.bluetoothcontrol.app-merged_res-48:\\drawable_baseline_bookmark.xml.flat",

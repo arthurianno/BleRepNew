@@ -43,6 +43,8 @@ public class BleControlManager extends BleManager {
 
     public static MutableLiveData<ArrayList<DataItem>> requestData = new MutableLiveData<>();
     private static final ArrayList<DataItem> listOfDataItem = new ArrayList<>();
+    public static MutableLiveData<ArrayList<TermItem>> requestDataTermItem = new MutableLiveData<>();
+    private static final ArrayList<TermItem> listOfTermItem = new ArrayList<>();
     private static final byte RAW_START_MARK = 0x21;
     private static final byte RAW_RD = (byte) 0x81;
     private long startTime;
@@ -167,6 +169,7 @@ public class BleControlManager extends BleManager {
                 commandData[0] = RAW_START_MARK;
                 commandData[1] = WRITE_CMD;
                 commandData[2] = (byte) dataItem.getAddress();
+                Log.e("BleControlManager","CheckingAddress " + dataItem.getAddress());
                 commandData[3] = (byte) data.length; // <num>
                 System.arraycopy(data, 0, commandData, 4, data.length); // <data>
                 writeCharacteristic(
@@ -174,7 +177,7 @@ public class BleControlManager extends BleManager {
                         commandData,
                         BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
                 )
-                        .done(device -> Log.e("BleControlManager", "Write Data command sent " + Arrays.toString(data)))
+                        .done(device -> Log.e("BleControlManager", "Write Data command sent " + Arrays.toString(commandData)))
                         .fail((device, status) -> Log.e("BleControlManager", "Failed to send write command: " + status))
                         .enqueue();
             } else {
@@ -695,6 +698,7 @@ public void loadFirmware(EntireCheck entireCheck) {
 
             }
             requestData.setValue(listOfDataItem);
+            requestDataTermItem.setValue(listOfTermItem);
         }
 
 
@@ -967,21 +971,21 @@ public void loadFirmware(EntireCheck entireCheck) {
             } else if (defaultResponse.contains("boot.error")) {
                 Log.e("BleControlManager", "Error: Low battery level");
             }else if(defaultResponse.contains("time")){
-                DataItem termItem = new DataItem(defaultResponse,"TIME","TIME",false,1,1,DataType.FLOAT);
-                listOfDataItem.add(termItem);
+                TermItem termItem = new TermItem(defaultResponse,"TIME");
+                listOfTermItem.add(termItem);
             }else if(defaultResponse.contains("hw")){
-                DataItem termItem = new DataItem(defaultResponse,"VERSION","VERSION",false,1,1,DataType.FLOAT);
-                listOfDataItem.add(termItem);
+                TermItem termItem = new TermItem(defaultResponse,"VERSION");
+                listOfTermItem.add(termItem);
             }
             else if(defaultResponse.contains(".t")){
-                DataItem termItem = new DataItem(defaultResponse,"BATTERY","BATTERY",false,1,1,DataType.FLOAT);
-                listOfDataItem.add(termItem);
+                TermItem termItem = new TermItem(defaultResponse,"BATTERY");
+                listOfTermItem.add(termItem);
             }else if(defaultResponse.contains("ser.")){
-                DataItem termItem = new DataItem(defaultResponse,"SERIAL NUMBER","SERIAL NUMBER",false,1,1,DataType.FLOAT);
-                listOfDataItem.add(termItem);
+                TermItem termItem = new TermItem(defaultResponse,"SERIAL NUMBER");
+                listOfTermItem.add(termItem);
             }else if(defaultResponse.contains("mac.")){
-                DataItem termItem = new DataItem(defaultResponse,"MAC ADDRESS","MAC ADDRESS",false,1,1,DataType.FLOAT);
-                listOfDataItem.add(termItem);
+                TermItem termItem = new TermItem(defaultResponse,"MAC ADDRESS");
+                listOfTermItem.add(termItem);
             }else {
                 Log.e("BleControlManager", "Invalid response: " + defaultResponse);
             }

@@ -9,10 +9,10 @@ import com.example.bluetoothcontrol.databinding.ItemTermBinding
 
 class TerminalAdapter : RecyclerView.Adapter<TerminalAdapter.TerminalViewHolder>() {
 
-    private val items = ArrayList<DataItem>()
+    private val items = ArrayList<TermItem>()
 
     @SuppressLint("NotifyDataSetChanged")
-    fun update(items:ArrayList<DataItem>){
+    fun update(items:ArrayList<TermItem>){
         this.items.clear()
         this.items.addAll(items)
         notifyDataSetChanged()
@@ -23,9 +23,9 @@ class TerminalAdapter : RecyclerView.Adapter<TerminalAdapter.TerminalViewHolder>
     }
 
      inner class TerminalViewHolder(private var binding: ItemTermBinding): RecyclerView.ViewHolder(binding.root) {
-         fun bind(termItem: DataItem){
-             binding.nameOfAtributeData.text = termItem.attributeName
-             binding.nameOfData.text = termItem.name
+         fun bind(termItem: TermItem){
+             binding.nameOfData.text = termItem.nameOfTerm
+             binding.nameOfAtributeData.text = termItem.name
          }
     }
 

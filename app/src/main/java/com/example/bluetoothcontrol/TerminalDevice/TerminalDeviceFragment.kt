@@ -7,7 +7,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.bluetoothcontrol.Controls.BleControlManager
 import com.example.bluetoothcontrol.Controls.ControlViewModel
 import com.example.bluetoothcontrol.MainActivity
@@ -33,7 +35,7 @@ class TerminalDeviceFragment(): Fragment() {
         _binding = FragmentTerminalDeviceBinding.inflate(inflater, container, false)
         controlViewModel = (requireActivity() as MainActivity).getControlViewModelFromMain()
         bleControlManager = MainActivity.controlManager
-        BleControlManager.requestData.observe(viewLifecycleOwner) { data ->
+        BleControlManager.requestDataTermItem.observe(viewLifecycleOwner) { data ->
             terminalAdapter.update(data)
         }
         return (binding.root)
@@ -42,6 +44,7 @@ class TerminalDeviceFragment(): Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         (activity as? MainActivity)?.showBottomNavigationView()
         binding.recyclerView.apply {
+            addItemDecoration(DividerItemDecoration(requireContext(), RecyclerView.VERTICAL))
             layoutManager = LinearLayoutManager(requireContext())
             adapter = terminalAdapter
         }

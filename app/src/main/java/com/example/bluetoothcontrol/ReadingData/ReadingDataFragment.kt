@@ -25,6 +25,8 @@ import com.example.bluetoothcontrol.SharedViewModel
 import com.example.bluetoothcontrol.databinding.FragmentReadingDataBinding
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
+import java.util.Arrays
+import kotlin.math.min
 
 
 class ReadingDataFragment : Fragment(),ReadingDataAdapter.CallBackOnReadingItem {
@@ -42,6 +44,7 @@ class ReadingDataFragment : Fragment(),ReadingDataAdapter.CallBackOnReadingItem 
     ): View {
         _binding = FragmentReadingDataBinding.inflate(inflater, container, false)
         BleControlManager.requestData.observe(viewLifecycleOwner) { data ->
+            Log.d(TAG,"recView UPDATE")
             adapterReading.update(data)
         }
         controlViewModel = (requireActivity() as MainActivity).getControlViewModelFromMain()
@@ -122,6 +125,7 @@ class ReadingDataFragment : Fragment(),ReadingDataAdapter.CallBackOnReadingItem 
             .show()
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun showWriteDialog() {
         val changedItemsCount = adapterReading.items.count { it.isValueChanged }
         val builder = AlertDialog.Builder(requireContext())
@@ -137,6 +141,11 @@ class ReadingDataFragment : Fragment(),ReadingDataAdapter.CallBackOnReadingItem 
                         bleControlManager.writeData(newData, EntireCheck.WRITE, dataItem)
                     }
                     Toast.makeText(requireContext(), "Данные успешно записаны", Toast.LENGTH_SHORT).show()
+                    // Очистка списка данных и обновление RecyclerView
+                    adapterReading.items.clear()
+                    BleControlManager.requestData.value?.clear()
+                    adapterReading.notifyDataSetChanged()
+                    Log.d(TAG,"recView CLEAR")
                     dialog.dismiss()
                 } else {
                     Toast.makeText(requireContext(), "Данные не записаны", Toast.LENGTH_SHORT).show()
@@ -169,7 +178,14 @@ class ReadingDataFragment : Fragment(),ReadingDataAdapter.CallBackOnReadingItem 
                 newData
             }
             DataType.CHAR_ARRAY -> {
-                val newData = dataItem.name.toByteArray(Charsets.UTF_8)
+                val maxLength = 16
+                val valueBytes = dataItem.name.toByteArray(Charsets.UTF_8)
+                val newData = ByteArray(maxLength)
+                val lengthOfData = min(valueBytes.size, maxLength)
+                System.arraycopy(valueBytes, 0, newData, 0, lengthOfData)
+                if (lengthOfData < maxLength) {
+                    Arrays.fill(newData, lengthOfData, maxLength, 0.toByte())
+                }
                 dataItem.isValueChanged = false
                 newData
             }

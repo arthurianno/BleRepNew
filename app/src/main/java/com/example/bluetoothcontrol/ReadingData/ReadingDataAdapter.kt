@@ -14,7 +14,7 @@ class ReadingDataAdapter : RecyclerView.Adapter<ReadingDataAdapter.ReadingDataVi
     private var callBack : CallBackOnReadingItem? = null
 
     @SuppressLint("NotifyDataSetChanged")
-    fun update(items: ArrayList<DataItem>) {
+    fun update(items: List<DataItem>) {
         this.items.clear()
         this.items.addAll(items)
         notifyDataSetChanged()

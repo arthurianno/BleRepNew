@@ -198,6 +198,16 @@ class ControlViewModel(private val adapterProvider: BluetoothAdapterProvider, pr
                 controlManager.readData(0x5C, 0x10, EntireCheck.SER_NUM); // serialNumber
             }
         }
+        fun readTerminalCommands(){
+            if(controlManager.isConnected){
+                controlManager.sendCommand("gettime",EntireCheck.default_command)
+                controlManager.sendCommand("version",EntireCheck.default_command)
+                controlManager.sendCommand("battery",EntireCheck.default_command)
+                controlManager.sendCommand("serial",EntireCheck.default_command)
+                controlManager.sendCommand("mac",EntireCheck.default_command)
+
+            }
+        }
     }
 
 }

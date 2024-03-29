@@ -14,6 +14,7 @@ import androidx.annotation.RequiresApi;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.bluetoothcontrol.ReadingData.DataItem;
+import com.example.bluetoothcontrol.TerminalDevice.TermItem;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -845,7 +846,12 @@ public void loadFirmware(EntireCheck entireCheck) {
             String pinResponse = new String(data, StandardCharsets.UTF_8);
             if (pinResponse.contains("pin.ok")) {
                 Log.d("BleControlManager", "Pin code is correct");
-                sendCommand("version",EntireCheck.softVer);
+                if(Objects.equals(changedMode,"TERMINAL")){
+                    Log.d("BleControlManager", "TERMINAL MODE");
+                    ControlViewModel.Companion.readTerminalCommands();
+                }else{
+                    sendCommand("version",EntireCheck.softVer);
+                }
             } else if (pinResponse.contains("pin.error")) {
                 Log.d("BleControlManager", "Pin code is incorrect");
             } else {
@@ -960,7 +966,23 @@ public void loadFirmware(EntireCheck entireCheck) {
                 Log.d("BleControlManager", "Device entered firmware update mode successfully");
             } else if (defaultResponse.contains("boot.error")) {
                 Log.e("BleControlManager", "Error: Low battery level");
-            } else {
+            }else if(defaultResponse.contains("time")){
+                DataItem termItem = new DataItem(defaultResponse,"TIME","TIME",false,1,1,DataType.FLOAT);
+                listOfDataItem.add(termItem);
+            }else if(defaultResponse.contains("hw")){
+                DataItem termItem = new DataItem(defaultResponse,"VERSION","VERSION",false,1,1,DataType.FLOAT);
+                listOfDataItem.add(termItem);
+            }
+            else if(defaultResponse.contains(".t")){
+                DataItem termItem = new DataItem(defaultResponse,"BATTERY","BATTERY",false,1,1,DataType.FLOAT);
+                listOfDataItem.add(termItem);
+            }else if(defaultResponse.contains("ser.")){
+                DataItem termItem = new DataItem(defaultResponse,"SERIAL NUMBER","SERIAL NUMBER",false,1,1,DataType.FLOAT);
+                listOfDataItem.add(termItem);
+            }else if(defaultResponse.contains("mac.")){
+                DataItem termItem = new DataItem(defaultResponse,"MAC ADDRESS","MAC ADDRESS",false,1,1,DataType.FLOAT);
+                listOfDataItem.add(termItem);
+            }else {
                 Log.e("BleControlManager", "Invalid response: " + defaultResponse);
             }
         }

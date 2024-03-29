@@ -16,6 +16,9 @@ drawable baseline_bluetooth_disabled_24
 drawable baseline_bookmark
 drawable baseline_build_circle
 drawable baseline_check_24
+drawable baseline_circle_green
+drawable baseline_circle_red
+drawable baseline_circle_yellow
 drawable baseline_clear_24
 drawable baseline_close_24
 drawable baseline_create
@@ -32,6 +35,7 @@ id buttonProcessFiles
 id buttonRDData
 id buttonWRData
 id checkmark
+id connectionStatusImageView
 id containerLayout
 id dataRecView
 id deviceName

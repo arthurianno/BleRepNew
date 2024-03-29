@@ -40,6 +40,7 @@ class MainActivity : AppCompatActivity(),DevicesAdapter.CallBack {
          lateinit var controlManager: BleControlManager
     }
 
+    @SuppressLint("ResourceType")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -57,6 +58,13 @@ class MainActivity : AppCompatActivity(),DevicesAdapter.CallBack {
         }
         sharedViewModel.devName.observe(this){ name ->
             binding.deviceName.text = name.toString()
+        }
+        controlViewModel.isConnected.observe(this){
+            if(it == true){
+                binding.connectionStatusImageView.setImageResource(R.drawable.baseline_circle_green)
+            }else{
+                binding.connectionStatusImageView.setImageResource(R.drawable.baseline_circle_red)
+            }
         }
 
     }

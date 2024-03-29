@@ -4,6 +4,7 @@ package com.example.bluetoothcontrol.databinding;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -25,6 +26,9 @@ public final class ActivityMainBinding implements ViewBinding {
   public final BottomNavigationView bottomNavBar;
 
   @NonNull
+  public final ImageView connectionStatusImageView;
+
+  @NonNull
   public final ConstraintLayout containerLayout;
 
   @NonNull
@@ -34,10 +38,12 @@ public final class ActivityMainBinding implements ViewBinding {
   public final FragmentContainerView fragmentContainer;
 
   private ActivityMainBinding(@NonNull ConstraintLayout rootView,
-      @NonNull BottomNavigationView bottomNavBar, @NonNull ConstraintLayout containerLayout,
-      @NonNull TextView deviceName, @NonNull FragmentContainerView fragmentContainer) {
+      @NonNull BottomNavigationView bottomNavBar, @NonNull ImageView connectionStatusImageView,
+      @NonNull ConstraintLayout containerLayout, @NonNull TextView deviceName,
+      @NonNull FragmentContainerView fragmentContainer) {
     this.rootView = rootView;
     this.bottomNavBar = bottomNavBar;
+    this.connectionStatusImageView = connectionStatusImageView;
     this.containerLayout = containerLayout;
     this.deviceName = deviceName;
     this.fragmentContainer = fragmentContainer;
@@ -76,6 +82,12 @@ public final class ActivityMainBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.connectionStatusImageView;
+      ImageView connectionStatusImageView = ViewBindings.findChildViewById(rootView, id);
+      if (connectionStatusImageView == null) {
+        break missingId;
+      }
+
       ConstraintLayout containerLayout = (ConstraintLayout) rootView;
 
       id = R.id.deviceName;
@@ -90,8 +102,8 @@ public final class ActivityMainBinding implements ViewBinding {
         break missingId;
       }
 
-      return new ActivityMainBinding((ConstraintLayout) rootView, bottomNavBar, containerLayout,
-          deviceName, fragmentContainer);
+      return new ActivityMainBinding((ConstraintLayout) rootView, bottomNavBar,
+          connectionStatusImageView, containerLayout, deviceName, fragmentContainer);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

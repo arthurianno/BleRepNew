@@ -3030,6 +3030,9 @@ drawable baseline_bluetooth_disabled_24
 drawable baseline_bookmark
 drawable baseline_build_circle
 drawable baseline_check_24
+drawable baseline_circle_green
+drawable baseline_circle_red
+drawable baseline_circle_yellow
 drawable baseline_clear_24
 drawable baseline_close_24
 drawable baseline_create
@@ -3276,6 +3279,7 @@ id closest
 id collapseActionView
 id compress
 id confirm_button
+id connectionStatusImageView
 id constraint
 id container
 id containerLayout

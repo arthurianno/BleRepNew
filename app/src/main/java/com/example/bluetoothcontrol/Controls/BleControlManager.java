@@ -890,7 +890,7 @@ public void loadFirmware(EntireCheck entireCheck) {
                         // Устанавливаем значение переменной в 108
                         sliseSize = 108;
                         Log.e("BleControlManager", "Software version less then 4.5.0.");
-                    } else if (softwareVersion.equals("4.5.0")) {
+                    } else if (softwareVersion.equals("4.5.0") && Objects.equals(mode, "RAW")) {
                         // Версия равна 4.5.0
                         // Устанавливаем значение переменной в 128
                         sliseSize = 128;

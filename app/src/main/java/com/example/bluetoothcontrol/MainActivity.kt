@@ -46,7 +46,7 @@ class MainActivity : AppCompatActivity(),DevicesAdapter.CallBack {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         enableBluetooth()
-        navigate(DevicesFragment.newInstance(), "DeviceFragment")
+        navigate(DevicesFragment.newInstance(), "DeviceFragment",R.id.fragmentContainer)
         hideBottomNavigationView()
         controlManager = BleControlManager(this)
         sharedViewModel.selectedDeviceAddress.observe(this, Observer { deviceAddress ->
@@ -69,10 +69,22 @@ class MainActivity : AppCompatActivity(),DevicesAdapter.CallBack {
 
     }
 
-    @SuppressLint("MissingSuperCall")
+    @Suppress("DEPRECATION")
     @Deprecated("Deprecated in Java")
-    override fun onBackPressed(){
+    override fun onBackPressed() {
+        // Получаем текущий фрагмент
+        val currentFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
 
+        // Проверяем, является ли текущий фрагмент фрагментом устройств
+        val isDeviceFragment = currentFragment is DevicesFragment
+
+        // Если текущий фрагмент не является фрагментом устройств, переходим к фрагменту устройств
+        if (!isDeviceFragment) {
+            navigate(DevicesFragment.newInstance(), "DeviceFragment", R.id.fragmentContainer)
+        } else {
+            // Если текущий фрагмент уже является фрагментом устройств, закрываем активность
+            super.onBackPressed()
+        }
     }
 
     fun getControlViewModelFromMain(): ControlViewModel {
@@ -128,10 +140,10 @@ class MainActivity : AppCompatActivity(),DevicesAdapter.CallBack {
         }
     }
 
-    private fun navigate(fragment: Fragment, tag: String) {
+    private fun navigate(fragment: Fragment, tag: String, fragmentId: Int) {
         supportFragmentManager.beginTransaction()
             .addToBackStack(null)
-            .replace(R.id.fragmentContainer, fragment, tag)
+            .replace(fragmentId, fragment, tag)
             .commit()
 
         currentFragmentTag = tag

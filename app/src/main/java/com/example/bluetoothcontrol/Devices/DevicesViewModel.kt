@@ -42,7 +42,7 @@ class DevicesViewModel(adapterProvider: BluetoothAdapterProvider): ViewModel() {
     }
     private fun buildSettings() =
         ScanSettings.Builder()
-            .setScanMode(ScanSettings.SCAN_MODE_BALANCED)
+            .setScanMode(ScanSettings.SCAN_MODE_LOW_POWER)
             .build()
 
     private fun buildFilter() =

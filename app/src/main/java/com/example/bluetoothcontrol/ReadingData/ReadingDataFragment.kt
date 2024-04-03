@@ -183,12 +183,6 @@ class ReadingDataFragment : Fragment(),ReadingDataAdapter.CallBackOnReadingItem,
             }
             .show()
     }
-
-
-
-
-
-
     private fun prepareData(dataItem: DataItem): ByteArray {
         return when (dataItem.type) {
             DataType.FLOAT -> {

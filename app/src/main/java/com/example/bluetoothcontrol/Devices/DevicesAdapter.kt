@@ -13,20 +13,35 @@ import com.example.bluetoothcontrol.databinding.ItemDeviceBinding
 class DevicesAdapter(private val callback:CallBack,private val sharedViewModel: SharedViewModel): RecyclerView.Adapter<DevicesAdapter.DevicesViewHolder>() {
 
     private val items = ArrayList<BluetoothDevice>()
+    private val filteredItems = ArrayList<BluetoothDevice>()
     private var callBack: CallBack? = null
     private var filter: String? = null
 
 
     @SuppressLint("NotifyDataSetChanged")
-    fun update(items: List<BluetoothDevice>){
-        this.items.clear()
-        this.items.addAll(items)
-        notifyDataSetChanged()
+    fun update(newItems: List<BluetoothDevice>) {
+        items.clear()
+        items.addAll(newItems)
+        applyFilter() // Применяем фильтр после обновления списка
     }
     @SuppressLint("NotifyDataSetChanged")
     fun setFilter(filter: String?) {
         this.filter = filter
         notifyDataSetChanged() // Перерисовываем список при изменении фильтра
+    }
+    @SuppressLint("MissingPermission", "NotifyDataSetChanged")
+    private fun applyFilter() {
+        filteredItems.clear()
+        filteredItems.addAll(items.filter { it.name?.contains(filter.orEmpty(), ignoreCase = true) == true })
+        notifyDataSetChanged() // Уведомляем адаптер об изменениях
+    }
+
+    @SuppressLint("MissingPermission")
+    fun addNewDevice(device: BluetoothDevice) {
+        if (device.name?.contains(filter.orEmpty(), ignoreCase = true) == true) {
+            filteredItems.add(device)
+            notifyItemInserted(filteredItems.size - 1) // Уведомляем адаптер о добавлении нового элемента
+        }
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -48,35 +63,25 @@ class DevicesAdapter(private val callback:CallBack,private val sharedViewModel: 
 
     @SuppressLint("MissingPermission")
     override fun getItemCount(): Int {
-        return if (filter.isNullOrEmpty()) {
-            items.size // Возвращаем размер списка без фильтрации
-        } else {
-            items.count { it.name?.contains(filter!!, ignoreCase = true) == true } // Возвращаем количество элементов, удовлетворяющих фильтру
-        }
+        return filteredItems.size
     }
 
     @SuppressLint("MissingPermission")
     override fun onBindViewHolder(holder: DevicesViewHolder, position: Int) {
-        val filteredItems = if (filter.isNullOrEmpty()) {
-            items // Используем весь список без фильтрации
-        } else {
-            items.filter { it.name?.contains(filter!!, ignoreCase = true) == true } // Фильтруем список по имени
-        }
         holder.bind(filteredItems[position])
     }
 
-     inner class DevicesViewHolder(private val binding: ItemDeviceBinding): RecyclerView.ViewHolder(binding.root){
-
-         @SuppressLint("MissingPermission")
-         fun bind(item: BluetoothDevice) {
-             itemView.setOnClickListener {
-                 callback.onItemClick(item)
-             }
-             binding.apply {
-                 textName.text = item.name ?: textName.context.getString(R.string.unnamed_device)
-                 textAddress.text = item.address
-             }
-         }
+    inner class DevicesViewHolder(private val binding: ItemDeviceBinding) : RecyclerView.ViewHolder(binding.root) {
+        @SuppressLint("MissingPermission")
+        fun bind(item: BluetoothDevice) {
+            itemView.setOnClickListener {
+                callback.onItemClick(item)
+            }
+            binding.apply {
+                textName.text = item.name ?: textName.context.getString(R.string.unnamed_device)
+                textAddress.text = item.address
+            }
+        }
     }
 
     interface CallBack{

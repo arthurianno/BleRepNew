@@ -15,7 +15,6 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import com.example.bluetoothcontrol.Devices.DevicesAdapter
 import com.example.bluetoothcontrol.Devices.DevicesFragment
 import com.example.bluetoothcontrol.ReadingData.ReadingDataFragment
 import com.example.bluetoothcontrol.TerminalDevice.TerminalDeviceFragment
@@ -23,10 +22,11 @@ import com.example.bluetoothcontrol.Controls.BleControlManager
 import com.example.bluetoothcontrol.Controls.ControlFragment
 import com.example.bluetoothcontrol.Controls.ControlViewModel
 import com.example.bluetoothcontrol.Controls.ControlViewModelFactory
+import com.example.bluetoothcontrol.Devices.DevicesAdapter
 import com.example.bluetoothcontrol.Logs.LogFragment
 import com.example.bluetoothcontrol.databinding.ActivityMainBinding
 
-class MainActivity : AppCompatActivity(),DevicesAdapter.CallBack {
+class MainActivity : AppCompatActivity(), DevicesAdapter.CallBack {
 
     lateinit var binding: ActivityMainBinding
     lateinit var adapter : BluetoothAdapterProvider

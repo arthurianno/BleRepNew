@@ -5,17 +5,14 @@ import android.bluetooth.BluetoothDevice
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
-import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.bluetoothcontrol.BluetoothAdapterProvider
-import com.example.bluetoothcontrol.Devices.DevicesAdapter
-import com.example.bluetoothcontrol.Devices.DevicesFragment
 import com.example.bluetoothcontrol.MainActivity
 import com.example.bluetoothcontrol.MainActivity.Companion.controlManager
-import com.example.bluetoothcontrol.SharedViewModel
+
 import no.nordicsemi.android.ble.observer.ConnectionObserver
 import java.util.LinkedList
 import java.util.Queue

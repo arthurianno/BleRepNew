@@ -910,7 +910,8 @@ public void loadFirmware(EntireCheck entireCheck) {
                         // Устанавливаем значение переменной в 108
                         sliseSize = 108;
                         Logger.INSTANCE.e("BleControlManager", "Software version less then 4.5.0.");
-                        disconnect();
+                        disconnect().enqueue();
+                        BleControlManager.this.close();
                         Logger.INSTANCE.e("BleControlManager", "Disconnect");
                     } else if (softwareVersion.equals("4.5.0") && Objects.equals(mode, "RAW")) {
                         // Версия равна 4.5.0

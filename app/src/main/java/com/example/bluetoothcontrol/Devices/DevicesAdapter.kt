@@ -35,18 +35,10 @@ class DevicesAdapter(private val callback:CallBack,private val sharedViewModel: 
         filteredItems.addAll(items.filter { it.name?.contains(filter.orEmpty(), ignoreCase = true) == true })
         notifyDataSetChanged() // Уведомляем адаптер об изменениях
     }
-
-    @SuppressLint("MissingPermission")
-    fun addNewDevice(device: BluetoothDevice) {
-        if (device.name?.contains(filter.orEmpty(), ignoreCase = true) == true) {
-            filteredItems.add(device)
-            notifyItemInserted(filteredItems.size - 1) // Уведомляем адаптер о добавлении нового элемента
-        }
-    }
-
     @SuppressLint("NotifyDataSetChanged")
     fun clear() {
         items.clear()
+        filteredItems.clear()
         notifyDataSetChanged()
         Log.e("DeviceAdapter", "Devices list is cleared")
     }

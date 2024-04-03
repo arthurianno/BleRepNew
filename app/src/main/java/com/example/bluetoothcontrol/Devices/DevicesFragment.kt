@@ -30,7 +30,7 @@ import com.example.bluetoothcontrol.SharedViewModel
 import com.example.bluetoothcontrol.databinding.FragmentDevicesBinding
 
 @Suppress("DEPRECATION")
-class DevicesFragment : Fragment(), DevicesAdapter.CallBack {
+class DevicesFragment : Fragment(), DevicesAdapter.CallBack,BleControlManager.PinCallback {
 
     private var _binding: FragmentDevicesBinding? = null
     private val binding: FragmentDevicesBinding get() = _binding!!
@@ -38,6 +38,7 @@ class DevicesFragment : Fragment(), DevicesAdapter.CallBack {
     private lateinit var devicesAdapter: DevicesAdapter
     private lateinit var controlViewModel: ControlViewModel
     private lateinit var bleControlManager: BleControlManager
+    var devAddress: String? = null
     private val viewModel: DevicesViewModel by viewModels {
         DeviceViewModelFactory((requireActivity().application as App).adapterProvider)
     }
@@ -122,6 +123,7 @@ class DevicesFragment : Fragment(), DevicesAdapter.CallBack {
     @SuppressLint("MissingPermission")
     override fun onItemClick(device: BluetoothDevice) {
         val deviceAddress = device.address
+        devAddress = device.address
         val deviceName = device.name.toString()
         if (deviceAddress != null) {
             sharedViewModel.updateDeviceAddress(deviceAddress)
@@ -140,20 +142,8 @@ class DevicesFragment : Fragment(), DevicesAdapter.CallBack {
             .setPositiveButton("OK") { dialog, _ ->
                 val pinCode = editTextPin.text.toString()
                 controlViewModel.savePinCodeForDevice(deviceAddress,pinCode)
+                controlViewModel.connect(deviceAddress,"CHECKPIN")
                 dialog.dismiss()
-                val existingReadingDataFragment = parentFragmentManager.findFragmentByTag(ReadingDataFragment.TAG) as? ReadingDataFragment
-                if (existingReadingDataFragment != null && controlViewModel.isConnected.value != false) {
-                    parentFragmentManager.beginTransaction()
-                        .addToBackStack(null)
-                        .replace(R.id.fragmentContainer, existingReadingDataFragment)
-                        .commit()
-                } else {
-                    val readingDataFragment = ReadingDataFragment.newInstance(deviceAddress)
-                    parentFragmentManager.beginTransaction()
-                        .addToBackStack(null)
-                        .replace(R.id.fragmentContainer, readingDataFragment, ReadingDataFragment.TAG)
-                        .commit()
-                }
             }
 
         alertDialogBuilder.create().show()
@@ -201,6 +191,27 @@ class DevicesFragment : Fragment(), DevicesAdapter.CallBack {
     companion object {
         const val TAG = "DeviceFragment"
         fun newInstance() = DevicesFragment()
+    }
+
+    override fun onPin(pin: String?) {
+        if(pin == "CORRECT"){
+            val existingReadingDataFragment = parentFragmentManager.findFragmentByTag(ReadingDataFragment.TAG) as? ReadingDataFragment
+            if (existingReadingDataFragment != null && controlViewModel.isConnected.value != false) {
+                parentFragmentManager.beginTransaction()
+                    .addToBackStack(null)
+                    .replace(R.id.fragmentContainer, existingReadingDataFragment)
+                    .commit()
+            } else {
+                val readingDataFragment = ReadingDataFragment.newInstance(devAddress)
+                parentFragmentManager.beginTransaction()
+                    .addToBackStack(null)
+                    .replace(R.id.fragmentContainer, readingDataFragment, ReadingDataFragment.TAG)
+                    .commit()
+            }
+        }else{
+            showToast("ПИН неверен!")
+            showPinInputDialog(devAddress.toString())
+        }
     }
 
 }

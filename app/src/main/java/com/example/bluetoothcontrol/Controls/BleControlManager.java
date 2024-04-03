@@ -868,6 +868,8 @@ public void loadFirmware(EntireCheck entireCheck) {
                 }
             } else if (pinResponse.contains("pin.error")) {
                 Log.d("BleControlManager", "Pin code is incorrect");
+                Log.d("BleControlManager", "Pin code is disconnecting");
+                disconnect();
             } else {
                 Log.e("BleControlManager", "Invalid pin code response: " + pinResponse);
             }

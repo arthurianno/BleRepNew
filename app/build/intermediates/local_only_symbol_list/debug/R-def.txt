@@ -26,6 +26,7 @@ drawable baseline_home
 drawable ic_launcher_background
 drawable ic_launcher_foreground
 drawable ic_scan
+drawable selected_item_background
 id ClearRecycler
 id DataFrag
 id action_boot

@@ -39,6 +39,7 @@ class DevicesFragment : Fragment(), DevicesAdapter.CallBack,BleControlManager.Pi
     private lateinit var controlViewModel: ControlViewModel
     private lateinit var bleControlManager: BleControlManager
     var devAddress: String? = null
+    var devName: String? = null
     private val viewModel: DevicesViewModel by viewModels {
         DeviceViewModelFactory((requireActivity().application as App).adapterProvider)
     }
@@ -65,6 +66,11 @@ class DevicesFragment : Fragment(), DevicesAdapter.CallBack,BleControlManager.Pi
         super.onDestroyView()
         viewModel.stopScan()
         _binding = null
+    }
+
+    override fun onResume() {
+        super.onResume()
+        devicesAdapter.setFilter(null)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -125,19 +131,20 @@ class DevicesFragment : Fragment(), DevicesAdapter.CallBack,BleControlManager.Pi
         val deviceAddress = device.address
         devAddress = device.address
         val deviceName = device.name.toString()
+        devName = deviceName
         if (deviceAddress != null) {
             sharedViewModel.updateDeviceAddress(deviceAddress)
             sharedViewModel.updateDevName(deviceName)
             Log.e("DevicesFragment", "Update address $deviceAddress")
             Log.e("DevicesFragment", "Update name $deviceName")
-            showPinInputDialogOrConnect(deviceAddress)
+            showPinInputDialogOrConnect(deviceAddress,deviceName)
         }
     }
 
-     private fun showPinInputDialog(deviceAddress: String) {
+     private fun showPinInputDialog(deviceAddress: String, deviceName: String?) {
         val editTextPin = EditText(requireContext())
         val alertDialogBuilder = AlertDialog.Builder(requireContext())
-            .setTitle("Введите ПИН-КОД")
+            .setTitle("Введите ПИН-КОД для устройства $deviceName")
             .setView(editTextPin)
             .setPositiveButton("OK") { dialog, _ ->
                 val pinCode = editTextPin.text.toString()
@@ -149,7 +156,7 @@ class DevicesFragment : Fragment(), DevicesAdapter.CallBack,BleControlManager.Pi
         alertDialogBuilder.create().show()
     }
 
-    private fun showPinInputDialogOrConnect(deviceAddress: String) {
+    private fun showPinInputDialogOrConnect(deviceAddress: String, deviceName: String?) {
         val savedPinCode = controlViewModel.getSavedPinCodeForDevice(deviceAddress)
         Log.d("ControlViewModel", "Getting saved PIN-Code for device: $deviceAddress, PIN: $savedPinCode")
         if (savedPinCode != null) {
@@ -174,12 +181,12 @@ class DevicesFragment : Fragment(), DevicesAdapter.CallBack,BleControlManager.Pi
                     }
                 }else{
                     controlViewModel.disconnect()
-                    showPinInputDialog(deviceAddress)
+                    showPinInputDialog(deviceAddress, deviceName)
                 }
             }
         } else {
             // Пин-код не найден в SharedPreferences, отображаем диалог для ввода пин-кода
-            showPinInputDialog(deviceAddress)
+            showPinInputDialog(deviceAddress, deviceName)
         }
     }
 
@@ -210,7 +217,7 @@ class DevicesFragment : Fragment(), DevicesAdapter.CallBack,BleControlManager.Pi
             }
         }else{
             showToast("ПИН неверен!")
-            showPinInputDialog(devAddress.toString())
+            showPinInputDialog(devAddress.toString(),devName)
         }
     }
 

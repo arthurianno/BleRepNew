@@ -21,7 +21,9 @@ import com.example.bluetoothcontrol.Controls.BleControlManager
 import com.example.bluetoothcontrol.Controls.ControlViewModel
 import com.example.bluetoothcontrol.Controls.DataType
 import com.example.bluetoothcontrol.Controls.EntireCheck
+import com.example.bluetoothcontrol.Devices.DevicesFragment
 import com.example.bluetoothcontrol.MainActivity
+import com.example.bluetoothcontrol.R
 import com.example.bluetoothcontrol.SharedViewModel
 import com.example.bluetoothcontrol.databinding.FragmentReadingDataBinding
 import java.nio.ByteBuffer
@@ -41,6 +43,7 @@ class ReadingDataFragment : Fragment(),ReadingDataAdapter.CallBackOnReadingItem,
     private var checkItem = false
     private var dialogAgree = false
     private val sharedViewModel: SharedViewModel by activityViewModels()
+    private val itemsMassive = ArrayList<DataItem>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -104,6 +107,7 @@ class ReadingDataFragment : Fragment(),ReadingDataAdapter.CallBackOnReadingItem,
         Toast.makeText(requireContext(), "You clicked on item", Toast.LENGTH_SHORT).show()
         val position = adapterReading.items.indexOf(item) // Получаем позицию элемента в списке
         showInputDialog(item, position)
+        itemsMassive.add(item)
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -217,10 +221,25 @@ class ReadingDataFragment : Fragment(),ReadingDataAdapter.CallBackOnReadingItem,
     }
 
     override fun onAcc(acc: Boolean) {
-        if(acc){
+        val containsSerialNumber = itemsMassive.any { it.attributeName == "SERIAL NUMBER" }
+        if(containsSerialNumber){
+            Toast.makeText(requireContext(), "Загрузка данных  требует перезагрузки Bluetooth!", Toast.LENGTH_SHORT).show()
             adapter.reloadBluetooth()
+            val existingDevicesFragment = parentFragmentManager.findFragmentByTag(DevicesFragment.TAG) as? DevicesFragment
+            if (existingDevicesFragment != null && controlViewModel.isConnected.value != false) {
+                parentFragmentManager.beginTransaction()
+                    .addToBackStack(null)
+                    .replace(R.id.fragmentContainer, existingDevicesFragment)
+                    .commit()
+            } else {
+                val devicesFragment = DevicesFragment.newInstance()
+                parentFragmentManager.beginTransaction()
+                    .addToBackStack(null)
+                    .replace(R.id.fragmentContainer, devicesFragment, DevicesFragment.TAG)
+                    .commit()
+            }
         }else{
-            Toast.makeText(requireContext(), "Ошибка загрузки данных!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Загрузка данных не требует перезагрузки Bluetooth!", Toast.LENGTH_SHORT).show()
         }
     }
 

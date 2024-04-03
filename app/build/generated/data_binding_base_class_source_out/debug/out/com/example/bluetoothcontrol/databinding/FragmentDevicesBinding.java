@@ -4,6 +4,7 @@ package com.example.bluetoothcontrol.databinding;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -27,14 +28,18 @@ public final class FragmentDevicesBinding implements ViewBinding {
   public final RecyclerView devicesRecycler;
 
   @NonNull
+  public final EditText filterDevices;
+
+  @NonNull
   public final FloatingActionButton wrapStartScan;
 
   private FragmentDevicesBinding(@NonNull ConstraintLayout rootView,
       @NonNull FloatingActionButton ClearRecycler, @NonNull RecyclerView devicesRecycler,
-      @NonNull FloatingActionButton wrapStartScan) {
+      @NonNull EditText filterDevices, @NonNull FloatingActionButton wrapStartScan) {
     this.rootView = rootView;
     this.ClearRecycler = ClearRecycler;
     this.devicesRecycler = devicesRecycler;
+    this.filterDevices = filterDevices;
     this.wrapStartScan = wrapStartScan;
   }
 
@@ -77,6 +82,12 @@ public final class FragmentDevicesBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.filterDevices;
+      EditText filterDevices = ViewBindings.findChildViewById(rootView, id);
+      if (filterDevices == null) {
+        break missingId;
+      }
+
       id = R.id.wrapStartScan;
       FloatingActionButton wrapStartScan = ViewBindings.findChildViewById(rootView, id);
       if (wrapStartScan == null) {
@@ -84,7 +95,7 @@ public final class FragmentDevicesBinding implements ViewBinding {
       }
 
       return new FragmentDevicesBinding((ConstraintLayout) rootView, ClearRecycler, devicesRecycler,
-          wrapStartScan);
+          filterDevices, wrapStartScan);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

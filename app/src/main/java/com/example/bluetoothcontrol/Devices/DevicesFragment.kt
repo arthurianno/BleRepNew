@@ -5,6 +5,8 @@ import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.bluetooth.BluetoothDevice
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -84,6 +86,20 @@ class DevicesFragment : Fragment(), DevicesAdapter.CallBack {
                 viewModel.clearData()
             }
         }
+        binding.filterDevices.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                // Ничего не делаем
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                // Обновляем фильтр в адаптере при изменении текста
+                devicesAdapter.setFilter(s?.toString())
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                // Ничего не делаем
+            }
+        })
 
     }
 
@@ -186,5 +202,6 @@ class DevicesFragment : Fragment(), DevicesAdapter.CallBack {
         const val TAG = "DeviceFragment"
         fun newInstance() = DevicesFragment()
     }
+
 }
 

@@ -61,6 +61,7 @@ public class BleControlManager extends BleManager {
     private static final byte RAW_ASK = (byte) 0x00;
     private TimerCallback timerCallback;
     private PinCallback pinCallback;
+    private AcceptedCommandCallback acceptedCommandCallback;
     private int sliseSize;
     private static final byte BOOT_MODE_CMD = (byte) 0x12;
     private static final byte BOOT_MODE_SUCCESS = (byte) 0x00;
@@ -102,6 +103,9 @@ public class BleControlManager extends BleManager {
     }
     public void setPinCallback(PinCallback callback) {
         this.pinCallback = callback;
+    }
+    public void setAcceptedCommandCallback(AcceptedCommandCallback callback){
+        this.acceptedCommandCallback = callback;
     }
     public void stopTimer() {
         endTime = System.currentTimeMillis();
@@ -199,8 +203,14 @@ public class BleControlManager extends BleManager {
                         commandData,
                         BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
                 )
-                        .done(device -> Log.e("BleControlManager", "Apply Command sent"))
-                        .fail((device, status) -> Log.e("BleControlManager", "Failed to send Apply command: " + status))
+                        .done(device -> {
+                            Log.e("BleControlManager", "Apply Command sent");
+                            acceptedCommandCallback.onAcc(true);
+                        })
+                        .fail((device, status) -> {
+                            Log.e("BleControlManager", "Failed to send Apply command: " + status);
+                            acceptedCommandCallback.onAcc(false);
+                        })
                         .enqueue();
             } else {
                 Log.e("BleControlManager", "Control Request characteristic is null");
@@ -1084,5 +1094,8 @@ public void loadFirmware(EntireCheck entireCheck) {
     }
     public interface PinCallback {
         void onPin(String pin);
+    }
+    public interface AcceptedCommandCallback {
+        void onAcc(boolean acc);
     }
 }

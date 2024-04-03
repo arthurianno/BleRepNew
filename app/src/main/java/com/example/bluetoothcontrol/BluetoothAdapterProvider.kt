@@ -4,7 +4,9 @@ import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
 import android.content.Context
-
+import android.content.Intent
+import android.os.Handler
+import android.os.Looper
 
 
 // Этот интерфейс и его реализация предоставляют уровень абстракции для работы с Bluetooth-адаптером в приложении.
@@ -18,12 +20,12 @@ interface BluetoothAdapterProvider {
 
     fun getAdapter(): BluetoothAdapter
 
-    fun getContext() : Context
+    fun getContext(): Context
 
-    fun enableBluetooth()
-    fun disableBluetooth()
+    fun reloadBluetooth()
 
-    class Base(private val context: Context): BluetoothAdapterProvider{
+
+    class Base(private val context: Context) : BluetoothAdapterProvider {
         override fun getAdapter(): BluetoothAdapter {
             val manager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
             return manager.adapter
@@ -33,22 +35,15 @@ interface BluetoothAdapterProvider {
             return context
         }
         @SuppressLint("MissingPermission")
-        override fun enableBluetooth() {
-            val adapter = getAdapter()
-            if (!adapter.isEnabled) {
-                adapter.enable()
-            }
+        override fun reloadBluetooth() {
+            // Получите экземпляр BluetoothAdapter
+            val bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
+            // Отключите Bluetooth
+            bluetoothAdapter.disable()
+            // Включите Bluetooth через короткую задержку после отключения
+            Handler(Looper.getMainLooper()).postDelayed({
+                bluetoothAdapter.enable()
+            }, 1000) // Задержка в миллисекундах (в данном случае 1 секунда)
         }
-
-        @SuppressLint("MissingPermission")
-        override fun disableBluetooth() {
-            val adapter = getAdapter()
-            if (adapter.isEnabled) {
-                adapter.disable()
-            }
-        }
-
-
-
     }
 }

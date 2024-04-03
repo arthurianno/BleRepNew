@@ -16,6 +16,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.bluetoothcontrol.BluetoothAdapterProvider
 import com.example.bluetoothcontrol.Controls.BleControlManager
 import com.example.bluetoothcontrol.Controls.ControlViewModel
 import com.example.bluetoothcontrol.Controls.DataType
@@ -29,13 +30,16 @@ import java.util.Arrays
 import kotlin.math.min
 
 
-class ReadingDataFragment : Fragment(),ReadingDataAdapter.CallBackOnReadingItem {
+class ReadingDataFragment : Fragment(),ReadingDataAdapter.CallBackOnReadingItem,BleControlManager.AcceptedCommandCallback {
 
     private var _binding: FragmentReadingDataBinding? = null
     private val binding: FragmentReadingDataBinding get() = _binding!!
     private val adapterReading = ReadingDataAdapter()
+    lateinit var adapter : BluetoothAdapterProvider
     private lateinit var bleControlManager: BleControlManager
     private lateinit var controlViewModel: ControlViewModel
+    private var checkItem = false
+    private var dialogAgree = false
     private val sharedViewModel: SharedViewModel by activityViewModels()
 
     override fun onCreateView(
@@ -74,9 +78,10 @@ class ReadingDataFragment : Fragment(),ReadingDataAdapter.CallBackOnReadingItem 
            }
        }
         adapterReading.addCallBack(this)
+        bleControlManager.setAcceptedCommandCallback(this)
         binding.buttonWRData.setOnClickListener {
             if(controlViewModel.isConnected.value == true){
-                showWriteDialog()
+                showBluetoothReloadNotification()
             }else{
                 Toast.makeText(requireContext(),"Connection lost",Toast.LENGTH_SHORT).show()
             }
@@ -116,6 +121,7 @@ class ReadingDataFragment : Fragment(),ReadingDataAdapter.CallBackOnReadingItem 
                 if (oldValue != newValue) {
                     dataItem.name = newValue
                     adapterReading.updateAttributeColor(position, true)
+                    checkItem = true
                 }
                 dialog.dismiss()
             }
@@ -127,28 +133,33 @@ class ReadingDataFragment : Fragment(),ReadingDataAdapter.CallBackOnReadingItem 
 
     @SuppressLint("NotifyDataSetChanged")
     private fun showWriteDialog() {
+        adapter = BluetoothAdapterProvider.Base(requireContext())
         val changedItemsCount = adapterReading.items.count { it.isValueChanged }
         val builder = AlertDialog.Builder(requireContext())
         builder.setTitle("Запись данных")
             .setMessage("Вы уверены, что хотите записать данные? Количество измененных элементов: $changedItemsCount")
             .setPositiveButton("Записать") { dialog, _ ->
                 // Логика для записи данных
-                if (changedItemsCount > 0 && bleControlManager.isConnected) {
-                    val changedDataItems = adapterReading.items.filter { it.isValueChanged }
-                    changedDataItems.forEach { dataItem ->
-                        // Подготовка данных для отправки
-                        val newData = prepareData(dataItem)
-                        bleControlManager.writeData(newData, EntireCheck.WRITE, dataItem)
+                if (changedItemsCount > 0 && bleControlManager.isConnected && checkItem) {
+                    if(dialogAgree){
+                        val changedDataItems = adapterReading.items.filter { it.isValueChanged }
+                        changedDataItems.forEach { dataItem ->
+                            // Подготовка данных для отправки
+                            val newData = prepareData(dataItem)
+                            bleControlManager.writeData(newData, EntireCheck.WRITE, dataItem)
+                        }
+                        Toast.makeText(requireContext(), "Данные успешно записаны", Toast.LENGTH_SHORT).show()
+                        // Очистка списка данных и обновление RecyclerView
+                        adapterReading.items.clear()
+                        BleControlManager.requestData.value?.clear()
+                        adapterReading.notifyDataSetChanged()
+                        Log.d(TAG,"recView CLEAR")
+                        dialog.dismiss()
+                    }else{
+                        Toast.makeText(requireContext(), "Вы отказались от перезагрузки Bluetooth!", Toast.LENGTH_SHORT).show()
                     }
-                    Toast.makeText(requireContext(), "Данные успешно записаны", Toast.LENGTH_SHORT).show()
-                    // Очистка списка данных и обновление RecyclerView
-                    adapterReading.items.clear()
-                    BleControlManager.requestData.value?.clear()
-                    adapterReading.notifyDataSetChanged()
-                    Log.d(TAG,"recView CLEAR")
-                    dialog.dismiss()
                 } else {
-                    Toast.makeText(requireContext(), "Данные не записаны", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Данные не записаны, вы не поменяли данные", Toast.LENGTH_SHORT).show()
                 }
             }
             .setNegativeButton("Отмена") { dialog, _ ->
@@ -156,6 +167,25 @@ class ReadingDataFragment : Fragment(),ReadingDataAdapter.CallBackOnReadingItem 
             }
             .show()
     }
+
+    private fun showBluetoothReloadNotification() {
+        val builder = AlertDialog.Builder(requireContext())
+        builder.setTitle("Перезагрузка Bluetooth")
+            .setMessage("Bluetooth будет перезагружен после записи данных")
+            .setPositiveButton("Продолжить") { dialog, _ ->
+                // Вызовите метод для перезагрузки Bluetooth
+                dialogAgree = true
+                showWriteDialog()
+                dialog.dismiss()
+            }
+            .setNegativeButton("Отмена") { dialog, _ ->
+                dialog.cancel()
+            }
+            .show()
+    }
+
+
+
 
 
 
@@ -189,6 +219,14 @@ class ReadingDataFragment : Fragment(),ReadingDataAdapter.CallBackOnReadingItem 
                 dataItem.isValueChanged = false
                 newData
             }
+        }
+    }
+
+    override fun onAcc(acc: Boolean) {
+        if(acc){
+            adapter.reloadBluetooth()
+        }else{
+            Toast.makeText(requireContext(), "Ошибка загрузки данных!", Toast.LENGTH_SHORT).show()
         }
     }
 

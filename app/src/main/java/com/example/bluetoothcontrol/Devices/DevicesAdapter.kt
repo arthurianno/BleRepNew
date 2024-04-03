@@ -14,6 +14,7 @@ class DevicesAdapter(private val callback:CallBack,private val sharedViewModel: 
 
     private val items = ArrayList<BluetoothDevice>()
     private var callBack: CallBack? = null
+    private var filter: String? = null
 
 
     @SuppressLint("NotifyDataSetChanged")
@@ -22,6 +23,12 @@ class DevicesAdapter(private val callback:CallBack,private val sharedViewModel: 
         this.items.addAll(items)
         notifyDataSetChanged()
     }
+    @SuppressLint("NotifyDataSetChanged")
+    fun setFilter(filter: String?) {
+        this.filter = filter
+        notifyDataSetChanged() // Перерисовываем список при изменении фильтра
+    }
+
     @SuppressLint("NotifyDataSetChanged")
     fun clear() {
         items.clear()
@@ -39,12 +46,23 @@ class DevicesAdapter(private val callback:CallBack,private val sharedViewModel: 
         return DevicesViewHolder(binding)
     }
 
+    @SuppressLint("MissingPermission")
     override fun getItemCount(): Int {
-        return items.size
+        return if (filter.isNullOrEmpty()) {
+            items.size // Возвращаем размер списка без фильтрации
+        } else {
+            items.count { it.name?.contains(filter!!, ignoreCase = true) == true } // Возвращаем количество элементов, удовлетворяющих фильтру
+        }
     }
 
+    @SuppressLint("MissingPermission")
     override fun onBindViewHolder(holder: DevicesViewHolder, position: Int) {
-       holder.bind(items[position])
+        val filteredItems = if (filter.isNullOrEmpty()) {
+            items // Используем весь список без фильтрации
+        } else {
+            items.filter { it.name?.contains(filter!!, ignoreCase = true) == true } // Фильтруем список по имени
+        }
+        holder.bind(filteredItems[position])
     }
 
      inner class DevicesViewHolder(private val binding: ItemDeviceBinding): RecyclerView.ViewHolder(binding.root){

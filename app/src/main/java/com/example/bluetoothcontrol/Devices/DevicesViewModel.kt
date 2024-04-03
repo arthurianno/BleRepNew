@@ -48,13 +48,11 @@ class DevicesViewModel(adapterProvider: BluetoothAdapterProvider): ViewModel() {
     private fun buildFilter() =
         listOf(
             ScanFilter.Builder()
-                .setDeviceName(FILTER_NAME)
                 .build()
         )
 
     @SuppressLint("MissingPermission")
     fun startScan(){
-        clearScanCache()
         if(callback == null) {
             callback = BleScanCallBack()
             scanner = adapter.bluetoothLeScanner

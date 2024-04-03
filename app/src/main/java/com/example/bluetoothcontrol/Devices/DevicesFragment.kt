@@ -23,6 +23,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.bluetoothcontrol.App
 import com.example.bluetoothcontrol.Controls.BleControlManager
 import com.example.bluetoothcontrol.Controls.ControlViewModel
+import com.example.bluetoothcontrol.Logger
 import com.example.bluetoothcontrol.MainActivity
 import com.example.bluetoothcontrol.R
 import com.example.bluetoothcontrol.ReadingData.ReadingDataFragment
@@ -136,7 +137,9 @@ class DevicesFragment : Fragment(), DevicesAdapter.CallBack,BleControlManager.Pi
             sharedViewModel.updateDeviceAddress(deviceAddress)
             sharedViewModel.updateDevName(deviceName)
             Log.e("DevicesFragment", "Update address $deviceAddress")
+            Logger.e("DevicesFragment", "Update address $deviceAddress")
             Log.e("DevicesFragment", "Update name $deviceName")
+            Logger.e("DevicesFragment", "Update name $deviceName")
             showPinInputDialogOrConnect(deviceAddress,deviceName)
         }
     }
@@ -159,6 +162,7 @@ class DevicesFragment : Fragment(), DevicesAdapter.CallBack,BleControlManager.Pi
     private fun showPinInputDialogOrConnect(deviceAddress: String, deviceName: String?) {
         val savedPinCode = controlViewModel.getSavedPinCodeForDevice(deviceAddress)
         Log.d("ControlViewModel", "Getting saved PIN-Code for device: $deviceAddress, PIN: $savedPinCode")
+        Logger.d("ControlViewModel", "Getting saved PIN-Code for device: $deviceAddress, PIN: $savedPinCode")
         if (savedPinCode != null) {
             // Пин-код найден в SharedPreferences, используем его для установки соединения
             controlViewModel.pinCode = savedPinCode

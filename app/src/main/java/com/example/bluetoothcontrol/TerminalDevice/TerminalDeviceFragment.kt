@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.bluetoothcontrol.Controls.BleControlManager
 import com.example.bluetoothcontrol.Controls.ControlViewModel
+import com.example.bluetoothcontrol.Logger
 import com.example.bluetoothcontrol.MainActivity
 import com.example.bluetoothcontrol.ReadingData.ReadingDataFragment
 import com.example.bluetoothcontrol.SharedViewModel
@@ -53,9 +54,11 @@ class TerminalDeviceFragment(): Fragment() {
                 binding.terminalWrite.setOnClickListener{
                     controlViewModel.connect(deviceAddress,"TERMINAL")
                     Log.e(ReadingDataFragment.TAG,"Toggle connection to device with address $deviceAddress")
+                    Logger.e(ReadingDataFragment.TAG,"Toggle connection to device with address $deviceAddress")
                 }
             }else{
                 Log.e(ReadingDataFragment.TAG,"address $deviceAddress is null ")
+                Logger.e(ReadingDataFragment.TAG,"address $deviceAddress is null ")
             }
         }
 

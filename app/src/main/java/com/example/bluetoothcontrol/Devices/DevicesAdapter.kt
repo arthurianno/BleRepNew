@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.example.bluetoothcontrol.Logger
 import com.example.bluetoothcontrol.R
 import com.example.bluetoothcontrol.SharedViewModel
 import com.example.bluetoothcontrol.databinding.ItemDeviceBinding
@@ -41,6 +42,7 @@ class DevicesAdapter(private val callback:CallBack,private val sharedViewModel: 
         filteredItems.clear()
         notifyDataSetChanged()
         Log.e("DeviceAdapter", "Devices list is cleared")
+        Logger.e("DeviceAdapter", "Devices list is cleared")
     }
 
     fun addCallBack(callBack: CallBack){

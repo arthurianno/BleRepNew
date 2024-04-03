@@ -12,6 +12,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.bluetoothcontrol.BluetoothAdapterProvider
+import com.example.bluetoothcontrol.Logger
 import com.example.bluetoothcontrol.ReadingData.ReadingDataFragment
 
 
@@ -59,6 +60,7 @@ class DevicesViewModel(adapterProvider: BluetoothAdapterProvider): ViewModel() {
 
             scanner?.startScan(filters, settings, callback)
             Log.e("DevicesViewModel","StartScanning")
+            Logger.e("DevicesViewModel","StartScanning")
         }
     }
     override fun onCleared() {
@@ -74,12 +76,14 @@ class DevicesViewModel(adapterProvider: BluetoothAdapterProvider): ViewModel() {
             scanner = null
             callback = null
             Log.e("DevicesViewModel","StopScanning")
+            Logger.e("DevicesViewModel","StopScanning")
         }
     }
     @SuppressLint("MissingPermission")
     fun clearScanCache() {
         scanner?.flushPendingScanResults(callback)
         Log.e("DevicesViewModel","CASH IS CLEARED")
+        Logger.e("DevicesViewModel","CASH IS CLEARED")
     }
 
 
@@ -104,6 +108,7 @@ class DevicesViewModel(adapterProvider: BluetoothAdapterProvider): ViewModel() {
         override fun onScanFailed(errorCode: Int) {
             foundDevices.clear()
             Log.e("BluetoothScanner", "OnScanFailed")
+            Logger.e("BluetoothScanner", "OnScanFailed")
         }
     }
     companion object{

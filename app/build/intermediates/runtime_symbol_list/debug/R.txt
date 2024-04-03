@@ -1401,6 +1401,7 @@ int color background_floating_material_light 0x7f06001e
 int color background_material_dark 0x7f06001f
 int color background_material_light 0x7f060020
 int color black 0x7f060021
+int color blue 0x7f060305
 int color bright_foreground_disabled_material_dark 0x7f060022
 int color bright_foreground_disabled_material_light 0x7f060023
 int color bright_foreground_inverse_material_dark 0x7f060024
@@ -2125,6 +2126,7 @@ int color primary_text_default_material_dark 0x7f0602f2
 int color primary_text_default_material_light 0x7f0602f3
 int color primary_text_disabled_material_dark 0x7f0602f4
 int color primary_text_disabled_material_light 0x7f0602f5
+int color red 0x7f060306
 int color ripple_material_dark 0x7f0602f6
 int color ripple_material_light 0x7f0602f7
 int color secondary_text_default_material_dark 0x7f0602f8
@@ -3303,6 +3305,7 @@ int id decor_content_parent 0x7f090099
 int id default_activity_button 0x7f09009a
 int id deltaRelative 0x7f09009b
 int id dependency_ordering 0x7f09009c
+int id descriptionLog 0x7f090222
 int id design_bottom_sheet 0x7f09009d
 int id design_menu_item_action_area 0x7f09009e
 int id design_menu_item_action_area_stub 0x7f09009f
@@ -3375,7 +3378,6 @@ int id grouping 0x7f0900e0
 int id groups 0x7f0900e1
 int id header_title 0x7f0900e2
 int id hexData 0x7f0900e3
-int id hexDataLog 0x7f0900e4
 int id hide_ime_id 0x7f0900e5
 int id hideable 0x7f0900e6
 int id home 0x7f0900e7
@@ -3476,9 +3478,7 @@ int id multiply 0x7f090145
 int id my_nav 0x7f090146
 int id nameOfAddressData 0x7f090147
 int id nameOfAtributeData 0x7f090148
-int id nameOfAtributeLog 0x7f090149
 int id nameOfData 0x7f09014a
-int id nameOfDataLog 0x7f09014b
 int id nav_controller_view_tag 0x7f09014c
 int id nav_host_fragment_container 0x7f09014d
 int id navigation_bar_item_active_indicator_view 0x7f09014e
@@ -3617,6 +3617,7 @@ int id submenuarrow 0x7f0901d2
 int id submit_area 0x7f0901d3
 int id supportScrollUp 0x7f0901d4
 int id tabMode 0x7f0901d5
+int id tagLog 0x7f090223
 int id tag_accessibility_actions 0x7f0901d6
 int id tag_accessibility_clickable_spans 0x7f0901d7
 int id tag_accessibility_heading 0x7f0901d8

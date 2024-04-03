@@ -38,6 +38,10 @@ class MainActivity : AppCompatActivity(), DevicesAdapter.CallBack {
 
     companion object{
          lateinit var controlManager: BleControlManager
+        private var logger: Logger? = null
+        fun getLogger(): Logger {
+            return logger ?: throw IllegalStateException("Logger is not initialized.")
+        }
     }
 
     @SuppressLint("ResourceType")
@@ -45,6 +49,7 @@ class MainActivity : AppCompatActivity(), DevicesAdapter.CallBack {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        Logger.init(applicationContext)
         enableBluetooth()
         navigate(DevicesFragment.newInstance(), "DeviceFragment",R.id.fragmentContainer)
         hideBottomNavigationView()

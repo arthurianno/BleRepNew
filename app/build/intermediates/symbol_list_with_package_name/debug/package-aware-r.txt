@@ -1402,6 +1402,7 @@ color background_floating_material_light
 color background_material_dark
 color background_material_light
 color black
+color blue
 color bright_foreground_disabled_material_dark
 color bright_foreground_disabled_material_light
 color bright_foreground_inverse_material_dark
@@ -2126,6 +2127,7 @@ color primary_text_default_material_dark
 color primary_text_default_material_light
 color primary_text_disabled_material_dark
 color primary_text_disabled_material_light
+color red
 color ripple_material_dark
 color ripple_material_light
 color secondary_text_default_material_dark
@@ -3304,6 +3306,7 @@ id decor_content_parent
 id default_activity_button
 id deltaRelative
 id dependency_ordering
+id descriptionLog
 id design_bottom_sheet
 id design_menu_item_action_area
 id design_menu_item_action_area_stub
@@ -3376,7 +3379,6 @@ id grouping
 id groups
 id header_title
 id hexData
-id hexDataLog
 id hide_ime_id
 id hideable
 id home
@@ -3477,9 +3479,7 @@ id multiply
 id my_nav
 id nameOfAddressData
 id nameOfAtributeData
-id nameOfAtributeLog
 id nameOfData
-id nameOfDataLog
 id nav_controller_view_tag
 id nav_host_fragment_container
 id navigation_bar_item_active_indicator_view
@@ -3618,6 +3618,7 @@ id submenuarrow
 id submit_area
 id supportScrollUp
 id tabMode
+id tagLog
 id tag_accessibility_actions
 id tag_accessibility_clickable_spans
 id tag_accessibility_heading

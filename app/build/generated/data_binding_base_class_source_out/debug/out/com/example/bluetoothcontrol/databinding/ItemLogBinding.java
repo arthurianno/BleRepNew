@@ -20,20 +20,16 @@ public final class ItemLogBinding implements ViewBinding {
   private final LinearLayout rootView;
 
   @NonNull
-  public final TextView hexDataLog;
+  public final TextView descriptionLog;
 
   @NonNull
-  public final TextView nameOfAtributeLog;
+  public final TextView tagLog;
 
-  @NonNull
-  public final TextView nameOfDataLog;
-
-  private ItemLogBinding(@NonNull LinearLayout rootView, @NonNull TextView hexDataLog,
-      @NonNull TextView nameOfAtributeLog, @NonNull TextView nameOfDataLog) {
+  private ItemLogBinding(@NonNull LinearLayout rootView, @NonNull TextView descriptionLog,
+      @NonNull TextView tagLog) {
     this.rootView = rootView;
-    this.hexDataLog = hexDataLog;
-    this.nameOfAtributeLog = nameOfAtributeLog;
-    this.nameOfDataLog = nameOfDataLog;
+    this.descriptionLog = descriptionLog;
+    this.tagLog = tagLog;
   }
 
   @Override
@@ -63,26 +59,19 @@ public final class ItemLogBinding implements ViewBinding {
     // This is done to optimize the compiled bytecode for size and performance.
     int id;
     missingId: {
-      id = R.id.hexDataLog;
-      TextView hexDataLog = ViewBindings.findChildViewById(rootView, id);
-      if (hexDataLog == null) {
+      id = R.id.descriptionLog;
+      TextView descriptionLog = ViewBindings.findChildViewById(rootView, id);
+      if (descriptionLog == null) {
         break missingId;
       }
 
-      id = R.id.nameOfAtributeLog;
-      TextView nameOfAtributeLog = ViewBindings.findChildViewById(rootView, id);
-      if (nameOfAtributeLog == null) {
+      id = R.id.tagLog;
+      TextView tagLog = ViewBindings.findChildViewById(rootView, id);
+      if (tagLog == null) {
         break missingId;
       }
 
-      id = R.id.nameOfDataLog;
-      TextView nameOfDataLog = ViewBindings.findChildViewById(rootView, id);
-      if (nameOfDataLog == null) {
-        break missingId;
-      }
-
-      return new ItemLogBinding((LinearLayout) rootView, hexDataLog, nameOfAtributeLog,
-          nameOfDataLog);
+      return new ItemLogBinding((LinearLayout) rootView, descriptionLog, tagLog);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

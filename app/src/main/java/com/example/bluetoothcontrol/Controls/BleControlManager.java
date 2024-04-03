@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.lifecycle.MutableLiveData;
 
+import com.example.bluetoothcontrol.Logger;
 import com.example.bluetoothcontrol.ReadingData.DataItem;
 import com.example.bluetoothcontrol.TerminalDevice.TermItem;
 
@@ -96,6 +97,7 @@ public class BleControlManager extends BleManager {
             timerCallback.onTick(stage);
         }
         Log.d("BleControlManager", "Start time: " + durationInMillis);
+        Logger.INSTANCE.d("BleControlManager", "Start time: " + durationInMillis);
     }
 
     public void setTimerCallback(TimerCallback callback) {
@@ -114,6 +116,7 @@ public class BleControlManager extends BleManager {
             timerCallback.onTick(stage);
         }
         Log.d("BleControlManager", "End time: " + durationInMillis);
+        Logger.INSTANCE.d("BleControlManager", "End time: " + durationInMillis);
     }
     public void sendCommand(String command, EntireCheck entireCheck) {
         if (isConnected() && controlRequest != null) {
@@ -124,14 +127,15 @@ public class BleControlManager extends BleManager {
                 writeCharacteristic(characteristic, data, BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT)
                         .done(device -> {
                             Log.e("BleControlManager", "Command sent: " + command);
+                            Logger.INSTANCE.e("BleControlManager", "Command sent: " + command);
                         })
-                        .fail((device, status) -> Log.e("BleControlManager", "Failed to send command: " + status))
+                        .fail((device, status) -> Logger.INSTANCE.e("BleControlManager", "Failed to send command: " + status))
                         .enqueue();
             } else {
-                Log.e("BleControlManager", "Control Request characteristic is null");
+                Logger.INSTANCE.e("BleControlManager", "Control Request characteristic is null");
             }
         } else {
-            Log.e("BleControlManager", "Device is not connected");
+            Logger.INSTANCE.e("BleControlManager", "Device is not connected");
         }
     }
 
@@ -145,35 +149,35 @@ public class BleControlManager extends BleManager {
                 byte command = RAW_RD;
                 byte[] adrNumData = new byte[]{RAW_START_MARK, command, (byte) offset, (byte) length};
                 // writeCharacteristic
-                Log.d("BleControlManager","Entire is " + entireCheck);
+                Logger.INSTANCE.d("BleControlManager","Entire is " + entireCheck);
                 writeCharacteristic(
                         characteristic,
                         adrNumData,
                         BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
                 )
-                        .done(device -> Log.e("BleControlManager", "Read Data command sent"))
-                        .fail((device, status) -> Log.e("BleControlManager", "Failed to send read command: " + status))
+                        .done(device -> Logger.INSTANCE.e("BleControlManager", "Read Data command sent"))
+                        .fail((device, status) -> Logger.INSTANCE.e("BleControlManager", "Failed to send read command: " + status))
                         .enqueue();
             } else {
-                Log.e("BleControlManager", "Control Request characteristic is null");
+                Logger.INSTANCE.e("BleControlManager", "Control Request characteristic is null");
             }
         } else {
-            Log.e("BleControlManager", "Device is not connected");
+            Logger.INSTANCE.e("BleControlManager", "Device is not connected");
         }
     }
 
     public void writeData(byte[] data, EntireCheck entireCheck, DataItem dataItem) {
-        Log.d("BleControlManager", "connection from write data is " + isConnected());
+        Logger.INSTANCE.d("BleControlManager", "connection from write data is " + isConnected());
         if (isConnected() && controlRequest != null) {
             BluetoothGattCharacteristic characteristic = controlRequest;
             ControlViewModel.Companion.getEntireCheckQueue().add(entireCheck);
-            Log.d("BleControlManager", "Accepting " + Arrays.toString(data) + " from ReadingDataFragment");
+            Logger.INSTANCE.d("BleControlManager", "Accepting " + Arrays.toString(data) + " from ReadingDataFragment");
             if (characteristic != null) {
                 byte[] commandData = new byte[data.length + 5]; // Команда + адрес + количество байт данных
                 commandData[0] = RAW_START_MARK;
                 commandData[1] = WRITE_CMD;
                 commandData[2] = (byte) dataItem.getAddress();
-                Log.e("BleControlManager","CheckingAddress " + dataItem.getAddress());
+                Logger.INSTANCE.e("BleControlManager","CheckingAddress " + dataItem.getAddress());
                 commandData[3] = (byte) data.length; // <num>
                 System.arraycopy(data, 0, commandData, 4, data.length); // <data>
                 writeCharacteristic(
@@ -181,14 +185,14 @@ public class BleControlManager extends BleManager {
                         commandData,
                         BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
                 )
-                        .done(device -> Log.e("BleControlManager", "Write Data command sent " + Arrays.toString(commandData)))
-                        .fail((device, status) -> Log.e("BleControlManager", "Failed to send write command: " + status))
+                        .done(device -> Logger.INSTANCE.e("BleControlManager", "Write Data command sent " + Arrays.toString(commandData)))
+                        .fail((device, status) -> Logger.INSTANCE.e("BleControlManager", "Failed to send write command: " + status))
                         .enqueue();
             } else {
-                Log.e("BleControlManager", "Control Request characteristic is null");
+                Logger.INSTANCE.e("BleControlManager", "Control Request characteristic is null");
             }
         } else {
-            Log.e("BleControlManager", "Device is not connected");
+            Logger.INSTANCE.e("BleControlManager", "Device is not connected");
         }
         writeCommandCount++;
     }
@@ -204,19 +208,19 @@ public class BleControlManager extends BleManager {
                         BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
                 )
                         .done(device -> {
-                            Log.e("BleControlManager", "Apply Command sent");
+                            Logger.INSTANCE.e("BleControlManager", "Apply Command sent");
                             acceptedCommandCallback.onAcc(true);
                         })
                         .fail((device, status) -> {
-                            Log.e("BleControlManager", "Failed to send Apply command: " + status);
+                            Logger.INSTANCE.e("BleControlManager", "Failed to send Apply command: " + status);
                             acceptedCommandCallback.onAcc(false);
                         })
                         .enqueue();
             } else {
-                Log.e("BleControlManager", "Control Request characteristic is null");
+                Logger.INSTANCE.e("BleControlManager", "Control Request characteristic is null");
             }
         } else {
-            Log.e("BleControlManager", "Device is not connected");
+            Logger.INSTANCE.e("BleControlManager", "Device is not connected");
         }
     }
 
@@ -237,12 +241,12 @@ public class BleControlManager extends BleManager {
                 byte[] data = formattedPinCode.getBytes();
                 writeCharacteristic(characteristic, data, BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT)
                         .done(device -> {
-                            Log.e("BleControlManager", "PIN command sent");
+                            Logger.INSTANCE.e("BleControlManager", "PIN command sent");
                             // Флаг устанавливается в true после успешной отправки пин-кода
 
                         })
                         .fail((device, status) -> {
-                            Log.e("BleControlManager", "PIN command ncorrect");
+                            Logger.INSTANCE.e("BleControlManager", "PIN command ncorrect");
                         })
                         .enqueue();
             }
@@ -304,7 +308,7 @@ public void loadFirmware(EntireCheck entireCheck) {
             loadConfiguration();
 
         } else {
-            Log.e("BleControlManager", "Device is not connected or Control Request characteristic is null");
+            Logger.INSTANCE.e("BleControlManager", "Device is not connected or Control Request characteristic is null");
         }
     } catch (IOException e) {
         e.printStackTrace();
@@ -338,7 +342,7 @@ public void loadFirmware(EntireCheck entireCheck) {
                     writeCharacteristic(characteristic, commandData, BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT)
                             .enqueue();
                     successfulOperationsCount++;
-                    Log.e("BleControlManager", String.valueOf(successfulOperationsCount));
+                    Logger.INSTANCE.e("BleControlManager", String.valueOf(successfulOperationsCount));
 
                     // Увеличение адреса для следующей порции данных
                     address += chunkSize;
@@ -346,10 +350,10 @@ public void loadFirmware(EntireCheck entireCheck) {
                     offset += chunkSize;
                 }
             } else {
-                Log.e("BleControlManager", "Control Request characteristic is null");
+                Logger.INSTANCE.e("BleControlManager", "Control Request characteristic is null");
             }
         } else {
-            Log.e("BleControlManager", "Device is not connected");
+            Logger.INSTANCE.e("BleControlManager", "Device is not connected");
         }
     }
 
@@ -364,7 +368,7 @@ public void loadFirmware(EntireCheck entireCheck) {
                 }
 
             } else {
-                Log.e("BleControlManager", "Device is not connected or Control Request characteristic is null");
+                Logger.INSTANCE.e("BleControlManager", "Device is not connected or Control Request characteristic is null");
             }
         }
 
@@ -395,7 +399,7 @@ public void loadFirmware(EntireCheck entireCheck) {
                     writeCharacteristic(characteristic, commandData, BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT)
                             .enqueue();
                     successfulOperationsCount++;
-                    Log.e("BleControlManager", String.valueOf(successfulOperationsCount));
+                    Logger.INSTANCE.e("BleControlManager", String.valueOf(successfulOperationsCount));
 
                     // Увеличение адреса для следующей порции данных
                     address += chunkSize;
@@ -403,10 +407,10 @@ public void loadFirmware(EntireCheck entireCheck) {
                     offset += chunkSize;
                 }
             } else {
-                Log.e("BleControlManager", "Control Request characteristic is null");
+                Logger.INSTANCE.e("BleControlManager", "Control Request characteristic is null");
             }
         } else {
-            Log.e("BleControlManager", "Device is not connected");
+            Logger.INSTANCE.e("BleControlManager", "Device is not connected");
         }
     }
 
@@ -419,7 +423,7 @@ public void loadFirmware(EntireCheck entireCheck) {
                 // Отправить данные конфигурации по Bluetooth
                 writeConfiguration(buffer,EntireCheck.configurationBootMode);
             } else {
-                Log.e("BleControlManager", "Invalid configuration file size");
+                Logger.INSTANCE.e("BleControlManager", "Invalid configuration file size");
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -444,21 +448,21 @@ public void loadFirmware(EntireCheck entireCheck) {
                         BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
                 )
                         .done(device -> {
-                            Log.e("BleControlManager", "Configuration data sent");
+                            Logger.INSTANCE.e("BleControlManager", "Configuration data sent");
                             stage = true;
                             stopTimer();
                         })
                         .fail((device, status) -> {
-                            Log.e("BleControlManager", "Failed to send configuration data: " + status);
+                            Logger.INSTANCE.e("BleControlManager", "Failed to send configuration data: " + status);
                             stage = false;
                             stopTimer();
                         })
                         .enqueue();
             } else {
-                Log.e("BleControlManager", "Control Request characteristic is null");
+                Logger.INSTANCE.e("BleControlManager", "Control Request characteristic is null");
             }
         } else {
-            Log.e("BleControlManager", "Device is not connected");
+            Logger.INSTANCE.e("BleControlManager", "Device is not connected");
         }
     }
     public void readDeviceState(EntireCheck entireCheck, int numIterations) {
@@ -473,15 +477,15 @@ public void loadFirmware(EntireCheck entireCheck) {
                             commandData,
                             BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
                     )
-                            .done(device -> Log.e("BleControlManager", "Read Device State command sent"))
-                            .fail((device, status) -> Log.e("BleControlManager", "Failed to send Read Device State command: " + status))
+                            .done(device -> Logger.INSTANCE.e("BleControlManager", "Read Device State command sent"))
+                            .fail((device, status) -> Logger.INSTANCE.e("BleControlManager", "Failed to send Read Device State command: " + status))
                             .enqueue();
                 }
             } else {
-                Log.e("BleControlManager", "Control Request characteristic is null");
+                Logger.INSTANCE.e("BleControlManager", "Control Request characteristic is null");
             }
         } else {
-            Log.e("BleControlManager", "Device is not connected");
+            Logger.INSTANCE.e("BleControlManager", "Device is not connected");
         }
     }
 
@@ -578,13 +582,13 @@ public void loadFirmware(EntireCheck entireCheck) {
 
         @Override
         protected void onServicesInvalidated() {
-            Log.d("BleControlManager", "Services invalidated. Disconnecting and closing GATT.");
+            Logger.INSTANCE.d("BleControlManager", "Services invalidated. Disconnecting and closing GATT.");
             controlRequest = null;
             controlResponse = null;
 
-            Log.d("BleControlManager", "Disconnecting from device...");
+            Logger.INSTANCE.d("BleControlManager", "Disconnecting from device...");
             disconnect().enqueue();
-            Log.d("BleControlManager", "Closing GATT...");
+            Logger.INSTANCE.d("BleControlManager", "Closing GATT...");
             BleControlManager.this.close();
 
         }
@@ -599,7 +603,7 @@ public void loadFirmware(EntireCheck entireCheck) {
         private void handleResponseData(byte[] data) {
             EntireCheck entireCheck1 = ControlViewModel.Companion.getEntireCheckQueue().poll();
             if (entireCheck1 == null) {
-                Log.d("BleControlManager", "Entire is null");
+                Logger.INSTANCE.d("BleControlManager", "Entire is null");
                 return;
             }
 
@@ -609,22 +613,22 @@ public void loadFirmware(EntireCheck entireCheck) {
                     break;
                 case RESERV:
                     // Обработка RESERV
-                    Log.d("BleControlManager", "RESERV IS NOT UPDATING ");
+                    Logger.INSTANCE.d("BleControlManager", "RESERV IS NOT UPDATING ");
                     break;
                 case POW_VOLT:
-                    Log.d("BleControlManager","data " + Arrays.toString(data));
+                    Logger.INSTANCE.d("BleControlManager","data " + Arrays.toString(data));
                     handlePowVolt(data);
                     break;
                 case CONFIG_WORD:
-                    Log.d("BleControlManager","data " + Arrays.toString(data));
+                    Logger.INSTANCE.d("BleControlManager","data " + Arrays.toString(data));
                     handleConfigWord(data);
                     break;
                 case HW_VER:
-                    Log.d("BleControlManager","data " + Arrays.toString(data));
+                    Logger.INSTANCE.d("BleControlManager","data " + Arrays.toString(data));
                     handleHwVer(data);
                     break;
                 case SER_NUM:
-                    Log.d("BleControlManager","data " + Arrays.toString(data));
+                    Logger.INSTANCE.d("BleControlManager","data " + Arrays.toString(data));
                     handleSerNum(data);
                     break;
                // case LOCAL_TIME_SH:
@@ -636,11 +640,11 @@ public void loadFirmware(EntireCheck entireCheck) {
                     // handleCrc32(data); NAK
                   //  break;
                 case SETUP_OPERATOR:
-                    Log.d("BleControlManager","data " + Arrays.toString(data));
+                    Logger.INSTANCE.d("BleControlManager","data " + Arrays.toString(data));
                     handleSetupOperator(data);
                     break;
                 case PIN_CODE_RESULT:
-                    Log.d("BleControlManager","data " + Arrays.toString(data));
+                    Logger.INSTANCE.d("BleControlManager","data " + Arrays.toString(data));
                     handlePinCodeResult(data);
                     break;
                 case CHECK_PIN_RESULT:
@@ -654,31 +658,31 @@ public void loadFirmware(EntireCheck entireCheck) {
                 case I_40UA:
                 case I_60UA:
                     int value = (entireCheck1.ordinal() - EntireCheck.I_0UA.ordinal()) * 10;// Получаем значение из названия поля
-                    Log.d("BleControlManager","data " + Arrays.toString(data));
+                    Logger.INSTANCE.d("BleControlManager","data " + Arrays.toString(data));
                     handleCurrentCalibration(data, value);
                     break;
                 case Uref:
-                    Log.d("BleControlManager","data " + Arrays.toString(data));
+                    Logger.INSTANCE.d("BleControlManager","data " + Arrays.toString(data));
                     handleUref(data);
                     break;
                 case Tref_mV:
-                    Log.d("BleControlManager","data " + Arrays.toString(data));
+                    Logger.INSTANCE.d("BleControlManager","data " + Arrays.toString(data));
                     handleTref_mV(data, EntireCheck.Tref_mV.name());
                     break;
                 case R1_Ohm:
-                    Log.d("BleControlManager","data " + Arrays.toString(data));
+                    Logger.INSTANCE.d("BleControlManager","data " + Arrays.toString(data));
                     handleR1_Ohm(data,EntireCheck.R1_Ohm.name());
                     break;
                 case Uw:
-                    Log.d("BleControlManager","data " + Arrays.toString(data));
+                    Logger.INSTANCE.d("BleControlManager","data " + Arrays.toString(data));
                     handleUw(data);
                     break;
                 case T10ref_C:
-                    Log.d("BleControlManager","data " + Arrays.toString(data));
+                    Logger.INSTANCE.d("BleControlManager","data " + Arrays.toString(data));
                     handleT10ref_C(data,EntireCheck.T10ref_C.name());
                     break;
                 case WRITE:
-                    Log.d("BleControlManager", " data HEX type " + bytesToHexLogs(data));
+                    Logger.INSTANCE.d("BleControlManager", " data HEX type " + bytesToHexLogs(data));
                     handleWriteData(data);
                     break;
                 case default_command:
@@ -686,22 +690,22 @@ public void loadFirmware(EntireCheck entireCheck) {
                     handleDefaultCommand(data);
                     break;
                 case BootModeResponse:
-                    Log.d("BleControlManager", " data HEX type " + bytesToHexLogs(data));
+                    Logger.INSTANCE.d("BleControlManager", " data HEX type " + bytesToHexLogs(data));
                     handleBootWriteResponse(data);
                     break;
                 case configurationBootMode:
-                    Log.d("BleControlManager", " data HEX type " + bytesToHexLogs(data));
+                    Logger.INSTANCE.d("BleControlManager", " data HEX type " + bytesToHexLogs(data));
                     handleConfigurationWriteResponse(data);
                     break;
                 case writingBootModeData:
-                    Log.d("BleControlManager", " data HEX type " + bytesToHexLogs(data));
+                    Logger.INSTANCE.d("BleControlManager", " data HEX type " + bytesToHexLogs(data));
                     break;
                 case batteryLevel:
-                    Log.d("BleControlManager", " data HEX type " + bytesToHexLogs(data));
+                    Logger.INSTANCE.d("BleControlManager", " data HEX type " + bytesToHexLogs(data));
                     handleCheckBattLevel(data,changedMode);
                     break;
                 case softVer:
-                    Log.d("BleControlManager", " data HEX type " + bytesToHexLogs(data));
+                    Logger.INSTANCE.d("BleControlManager", " data HEX type " + bytesToHexLogs(data));
                     handleCheckSoftwareVersion(data,changedMode);
                     break;
 
@@ -715,29 +719,29 @@ public void loadFirmware(EntireCheck entireCheck) {
         private void handleTref_mV(byte[] data,  String fieldName) {
             if (data.length >= 8) {
                 float value = ByteBuffer.wrap(data, 4, 4).order(ByteOrder.LITTLE_ENDIAN).getFloat();
-                Log.d("BleControlManager", "updating " + fieldName + ": " + value + " мВ");
+                Logger.INSTANCE.d("BleControlManager", "updating " + fieldName + ": " + value + " мВ");
                 DataItem dataItem = new DataItem(String.valueOf(value), " " + " мВ", fieldName, false,0x1C,0x04,DataType.FLOAT);
                 listOfDataItem.add(dataItem);
             } else {
-                Log.e("BleControlManager", "Received data for " + fieldName + " is too short to process");
+                Logger.INSTANCE.e("BleControlManager", "Received data for " + fieldName + " is too short to process");
             }
         }
 
         private void handleR1_Ohm(byte[] data, String fieldName) {
             if (data.length >= 8) {
                 long value = ByteBuffer.wrap(data, 4, 4).order(ByteOrder.LITTLE_ENDIAN).getInt() & 0xFFFFFFFFL;
-                Log.d("BleControlManager", "updating " + fieldName + ": " + value + " Ом");
+                Logger.INSTANCE.d("BleControlManager", "updating " + fieldName + ": " + value + " Ом");
                 DataItem dataItem = new DataItem(String.valueOf(value), " " + " Ом", fieldName, false,0x20,0x04,DataType.UINT32);
                 listOfDataItem.add(dataItem);
             } else {
-                Log.e("BleControlManager", "Received data for " + fieldName + " is too short to process");
+                Logger.INSTANCE.e("BleControlManager", "Received data for " + fieldName + " is too short to process");
             }
         }
 
         private void handleUref(byte[] data) {
             String hexValueUref = bytesToHex(Arrays.copyOfRange(data, 4, 8));
             long configWord = ByteBuffer.wrap(data, 4, 4).order(ByteOrder.LITTLE_ENDIAN).getInt() & 0xFFFFFFFFL;
-            Log.d("BleControlManager", "updating ConfigWord " + configWord);
+            Logger.INSTANCE.d("BleControlManager", "updating ConfigWord " + configWord);
             DataItem dataItemConfig = new DataItem(hexValueUref,Arrays.toString(new long[]{configWord}), "Uref", false,0x24,0x04,DataType.UINT32);
             listOfDataItem.add(dataItemConfig);
         }
@@ -745,7 +749,7 @@ public void loadFirmware(EntireCheck entireCheck) {
         private void handleUw(byte[] data) {
             String hexValueUw = bytesToHex(Arrays.copyOfRange(data, 4, 8));
             long configWord = ByteBuffer.wrap(data, 4, 4).order(ByteOrder.LITTLE_ENDIAN).getInt() & 0xFFFFFFFFL;
-            Log.d("BleControlManager", "updating ConfigWord " + configWord);
+            Logger.INSTANCE.d("BleControlManager", "updating ConfigWord " + configWord);
             DataItem dataItemConfig = new DataItem(hexValueUw,Arrays.toString(new long[]{configWord}), "UW", false,0x28,0x04,DataType.UINT32);
             listOfDataItem.add(dataItemConfig);
         }
@@ -755,24 +759,24 @@ public void loadFirmware(EntireCheck entireCheck) {
             if (data.length >= 8) {
                 // Переводим значение в градусы Цельсия, учитывая масштаб x10
                 float value = ByteBuffer.wrap(data, 4, 4).order(ByteOrder.LITTLE_ENDIAN).getInt() / 10.0f;
-                Log.d("BleControlManager", "updating " + fieldName + ": " + value + " °C");
+                Logger.INSTANCE.d("BleControlManager", "updating " + fieldName + ": " + value + " °C");
                 DataItem dataItem = new DataItem(String.format("%.1f", value), " °C", fieldName, false,0x2C,0x04,DataType.UINT32);
                 listOfDataItem.add(dataItem);
             } else {
-                Log.e("BleControlManager", "Received data for " + fieldName + " is too short to process");
+                Logger.INSTANCE.e("BleControlManager", "Received data for " + fieldName + " is too short to process");
             }
         }
 
         private void handleCurrentCalibration(byte[] data, int value) {
             float currentCalibration = ByteBuffer.wrap(data, 4, 4).order(ByteOrder.LITTLE_ENDIAN).getFloat();
             if (!Float.isNaN(currentCalibration)) {
-                Log.d("BleControlManager", "updating i_" + value + "uA " + currentCalibration);
+                Logger.INSTANCE.d("BleControlManager", "updating i_" + value + "uA " + currentCalibration);
                 DataItem dataItemPowVolt = new DataItem(String.valueOf(currentCalibration), bytesToHex(data), "CURRENT CALIBRATION " + value + "uA", false,0x00,0x04,DataType.FLOAT);
                 listOfDataItem.add(dataItemPowVolt);
             } else {
                 DataItem dataItemPowVolt = new DataItem("is NaN", "is NaN", " CURRENT CALIBRATION " +  value  + " uA ", false,0,0x04,DataType.FLOAT);
                 listOfDataItem.add(dataItemPowVolt);
-                Log.e("BleControlManager", "CURRENT CALIBRATION value is NaN");
+                Logger.INSTANCE.e("BleControlManager", "CURRENT CALIBRATION value is NaN");
             }
         }
         @SuppressLint("SimpleDateFormat")
@@ -782,27 +786,27 @@ public void loadFirmware(EntireCheck entireCheck) {
                 Date date = new Date(setupTimeSeconds * 1000); // Переводим секунды в миллисекунды
                 SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss.SSS");
                 String formattedDateTime = formatter.format(date);
-                Log.d("BleControlManager", "updating SetupTime " + formattedDateTime);
+                Logger.INSTANCE.d("BleControlManager", "updating SetupTime " + formattedDateTime);
                 DataItem dataItemSetupTime = new DataItem(formattedDateTime, bytesToHex(Arrays.copyOfRange(data, 4, 8)), "SETUP TIME", false,0x30,0x04,DataType.UINT32);
                 listOfDataItem.add(dataItemSetupTime);
             } else {
-                Log.e("BleControlManager", "Received data is too short to process");
+                Logger.INSTANCE.e("BleControlManager", "Received data is too short to process");
             }
         }
         private void handlePowVolt(byte[] data) {
             float powVoltK = ByteBuffer.wrap(data, 4, 4).order(ByteOrder.LITTLE_ENDIAN).getFloat();
             if (!Float.isNaN(powVoltK)) {
-                Log.d("BleControlManager", "updating Pow_Volt " + powVoltK);
+                Logger.INSTANCE.d("BleControlManager", "updating Pow_Volt " + powVoltK);
                 DataItem dataItemPowVolt = new DataItem(String.valueOf(powVoltK),bytesToHex(data), "PowerVoltageCalib", false,0x34,0x04,DataType.FLOAT);
                 listOfDataItem.add(dataItemPowVolt);
             } else {
                 DataItem dataItemPowVolt = new DataItem("is NaN", "is NaN", "PowerVoltageCalib", false,0,0x04,DataType.FLOAT);
                 listOfDataItem.add(dataItemPowVolt);
-                Log.e("BleControlManager", "POW_VOLT value is NaN");
+                Logger.INSTANCE.e("BleControlManager", "POW_VOLT value is NaN");
             }
         }
         private void handleWriteData(byte[] data) {
-            Log.d("BleControlManager", "Ответ от устройства " + Arrays.toString(data) + " " + bytesToHex(data));
+            Logger.INSTANCE.d("BleControlManager", "Ответ от устройства " + Arrays.toString(data) + " " + bytesToHex(data));
 
             // Проверяем успешность ответа от устройства на команду записи
             boolean successResponse = data != null && data.length > 0 && data[0] == RAW_ASK;
@@ -813,7 +817,7 @@ public void loadFirmware(EntireCheck entireCheck) {
                     sendApplyCommand();
                 }
             } else {
-                Log.e("BleControlManager", "Не успешный ответ от устройства на команду записи");
+                Logger.INSTANCE.e("BleControlManager", "Не успешный ответ от устройства на команду записи");
             }
         }
 
@@ -821,13 +825,13 @@ public void loadFirmware(EntireCheck entireCheck) {
         private void handleConfigWord(byte[] data) {
             String hexValueConfigWord = bytesToHex(Arrays.copyOfRange(data, 4, 8));
             long configWord = ByteBuffer.wrap(data, 4, 4).order(ByteOrder.LITTLE_ENDIAN).getInt() & 0xFFFFFFFFL;
-            Log.d("BleControlManager", "updating ConfigWord " + configWord);
+            Logger.INSTANCE.d("BleControlManager", "updating ConfigWord " + configWord);
             DataItem dataItemConfig = new DataItem(hexValueConfigWord,Arrays.toString(new long[]{configWord}), "CONFIG WORD", false,0x38,0x04,DataType.UINT32);
             listOfDataItem.add(dataItemConfig);
         }
         private void handleHwVer(byte[] data) {
             String hwVer = new String(Arrays.copyOfRange(data, 4, 20), StandardCharsets.US_ASCII).trim().replaceAll("[\\x00-\\x1F]", "");
-            Log.d("BleControlManager", "updating hwVer " + hwVer);
+            Logger.INSTANCE.d("BleControlManager", "updating hwVer " + hwVer);
             DataItem dataItemHwVer = new DataItem(hwVer, bytesToHex(data), "HW VERSION", false,0x4C,0x10,DataType.CHAR_ARRAY);
             listOfDataItem.add(dataItemHwVer);
         }
@@ -835,43 +839,43 @@ public void loadFirmware(EntireCheck entireCheck) {
             String serialNumber = new String(Arrays.copyOfRange(data, 4, 20), StandardCharsets.US_ASCII).trim().replaceAll("[\\x00-\\x1F]", "");
             DataItem dataItemSerNum = new DataItem(serialNumber, bytesToHex(data), "SERIAL NUMBER", false,0x5C,0x10,DataType.CHAR_ARRAY);
             listOfDataItem.add(dataItemSerNum);
-            Log.d("BleControlManager", "updating serNumb " + serialNumber);
+            Logger.INSTANCE.d("BleControlManager", "updating serNumb " + serialNumber);
         }
         private void handleSetupOperator(byte[] data) {
             String setupOperator = new String(Arrays.copyOfRange(data, 4, 20), StandardCharsets.US_ASCII).trim().replaceAll("[\\x00-\\x1F]", "");
             DataItem dataItemSetupOp = new DataItem(setupOperator, bytesToHex(data), "SETUP OPERATOR", false,0x3C,0x10,DataType.CHAR_ARRAY);
             listOfDataItem.add(dataItemSetupOp);
-            Log.d("BleControlManager", "updating setupOperator " + setupOperator);
+            Logger.INSTANCE.d("BleControlManager", "updating setupOperator " + setupOperator);
         }
         private void handleLocalTimeShift(byte[] data) {
             long localTimeShift = ByteBuffer.wrap(data, 4, 4).order(ByteOrder.LITTLE_ENDIAN).getInt() & 0xFFFFFFFFL;
             DataItem dataItemLocalTime = new DataItem(bytesToHex(data), Arrays.toString(new long[]{localTimeShift}), "LOCAL TIME SHIFT", false,0x6C,0x04,DataType.UINT32);
             listOfDataItem.add(dataItemLocalTime);
-            Log.d("BleControlManager", "updating locTimeShift " + localTimeShift);
+            Logger.INSTANCE.d("BleControlManager", "updating locTimeShift " + localTimeShift);
         }
         private void handleCrc32(byte[] data) {
             long crc32Value = ByteBuffer.wrap(data, 4, 4).order(ByteOrder.LITTLE_ENDIAN).getInt() & 0xFFFFFFFFL;
             DataItem dataItemCrc32 = new DataItem(bytesToHex(data), Arrays.toString(new long[]{crc32Value}), "CRC32", false,0X7C,0x04,DataType.UINT32);
             listOfDataItem.add(dataItemCrc32);
-            Log.d("BleControlManager", "updating crc32 " + crc32Value);
+            Logger.INSTANCE.d("BleControlManager", "updating crc32 " + crc32Value);
         }
         @RequiresApi(api = Build.VERSION_CODES.O)
         private void handlePinCodeResult(byte[] data) {
             String pinResponse = new String(data, StandardCharsets.UTF_8);
             if (pinResponse.contains("pin.ok")) {
-                Log.d("BleControlManager", "Pin code is correct");
+                Logger.INSTANCE.d("BleControlManager", "Pin code is correct");
                 if(Objects.equals(changedMode,"TERMINAL")){
-                    Log.d("BleControlManager", "TERMINAL MODE");
+                    Logger.INSTANCE.d("BleControlManager", "TERMINAL MODE");
                     ControlViewModel.Companion.readTerminalCommands();
                 }else{
                     sendCommand("version",EntireCheck.softVer);
                 }
             } else if (pinResponse.contains("pin.error")) {
-                Log.d("BleControlManager", "Pin code is incorrect");
-                Log.d("BleControlManager", "Pin code is disconnecting");
+                Logger.INSTANCE.d("BleControlManager", "Pin code is incorrect");
+                Logger.INSTANCE.d("BleControlManager", "Pin code is disconnecting");
                 disconnect();
             } else {
-                Log.e("BleControlManager", "Invalid pin code response: " + pinResponse);
+                Logger.INSTANCE.e("BleControlManager", "Invalid pin code response: " + pinResponse);
             }
         }
 
@@ -879,17 +883,17 @@ public void loadFirmware(EntireCheck entireCheck) {
         private void handlePinCodeCheck(byte[] data) {
             String pinResponse = new String(data, StandardCharsets.UTF_8);
             if (pinResponse.contains("pin.ok")) {
-                Log.d("BleControlManager", "Pin code is correct");
+                Logger.INSTANCE.d("BleControlManager", "Pin code is correct");
                 if (pinCallback != null) {
                     pinCallback.onPin("CORRECT");
                 }
             } else if (pinResponse.contains("pin.error")) {
-                Log.d("BleControlManager", "Pin code is incorrect");
+                Logger.INSTANCE.d("BleControlManager", "Pin code is incorrect");
                 if (pinCallback != null) {
                     pinCallback.onPin("INCORRECT");
                 }
             } else {
-                Log.e("BleControlManager", "Invalid pin code response: " + pinResponse);
+                Logger.INSTANCE.e("BleControlManager", "Invalid pin code response: " + pinResponse);
             }
         }
 
@@ -900,33 +904,33 @@ public void loadFirmware(EntireCheck entireCheck) {
                 Matcher matcher = pattern.matcher(softWareResponse);
                 if (matcher.find()) {
                     String softwareVersion = matcher.group(1);
-                    Log.d("BleControlManager", "Software Version: " + softwareVersion);
+                    Logger.INSTANCE.d("BleControlManager", "Software Version: " + softwareVersion);
                     if (compareSoftwareVersion(Objects.requireNonNull(softwareVersion), "4.5.0") < 0 && Objects.equals(mode, "RAW")) {
                         // Версия меньше чем 4.5.0
                         // Устанавливаем значение переменной в 108
                         sliseSize = 108;
-                        Log.e("BleControlManager", "Software version less then 4.5.0.");
+                        Logger.INSTANCE.e("BleControlManager", "Software version less then 4.5.0.");
                     } else if (softwareVersion.equals("4.5.0") && Objects.equals(mode, "RAW")) {
                         // Версия равна 4.5.0
                         // Устанавливаем значение переменной в 128
                         sliseSize = 128;
-                        Log.e("BleControlManager", "Software version is 4.5.0.");
+                        Logger.INSTANCE.e("BleControlManager", "Software version is 4.5.0.");
                         sendCommand("setraw", EntireCheck.default_command);
                     } else {
                         // Проверка версии программного обеспечения на соответствие диапазону
                         if (isSoftwareVersionInRange(Objects.requireNonNull(softwareVersion), "4.0.9", "4.9.9")) {
                             // Версия программного обеспечения находится в диапазоне
-                            Log.d("BleControlManager", "Software version is in range.");
+                            Logger.INSTANCE.d("BleControlManager", "Software version is in range.");
                             verCheck = true;
                             sendCommand("battery", EntireCheck.batteryLevel);
                         } else {
                             // Версия программного обеспечения НЕ находится в диапазоне
-                            Log.d("BleControlManager", "Software version is not in range.");
+                            Logger.INSTANCE.d("BleControlManager", "Software version is not in range.");
                             verCheck = false;
                         }
                     }
                 }else {
-                    Log.e("BleControlManager", "Software version not found in response.");
+                    Logger.INSTANCE.e("BleControlManager", "Software version not found in response.");
                 }
             }
         }
@@ -940,21 +944,21 @@ public void loadFirmware(EntireCheck entireCheck) {
                     int batteryLevel = Integer.parseInt(Objects.requireNonNull(batteryMatcher.group(1)));
                     // Проверка уровня заряда
                     if (batteryLevel == 3 || batteryLevel == 2) {
-                        Log.d("BleControlManager", "Battery level is normal. " + battLevelReponse);
+                        Logger.INSTANCE.d("BleControlManager", "Battery level is normal. " + battLevelReponse);
                         battCheck = true;
                         if(Objects.equals(mode, "BOOT")){
                             sendCommand("boot", EntireCheck.default_command);
                         }else if (Objects.equals(mode,"RAW")){
                             sendCommand("setraw", EntireCheck.default_command);
                         }else{
-                            Log.e("BleControlManager", "Mode is undefined" + mode);
+                            Logger.INSTANCE.e("BleControlManager", "Mode is undefined" + mode);
                         }
                     } else {
-                        Log.e("BleControlManager", "Battery level is not normal.");
+                        Logger.INSTANCE.e("BleControlManager", "Battery level is not normal.");
                         battCheck = false;
                     }
                 } else {
-                    Log.e("BleControlManager", "Invalid battery response format. " + battLevelReponse);
+                    Logger.INSTANCE.e("BleControlManager", "Invalid battery response format. " + battLevelReponse);
                     battCheck = false;
                 }
             }
@@ -964,10 +968,10 @@ public void loadFirmware(EntireCheck entireCheck) {
         private void handleDefaultCommand(byte[] data) {
             String defaultResponse = new String(data, StandardCharsets.UTF_8);
             if (defaultResponse.contains("setraw.ok")) {
-                Log.d("BleControlManager", "RAW correct");
+                Logger.INSTANCE.d("BleControlManager", "RAW correct");
                 ControlViewModel.Companion.readDeviceProfile(sliseSize);
             }else if (defaultResponse.contains("setraw.error")) {
-                Log.d("BleControlManager", " incorrect command");
+                Logger.INSTANCE.d("BleControlManager", " incorrect command");
             } else if (defaultResponse.contains("boot.ok")) {
                 requestConnectionPriority(ConnectionPriorityRequest.CONNECTION_PRIORITY_HIGH)
                         .done(device -> Log.e("BleControlManager", "Interval request sent"))
@@ -979,9 +983,9 @@ public void loadFirmware(EntireCheck entireCheck) {
                         .enqueue();
                 loadFirmware(EntireCheck.BootModeResponse);
                 //readFirmware(EntireCheck.writingBootModeData);
-                Log.d("BleControlManager", "Device entered firmware update mode successfully");
+                Logger.INSTANCE.d("BleControlManager", "Device entered firmware update mode successfully");
             } else if (defaultResponse.contains("boot.error")) {
-                Log.e("BleControlManager", "Error: Low battery level");
+                Logger.INSTANCE.e("BleControlManager", "Error: Low battery level");
             }else if(defaultResponse.contains("time")){
                 TermItem termItem = new TermItem(defaultResponse,"TIME");
                 listOfTermItem.add(termItem);
@@ -999,7 +1003,7 @@ public void loadFirmware(EntireCheck entireCheck) {
                 TermItem termItem = new TermItem(defaultResponse,"MAC ADDRESS");
                 listOfTermItem.add(termItem);
             }else {
-                Log.e("BleControlManager", "Invalid response: " + defaultResponse);
+                Logger.INSTANCE.e("BleControlManager", "Invalid response: " + defaultResponse);
             }
         }
         private void handleBootWriteResponse(byte[] data) {
@@ -1009,26 +1013,26 @@ public void loadFirmware(EntireCheck entireCheck) {
 
                 switch (flag) {
                     case 0x00:
-                        Log.d("BleControlManager", "Command accepted");
+                        Logger.INSTANCE.d("BleControlManager", "Command accepted");
                         successfulOperationsCount++;
                         break;
                     case 0x01:
-                        Log.d("BleControlManager", "Device busy, retry command");
+                        Logger.INSTANCE.d("BleControlManager", "Device busy, retry command");
                         failedOperationsCount++;
                         break;
                     case 0x02:
-                        Log.d("BleControlManager", "Previous write command failed");
+                        Logger.INSTANCE.d("BleControlManager", "Previous write command failed");
                         failedOperationsCount++;
                         break;
                     case (byte) 0xFF:
-                        Log.d("BleControlManager", "Invalid command format or content ");
+                        Logger.INSTANCE.d("BleControlManager", "Invalid command format or content ");
                         failedOperationsCount++;
                         break;
                     default:
-                        Log.e("BleControlManager", "Unknown response flag: " + flag);
+                        Logger.INSTANCE.e("BleControlManager", "Unknown response flag: " + flag);
                 }
             } else {
-                Log.e("BleControlManager", "Invalid response data length for WRITE command");
+                Logger.INSTANCE.e("BleControlManager", "Invalid response data length for WRITE command");
             }
         }
         private void handleConfigurationWriteResponse(byte[] data) {
@@ -1041,21 +1045,21 @@ public void loadFirmware(EntireCheck entireCheck) {
                         // Добавить необходимые действия при успешном принятии команды записи конфигурации
                         stage = true;
                         stopTimer();
-                        Log.e("BleControlManager", "Configuration write command accepted " + bytesToHexLogs(data));
+                        Logger.INSTANCE.e("BleControlManager", "Configuration write command accepted " + bytesToHexLogs(data));
                         break;
                     case (byte) 0xFF:
-                        Log.e("BleControlManager", "Configuration write command not accepted, invalid format or content");
+                        Logger.INSTANCE.e("BleControlManager", "Configuration write command not accepted, invalid format or content");
                         stage = false;
                         stopTimer();
                         break;
                     default:
-                        Log.e("BleControlManager", "Unknown response flag for configuration write command: " + flag);
+                        Logger.INSTANCE.e("BleControlManager", "Unknown response flag for configuration write command: " + flag);
                         stage = false;
                         stopTimer();
                         break;
                 }
             } else {
-                Log.e("BleControlManager", "Invalid response data length for configuration write command");
+                Logger.INSTANCE.e("BleControlManager", "Invalid response data length for configuration write command");
             }
         }
 
@@ -1067,27 +1071,27 @@ public void loadFirmware(EntireCheck entireCheck) {
                 switch (flag) {
                     case 0x00:
                         // Предыдущая команда выполнена успешно
-                        Log.d("BleControlManager", "Previous command executed successfully");
-                        Log.e("BleControlManager", "Answer from device " + bytesToHexLogs(data));
+                        Logger.INSTANCE.d("BleControlManager", "Previous command executed successfully");
+                        Logger.INSTANCE.e("BleControlManager", "Answer from device " + bytesToHexLogs(data));
                         break;
                     case 0x01:
                         // Устройство занято обработкой предыдущей команды
-                        Log.e("BleControlManager", "Device is busy processing the previous command");
-                        Log.e("BleControlManager", "Answer from device " + bytesToHexLogs(data));
+                        Logger.INSTANCE.d("BleControlManager", "Device is busy processing the previous command");
+                        Logger.INSTANCE.e("BleControlManager", "Answer from device " + bytesToHexLogs(data));
                         break;
                     case 0x02:
                         // Предшествующая команда завершилась с ошибкой
-                        Log.e("BleControlManager", "Previous command ended with an error");
-                        Log.e("BleControlManager", "Answer from device " + bytesToHexLogs(data));
+                        Logger.INSTANCE.d("BleControlManager", "Previous command ended with an error");
+                        Logger.INSTANCE.e("BleControlManager", "Answer from device " + bytesToHexLogs(data));
                         break;
                     default:
                         // Неизвестный флаг
-                        Log.e("BleControlManager", "Unknown flag in response: " + flag);
-                        Log.e("BleControlManager", "Answer from device " + bytesToHexLogs(data));
+                        Logger.INSTANCE.e("BleControlManager", "Unknown flag in response: " + flag);
+                        Logger.INSTANCE.e("BleControlManager", "Answer from device " + bytesToHexLogs(data));
                         break;
                 }
             } else {
-                Log.e("BleControlManager", "Invalid response data length for Read Device State command");
+                Logger.INSTANCE.e("BleControlManager", "Invalid response data length for Read Device State command");
             }
         }
    }

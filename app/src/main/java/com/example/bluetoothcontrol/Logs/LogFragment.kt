@@ -9,9 +9,8 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.bluetoothcontrol.Controls.BleControlManager
+import com.example.bluetoothcontrol.Logger
 import com.example.bluetoothcontrol.MainActivity
-import com.example.bluetoothcontrol.R
 import com.example.bluetoothcontrol.databinding.FragmentLogBinding
 
 
@@ -24,9 +23,7 @@ class LogFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        BleControlManager.requestData.observe(viewLifecycleOwner) { data ->
-            logAdapter.updateLog(data)
-        }
+
         _binding = FragmentLogBinding.inflate(inflater,container,false)
 
         return (binding.root)
@@ -39,6 +36,9 @@ class LogFragment : Fragment() {
             addItemDecoration(DividerItemDecoration(requireContext(), RecyclerView.VERTICAL))
             layoutManager = LinearLayoutManager(requireContext())
             adapter = logAdapter
+        }
+        Logger._items.observe(viewLifecycleOwner){ data ->
+            logAdapter.updateLog(data)
         }
     }
 

@@ -22,6 +22,7 @@ import com.example.bluetoothcontrol.Controls.ControlViewModel
 import com.example.bluetoothcontrol.Controls.DataType
 import com.example.bluetoothcontrol.Controls.EntireCheck
 import com.example.bluetoothcontrol.Devices.DevicesFragment
+import com.example.bluetoothcontrol.Logger
 import com.example.bluetoothcontrol.MainActivity
 import com.example.bluetoothcontrol.R
 import com.example.bluetoothcontrol.SharedViewModel
@@ -52,12 +53,14 @@ class ReadingDataFragment : Fragment(),ReadingDataAdapter.CallBackOnReadingItem,
         _binding = FragmentReadingDataBinding.inflate(inflater, container, false)
         BleControlManager.requestData.observe(viewLifecycleOwner) { data ->
             Log.d(TAG,"recView UPDATE")
+            Logger.d(TAG,"recView UPDATE")
             adapterReading.update(data)
         }
         controlViewModel = (requireActivity() as MainActivity).getControlViewModelFromMain()
         bleControlManager = MainActivity.controlManager
         controlViewModel.isConnected.observe(viewLifecycleOwner) { isConnected ->
             Log.d("ReadingDataFragment", "Is Connected: $isConnected")
+            Logger.d("ReadingDataFragment", "Is Connected: $isConnected")
         }
         return (binding.root)
     }
@@ -75,9 +78,11 @@ class ReadingDataFragment : Fragment(),ReadingDataAdapter.CallBackOnReadingItem,
                binding.buttonRDData.setOnClickListener{
                    controlViewModel.connect(deviceAddress,"RAW")
                    Log.e(TAG,"Toggle connection to device with address $deviceAddress")
+                   Logger.e(TAG,"Toggle connection to device with address $deviceAddress")
                }
            }else{
                Log.e(TAG,"address $deviceAddress is null ")
+               Logger.e(TAG,"address $deviceAddress is null ")
            }
        }
         adapterReading.addCallBack(this)

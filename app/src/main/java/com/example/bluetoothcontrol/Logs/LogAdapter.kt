@@ -30,9 +30,18 @@ class LogAdapter: RecyclerView.Adapter<LogAdapter.LogAdapterHolder>() {
                 tagLog.text = logItem.TAG
                 descriptionLog.text = logItem.message
                 when(logItem.type){
-                    "e" -> root.setBackgroundColor(ContextCompat.getColor(itemView.context, R.color.red)) // Лог ошибки (e) - красный фон
-                    "d" -> root.setBackgroundColor(ContextCompat.getColor(itemView.context, R.color.blue)) // Лог отладки (d) - синий фон
-                    else -> root.setBackgroundColor(ContextCompat.getColor(itemView.context, R.color.white)) // Другие типы логов - белый фон (можно изменить на другой цвет по вашему выбору)
+                    "e" -> {
+                        tagLog.setTextColor(ContextCompat.getColor(itemView.context, R.color.red)) // Лог ошибки (e) - красный цвет текста
+                        descriptionLog.setTextColor(ContextCompat.getColor(itemView.context, R.color.red))
+                    }
+                    "d" -> {
+                        tagLog.setTextColor(ContextCompat.getColor(itemView.context, R.color.blue)) // Лог отладки (d) - синий цвет текста
+                        descriptionLog.setTextColor(ContextCompat.getColor(itemView.context, R.color.blue))
+                    }
+                    else -> {
+                        tagLog.setTextColor(ContextCompat.getColor(itemView.context, R.color.black)) // Другие типы логов - черный цвет текста (можно изменить на другой цвет по вашему выбору)
+                        descriptionLog.setTextColor(ContextCompat.getColor(itemView.context, R.color.black))
+                    }
                 }
             }
         }

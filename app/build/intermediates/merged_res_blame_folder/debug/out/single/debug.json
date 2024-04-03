@@ -60,12 +60,12 @@
         "source": "com.example.bluetoothcontrol.app-main-50:/layout/item_log.xml"
     },
     {
-        "merged": "C:\\Users\\user\\.gradle\\daemon\\8.3\\com.example.bluetoothcontrol.app-merged_res-48:\\mipmap-xxxhdpi_ic_launcher.webp.flat",
-        "source": "C:\\Users\\user\\.gradle\\daemon\\8.3\\com.example.bluetoothcontrol.app-main-50:\\mipmap-xxxhdpi\\ic_launcher.webp"
-    },
-    {
         "merged": "C:\\Users\\user\\.gradle\\daemon\\8.3\\com.example.bluetoothcontrol.app-merged_res-48:\\layout_item_log.xml.flat",
         "source": "C:\\Users\\user\\.gradle\\daemon\\8.3\\com.example.bluetoothcontrol.app-main-50:\\layout\\item_log.xml"
+    },
+    {
+        "merged": "C:\\Users\\user\\.gradle\\daemon\\8.3\\com.example.bluetoothcontrol.app-merged_res-48:\\mipmap-xxxhdpi_ic_launcher.webp.flat",
+        "source": "C:\\Users\\user\\.gradle\\daemon\\8.3\\com.example.bluetoothcontrol.app-main-50:\\mipmap-xxxhdpi\\ic_launcher.webp"
     },
     {
         "merged": "C:\\Users\\user\\.gradle\\daemon\\8.3\\com.example.bluetoothcontrol.app-merged_res-48:\\mipmap-hdpi_ic_launcher_round.webp.flat",

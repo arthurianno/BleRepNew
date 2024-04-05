@@ -963,11 +963,13 @@ public void loadFirmware(EntireCheck entireCheck) {
                         }
                     } else {
                         Logger.INSTANCE.e("BleControlManager", "Battery level is not normal.");
+                        errorCallback.onError("Ошибка входа в Boot");
                         battCheck = false;
                         disconnect().enqueue();
                     }
                 } else {
                     Logger.INSTANCE.e("BleControlManager", "Invalid battery response format. " + battLevelReponse);
+                    errorCallback.onError("Ошибка входа в Boot");
                     battCheck = false;
                 }
             }
@@ -979,9 +981,11 @@ public void loadFirmware(EntireCheck entireCheck) {
             String defaultResponse = new String(data, StandardCharsets.UTF_8);
             if (defaultResponse.contains("setraw.ok")) {
                 Logger.INSTANCE.d("BleControlManager", "RAW correct");
+                errorCallback.onError("Вход в raw успешен");
                 ControlViewModel.Companion.readDeviceProfile(sliseSize);
             }else if (defaultResponse.contains("setraw.error")) {
                 Logger.INSTANCE.d("BleControlManager", " incorrect command");
+                errorCallback.onError("Ошибка входа в raw");
             } else if (defaultResponse.contains("boot.ok")) {
                 requestConnectionPriority(ConnectionPriorityRequest.CONNECTION_PRIORITY_HIGH)
                         .done(device -> Log.e("BleControlManager", "Interval request sent"))
@@ -1056,7 +1060,7 @@ public void loadFirmware(EntireCheck entireCheck) {
                 switch (flag) {
                     case 0x00:
                         // Добавить необходимые действия при успешном принятии команды записи конфигурации
-                        stage = true;
+                        stage = false;
                         stopTimer();
                         Logger.INSTANCE.e("BleControlManager", "Configuration write command accepted " + bytesToHexLogs(data));
                         break;

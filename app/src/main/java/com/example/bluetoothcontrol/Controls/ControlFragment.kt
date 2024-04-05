@@ -60,6 +60,7 @@ class ControlFragment : Fragment(),BleControlManager.ErrorCallback {
         sharedViewModel.selectedDeviceAddress.observe(viewLifecycleOwner){deviceAddress ->
             if(deviceAddress != null && !controlModel.isConnected){
                 binding.buttonProcessFiles.setOnClickListener{
+                    BleControlManager.requestData.value?.clear()
                     controlViewModel.connect(deviceAddress,"BOOT")
                     Log.e(ReadingDataFragment.TAG," connection to device with address $deviceAddress")
                 }

@@ -85,10 +85,16 @@ class MainActivity : AppCompatActivity(), DevicesAdapter.CallBack {
 
         // Если текущий фрагмент не является фрагментом устройств, переходим к фрагменту устройств
         if (!isDeviceFragment) {
-            navigate(DevicesFragment.newInstance(), "DeviceFragment", R.id.fragmentContainer)
+            val devicesFragment = supportFragmentManager.findFragmentByTag(DevicesFragment.TAG)
+                ?: DevicesFragment.newInstance() // Создаем новый фрагмент, если его нет
+
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.fragmentContainer, devicesFragment, DevicesFragment.TAG)
+                .commit()
         } else {
             // Если текущий фрагмент уже является фрагментом устройств, закрываем активность
             super.onBackPressed()
+
         }
     }
 

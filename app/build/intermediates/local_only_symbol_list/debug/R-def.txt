@@ -5,6 +5,7 @@ array rawModeReads
 color black
 color blue
 color green
+color highlighted_color
 color red
 color white
 dimen fabMargin

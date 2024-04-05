@@ -1,10 +1,15 @@
 package com.example.bluetoothcontrol.Devices
 
+import android.animation.AnimatorInflater
+import android.animation.AnimatorSet
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
 import android.util.Log
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.bluetoothcontrol.Logger
 import com.example.bluetoothcontrol.R
@@ -17,6 +22,7 @@ class DevicesAdapter(private val callback:CallBack,private val sharedViewModel: 
     private val filteredItems = ArrayList<BluetoothDevice>()
     private var callBack: CallBack? = null
     private var filter: String? = null
+    private var selectedItemPosition: Int = RecyclerView.NO_POSITION
 
 
     @SuppressLint("NotifyDataSetChanged")
@@ -29,6 +35,15 @@ class DevicesAdapter(private val callback:CallBack,private val sharedViewModel: 
     fun setFilter(filter: String?) {
         this.filter = filter
         notifyDataSetChanged() // Перерисовываем список при изменении фильтра
+    }
+
+    private fun setSelected(position: Int) {
+        if (selectedItemPosition != position) {
+            val previousSelectedItem = selectedItemPosition
+            selectedItemPosition = position
+            notifyItemChanged(previousSelectedItem)
+            notifyItemChanged(position)
+        }
     }
     @SuppressLint("MissingPermission", "NotifyDataSetChanged")
     private fun applyFilter() {
@@ -62,18 +77,33 @@ class DevicesAdapter(private val callback:CallBack,private val sharedViewModel: 
 
     @SuppressLint("MissingPermission")
     override fun onBindViewHolder(holder: DevicesViewHolder, position: Int) {
-        holder.bind(filteredItems[position])
+        holder.bind(filteredItems[position],position == selectedItemPosition)
+
+        val defaultColor = ContextCompat.getColor(holder.itemView.context, android.R.color.transparent)
+        holder.itemView.setBackgroundColor(defaultColor)
+        ViewCompat.setElevation(holder.itemView, 0f)
     }
 
+    @SuppressLint("ResourceType")
     inner class DevicesViewHolder(private val binding: ItemDeviceBinding) : RecyclerView.ViewHolder(binding.root) {
+
+
         @SuppressLint("MissingPermission")
-        fun bind(item: BluetoothDevice) {
+        fun bind(item: BluetoothDevice,isSelected: Boolean) {
             itemView.setOnClickListener {
+                setSelected(adapterPosition)
                 callback.onItemClick(item)
+                val highlightedColor = ContextCompat.getColor(itemView.context, R.color.highlighted_color)
+                itemView.setBackgroundColor(highlightedColor)
+
+                // Задание тени
+                val elevation = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8f, itemView.resources.displayMetrics)
+                ViewCompat.setElevation(itemView, elevation)
             }
             binding.apply {
                 textName.text = item.name ?: textName.context.getString(R.string.unnamed_device)
                 textAddress.text = item.address
+                itemView.isSelected = isSelected
             }
         }
     }

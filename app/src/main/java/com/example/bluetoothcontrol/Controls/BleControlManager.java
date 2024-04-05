@@ -63,6 +63,7 @@ public class BleControlManager extends BleManager {
     private TimerCallback timerCallback;
     private PinCallback pinCallback;
     private AcceptedCommandCallback acceptedCommandCallback;
+    private ErrorCallback errorCallback;
     private int sliseSize;
     private static final byte BOOT_MODE_CMD = (byte) 0x12;
     private static final byte BOOT_MODE_SUCCESS = (byte) 0x00;
@@ -109,6 +110,10 @@ public class BleControlManager extends BleManager {
     public void setAcceptedCommandCallback(AcceptedCommandCallback callback){
         this.acceptedCommandCallback = callback;
     }
+    public void setErrorCallback(ErrorCallback callback){
+        this.errorCallback = callback;
+    }
+
     public void stopTimer() {
         endTime = System.currentTimeMillis();
         long durationInMillis = endTime - startTime;
@@ -948,16 +953,18 @@ public void loadFirmware(EntireCheck entireCheck) {
                     if (batteryLevel == 3 || batteryLevel == 2) {
                         Logger.INSTANCE.d("BleControlManager", "Battery level is normal. " + battLevelReponse);
                         battCheck = true;
-                        if(Objects.equals(mode, "BOOT")){
+                        // Отправить команду только если режим BOOT
+                        if (Objects.equals(mode, "BOOT")) {
                             sendCommand("boot", EntireCheck.default_command);
-                        }else if (Objects.equals(mode,"RAW")){
+                        } else if (Objects.equals(mode, "RAW")) {
                             sendCommand("setraw", EntireCheck.default_command);
-                        }else{
+                        } else {
                             Logger.INSTANCE.e("BleControlManager", "Mode is undefined" + mode);
                         }
                     } else {
                         Logger.INSTANCE.e("BleControlManager", "Battery level is not normal.");
                         battCheck = false;
+                        disconnect().enqueue();
                     }
                 } else {
                     Logger.INSTANCE.e("BleControlManager", "Invalid battery response format. " + battLevelReponse);
@@ -965,6 +972,7 @@ public void loadFirmware(EntireCheck entireCheck) {
                 }
             }
         }
+
 
 
         private void handleDefaultCommand(byte[] data) {
@@ -987,7 +995,9 @@ public void loadFirmware(EntireCheck entireCheck) {
                 //readFirmware(EntireCheck.writingBootModeData);
                 Logger.INSTANCE.d("BleControlManager", "Device entered firmware update mode successfully");
             } else if (defaultResponse.contains("boot.error")) {
-                Logger.INSTANCE.e("BleControlManager", "Error: Low battery level");
+                Logger.INSTANCE.e("BleControlManager", "Error: Device failed to enter firmware update mode");
+                errorCallback.onError("Ошибка входа в boot");
+                disconnect().enqueue();
             }else if(defaultResponse.contains("time")){
                 TermItem termItem = new TermItem(defaultResponse,"TIME");
                 listOfTermItem.add(termItem);
@@ -1109,5 +1119,9 @@ public void loadFirmware(EntireCheck entireCheck) {
     }
     public interface AcceptedCommandCallback {
         void onAcc(boolean acc);
+    }
+
+    public interface ErrorCallback{
+        void onError(String err);
     }
 }

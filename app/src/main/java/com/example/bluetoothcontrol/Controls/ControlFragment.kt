@@ -29,7 +29,7 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 
 @Suppress("DEPRECATION")
-class ControlFragment : Fragment() {
+class ControlFragment : Fragment(),BleControlManager.ErrorCallback {
 
     private var _binding: FragmentControlBinding? = null
     private val binding: FragmentControlBinding get() = _binding!!
@@ -37,6 +37,7 @@ class ControlFragment : Fragment() {
     private lateinit var controlModel: BleControlManager
     private lateinit var buttonProcessFiles: Button
     private val sharedViewModel: SharedViewModel by activityViewModels()
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -47,6 +48,7 @@ class ControlFragment : Fragment() {
         controlModel = (requireActivity() as MainActivity).getControlManagerFromMain()
         (activity as? MainActivity)?.showBottomNavigationView()
         buttonProcessFiles = binding.buttonProcessFiles
+        controlModel.setErrorCallback(this)
         binding.button.setOnClickListener {
             showZipChooser()
         }
@@ -76,6 +78,8 @@ class ControlFragment : Fragment() {
     private fun showToast(message: String) {
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
     }
+
+
 
     private fun startProcess() {
         binding.progressBar.visibility = View.VISIBLE
@@ -153,6 +157,10 @@ class ControlFragment : Fragment() {
             }
         }
         super.onActivityResult(requestCode, resultCode, data)
+    }
+
+    override fun onError(err: String?) {
+        showToast(err.toString())
     }
 
 }

@@ -141,6 +141,8 @@ class DevicesFragment : Fragment(), DevicesAdapter.CallBack,BleControlManager.Pi
             Log.e("DevicesFragment", "Update name $deviceName")
             Logger.e("DevicesFragment", "Update name $deviceName")
             showPinInputDialogOrConnect(deviceAddress,deviceName)
+
+
         }
     }
 

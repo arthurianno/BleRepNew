@@ -1463,6 +1463,7 @@ int color error_color_material_light 0x7f06005c
 int color foreground_material_dark 0x7f06005d
 int color foreground_material_light 0x7f06005e
 int color green 0x7f06005f
+int color highlighted_color 0x7f060307
 int color highlighted_text_material_dark 0x7f060060
 int color highlighted_text_material_light 0x7f060061
 int color m3_appbar_overlay_color 0x7f060062

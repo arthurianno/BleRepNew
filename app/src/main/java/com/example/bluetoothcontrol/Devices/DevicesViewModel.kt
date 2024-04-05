@@ -24,8 +24,6 @@ class DevicesViewModel(adapterProvider: BluetoothAdapterProvider): ViewModel() {
     private val adapter = adapterProvider.getAdapter()
     private var scanner: BluetoothLeScanner? = null
     private var callback: BleScanCallBack? = null
-    var enableCheck = false
-
     private val settings: ScanSettings
     private val filters: List<ScanFilter>
 

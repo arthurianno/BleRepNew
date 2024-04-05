@@ -5,7 +5,7 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import com.example.bluetoothcontrol.Logs.LogItem
 
- public object Logger {
+ object Logger {
     val _items = MutableLiveData<ArrayList<LogItem>>()
     private var isInitialized = false
     fun init(context: Context) {

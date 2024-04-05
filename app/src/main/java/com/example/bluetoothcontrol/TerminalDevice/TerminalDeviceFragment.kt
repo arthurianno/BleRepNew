@@ -52,8 +52,8 @@ class TerminalDeviceFragment(): Fragment() {
         sharedViewModel.selectedDeviceAddress.observe(viewLifecycleOwner){deviceAddress ->
             if(deviceAddress != null){
                 binding.terminalWrite.setOnClickListener{
+                    BleControlManager.requestDataTermItem.value?.clear()
                     controlViewModel.connect(deviceAddress,"TERMINAL")
-                    Log.e(ReadingDataFragment.TAG,"Toggle connection to device with address $deviceAddress")
                     Logger.e(ReadingDataFragment.TAG,"Toggle connection to device with address $deviceAddress")
                 }
             }else{

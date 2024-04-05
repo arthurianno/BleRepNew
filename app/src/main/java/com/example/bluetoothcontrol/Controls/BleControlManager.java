@@ -911,7 +911,6 @@ public void loadFirmware(EntireCheck entireCheck) {
                         sliseSize = 108;
                         Logger.INSTANCE.e("BleControlManager", "Software version less then 4.5.0.");
                         disconnect().enqueue();
-                        BleControlManager.this.close();
                         Logger.INSTANCE.e("BleControlManager", "Disconnect");
                     } else if (softwareVersion.equals("4.5.0") && Objects.equals(mode, "RAW")) {
                         // Версия равна 4.5.0
@@ -1005,6 +1004,7 @@ public void loadFirmware(EntireCheck entireCheck) {
             }else if(defaultResponse.contains("mac.")){
                 TermItem termItem = new TermItem(defaultResponse,"MAC ADDRESS");
                 listOfTermItem.add(termItem);
+                disconnect().enqueue();
             }else {
                 Logger.INSTANCE.e("BleControlManager", "Invalid response: " + defaultResponse);
             }
@@ -1052,17 +1052,20 @@ public void loadFirmware(EntireCheck entireCheck) {
                         break;
                     case (byte) 0xFF:
                         Logger.INSTANCE.e("BleControlManager", "Configuration write command not accepted, invalid format or content");
+                        disconnect().enqueue();
                         stage = false;
                         stopTimer();
                         break;
                     default:
                         Logger.INSTANCE.e("BleControlManager", "Unknown response flag for configuration write command: " + flag);
+                        disconnect().enqueue();
                         stage = false;
                         stopTimer();
                         break;
                 }
             } else {
                 Logger.INSTANCE.e("BleControlManager", "Invalid response data length for configuration write command");
+                disconnect();
             }
         }
 

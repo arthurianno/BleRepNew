@@ -145,56 +145,54 @@ class ControlViewModel(private val adapterProvider: BluetoothAdapterProvider, pr
 
     companion object {
         val entireCheckQueue: Queue<EntireCheck> = LinkedList()
-        fun readDeviceProfile(sliseSize: Int) {
-            if (controlManager.isConnected && sliseSize == 128) {
-                // Чтение каждого поля из структуры UIC_slope_t
-                controlManager.readData(0x00, 0x04, EntireCheck.I_0UA); // i_0uA
-                controlManager.readData(0x04, 0x04, EntireCheck.I_2UA); // i_2uA
-                controlManager.readData(0x08, 0x04, EntireCheck.I_10UA); // i_10uA
-                controlManager.readData(0x0C, 0x04, EntireCheck.I_20UA); // i_20uA
-                controlManager.readData(0x10, 0x04, EntireCheck.I_30UA); // i_30uA
-                controlManager.readData(0x14, 0x04, EntireCheck.I_40UA); // i_40uA
-                controlManager.readData(0x18, 0x04, EntireCheck.I_60UA); // i_60uA
-                // Чтение каждого поля из структуры
-                controlManager.readData(0x1C, 0x04, EntireCheck.Tref_mV) // Tref_mV
-                controlManager.readData(0x20, 0x04, EntireCheck.R1_Ohm) // R1_Ohm
-                controlManager.readData(0x24, 0x04, EntireCheck.Uref) // Uref
-                controlManager.readData(0x28, 0x04, EntireCheck.Uw) // Uw
-                controlManager.readData(0x2C, 0x04, EntireCheck.T10ref_C) // T10ref_C
-                // Чтение каждого поля из структуры DeviceProfile_t
-                controlManager.readData(0x30, 0x04, EntireCheck.SETUP_TIME) // setupTime
-                controlManager.readData(0x34, 0x04, EntireCheck.POW_VOLT) // powVoltK
-                controlManager.readData(0x38, 0x04, EntireCheck.CONFIG_WORD) // configWord
-                controlManager.readData(0x3C, 0x10, EntireCheck.SETUP_OPERATOR) // setupOperator
-                controlManager.readData(0x4C, 0x10, EntireCheck.HW_VER) // hw_ver
-                controlManager.readData(0x5C, 0x10, EntireCheck.SER_NUM) // serialNumber
-                controlManager.readData(0x70, 0x0C, EntireCheck.RESERV) // reserv
-                controlManager.readData(0x6C, 0x04, EntireCheck.LOCAL_TIME_SH) // localTimeShift
-                controlManager.readData(0x7C, 0x04, EntireCheck.CRC32) // crc32
-            }else{
-                // Чтение каждого поля из структуры UIC_slope_t
-                controlManager.readData(0x00, 0x04, EntireCheck.I_0UA); // i_0uA
-                controlManager.readData(0x04, 0x04, EntireCheck.I_2UA); // i_2uA
-                controlManager.readData(0x08, 0x04, EntireCheck.I_10UA); // i_10uA
-                controlManager.readData(0x0C, 0x04, EntireCheck.I_20UA); // i_20uA
-                controlManager.readData(0x10, 0x04, EntireCheck.I_30UA); // i_30uA
-                controlManager.readData(0x14, 0x04, EntireCheck.I_40UA); // i_40uA
-                controlManager.readData(0x18, 0x04, EntireCheck.I_60UA); // i_60uA
-                // Чтение каждого поля из структуры
-                controlManager.readData(0x1C, 0x04, EntireCheck.Tref_mV); // Tref_mV
-                controlManager.readData(0x20, 0x04, EntireCheck.R1_Ohm); // R1_Ohm
-                controlManager.readData(0x24, 0x04, EntireCheck.Uref); // Uref
-                controlManager.readData(0x28, 0x04, EntireCheck.Uw); // Uw
-                controlManager.readData(0x2C, 0x04, EntireCheck.T10ref_C); // T10ref_C
-                // Чтение каждого поля из структуры DeviceProfile_t
-                controlManager.readData(0x30, 0x04, EntireCheck.SETUP_TIME); // setupTime
-                controlManager.readData(0x34, 0x04, EntireCheck.POW_VOLT); // powVoltK
-                controlManager.readData(0x38, 0x04, EntireCheck.CONFIG_WORD); // configWord
-                controlManager.readData(0x3C, 0x10, EntireCheck.SETUP_OPERATOR); // setupOperator
-                controlManager.readData(0x4C, 0x10, EntireCheck.HW_VER); // hw_ver
-                controlManager.readData(0x5C, 0x10, EntireCheck.SER_NUM); // serialNumber
+        fun readDeviceProfile(sliceSize: Int) {
+            if (controlManager.isConnected && sliceSize == 128) {
+                val addresses = intArrayOf(
+                    0x00, 0x04, 0x08, 0x0C, 0x10, 0x14, 0x18, // Адреса для UIC_slope_t
+                    0x1C, 0x20, 0x24, 0x28, 0x2C, // Адреса для других полей
+                    0x30, 0x34, 0x38, 0x3C, 0x4C, 0x5C, 0x70, 0x6C, 0x7C // Адреса для DeviceProfile_t
+                )
+                val sizes = intArrayOf(
+                    0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, // Размеры для UIC_slope_t
+                    0x04, 0x04, 0x04, 0x04, 0x04, // Размеры для других полей
+                    0x04, 0x04, 0x04, 0x10, 0x10, 0x10, 0x0C, 0x04, 0x04 // Размеры для DeviceProfile_t
+                )
+                val checks = arrayOf(
+                    EntireCheck.I_0UA, EntireCheck.I_2UA, EntireCheck.I_10UA, EntireCheck.I_20UA,
+                    EntireCheck.I_30UA, EntireCheck.I_40UA, EntireCheck.I_60UA, // Проверки для UIC_slope_t
+                    EntireCheck.Tref_mV, EntireCheck.R1_Ohm, EntireCheck.Uref, EntireCheck.Uw,
+                    EntireCheck.T10ref_C, // Проверки для других полей
+                    EntireCheck.SETUP_TIME, EntireCheck.POW_VOLT, EntireCheck.CONFIG_WORD,
+                    EntireCheck.SETUP_OPERATOR, EntireCheck.HW_VER, EntireCheck.SER_NUM,
+                    EntireCheck.RESERV, EntireCheck.LOCAL_TIME_SH, EntireCheck.CRC32 // Проверки для DeviceProfile_t
+                )
+
+                for (i in addresses.indices) {
+                    controlManager.readData(addresses[i], sizes[i], checks[i])
+                }
+            } else {
+                // Если не подключен или размер не равен 128, читаем только поля UIC_slope_t и другие поля
+                val addresses = intArrayOf(
+                    0x00, 0x04, 0x08, 0x0C, 0x10, 0x14, 0x18, // Адреса для UIC_slope_t
+                    0x1C, 0x20, 0x24, 0x28, 0x2C // Адреса для других полей
+                )
+                val sizes = intArrayOf(
+                    0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, // Размеры для UIC_slope_t
+                    0x04, 0x04, 0x04, 0x04, 0x04 // Размеры для других полей
+                )
+                val checks = arrayOf(
+                    EntireCheck.I_0UA, EntireCheck.I_2UA, EntireCheck.I_10UA, EntireCheck.I_20UA,
+                    EntireCheck.I_30UA, EntireCheck.I_40UA, EntireCheck.I_60UA, // Проверки для UIC_slope_t
+                    EntireCheck.Tref_mV, EntireCheck.R1_Ohm, EntireCheck.Uref, EntireCheck.Uw,
+                    EntireCheck.T10ref_C // Проверки для других полей
+                )
+
+                for (i in addresses.indices) {
+                    controlManager.readData(addresses[i], sizes[i], checks[i])
+                }
             }
         }
+
         fun readTerminalCommands(){
             if(controlManager.isConnected){
                 controlManager.sendCommand("gettime",EntireCheck.default_command)

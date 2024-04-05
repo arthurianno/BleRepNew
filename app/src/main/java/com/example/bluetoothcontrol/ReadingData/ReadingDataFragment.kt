@@ -52,8 +52,6 @@ class ReadingDataFragment : Fragment(),ReadingDataAdapter.CallBackOnReadingItem,
     ): View {
         _binding = FragmentReadingDataBinding.inflate(inflater, container, false)
         BleControlManager.requestData.observe(viewLifecycleOwner) { data ->
-            Log.d(TAG,"recView UPDATE")
-            Logger.d(TAG,"recView UPDATE")
             adapterReading.update(data)
         }
         controlViewModel = (requireActivity() as MainActivity).getControlViewModelFromMain()

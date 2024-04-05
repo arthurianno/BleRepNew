@@ -153,7 +153,29 @@ class DevicesFragment : Fragment(), DevicesAdapter.CallBack,BleControlManager.Pi
                 val pinCode = editTextPin.text.toString()
                 controlViewModel.savePinCodeForDevice(deviceAddress,pinCode)
                 controlViewModel.connect(deviceAddress,"CHECKPIN")
-                dialog.dismiss()
+                bleControlManager.setPinCallback {
+                    if(it == "CORRECT"){
+                        controlViewModel.disconnect()
+                        val existingReadingDataFragment = parentFragmentManager.findFragmentByTag(ReadingDataFragment.TAG) as? ReadingDataFragment
+                        if (existingReadingDataFragment != null && controlViewModel.isConnected.value != false) {
+                            parentFragmentManager.beginTransaction()
+                                .addToBackStack(null)
+                                .replace(R.id.fragmentContainer, existingReadingDataFragment)
+                                .commit()
+                        } else {
+                            controlViewModel.disconnect()
+                            val readingDataFragment = ReadingDataFragment.newInstance(deviceAddress)
+                            parentFragmentManager.beginTransaction()
+                                .addToBackStack(null)
+                                .replace(R.id.fragmentContainer, readingDataFragment, ReadingDataFragment.TAG)
+                                .commit()
+                        }
+                    }else{
+                        controlViewModel.disconnect()
+                        showPinInputDialog(deviceAddress, deviceName)
+                    }
+                }
+
             }
 
         alertDialogBuilder.create().show()
@@ -177,6 +199,7 @@ class DevicesFragment : Fragment(), DevicesAdapter.CallBack,BleControlManager.Pi
                             .replace(R.id.fragmentContainer, existingReadingDataFragment)
                             .commit()
                     } else {
+                        controlViewModel.disconnect()
                         val readingDataFragment = ReadingDataFragment.newInstance(deviceAddress)
                         parentFragmentManager.beginTransaction()
                             .addToBackStack(null)

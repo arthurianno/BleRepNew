@@ -52,7 +52,7 @@ public class BleControlManager extends BleManager {
     private long endTime;
     private String changedMode;
     private boolean battCheck = false;
-    private boolean stage = false;
+    private boolean stage = Boolean.parseBoolean(null);
     private boolean verCheck = false;
     private int versionSoft = 0;
 
@@ -460,12 +460,10 @@ public void loadFirmware(EntireCheck entireCheck) {
                 )
                         .done(device -> {
                             Logger.INSTANCE.e("BleControlManager", "Configuration data sent");
-                            stage = true;
                             stopTimer();
                         })
                         .fail((device, status) -> {
                             Logger.INSTANCE.e("BleControlManager", "Failed to send configuration data: " + status);
-                            stage = false;
                             stopTimer();
                         })
                         .enqueue();
@@ -1061,9 +1059,9 @@ public void loadFirmware(EntireCheck entireCheck) {
                 switch (flag) {
                     case 0x00:
                         // Добавить необходимые действия при успешном принятии команды записи конфигурации
-                        stage = false;
                         stopTimer();
                         Logger.INSTANCE.e("BleControlManager", "Configuration write command accepted " + bytesToHexLogs(data));
+                        stage = false;
                         break;
                     case (byte) 0xFF:
                         Logger.INSTANCE.e("BleControlManager", "Configuration write command not accepted, invalid format or content");

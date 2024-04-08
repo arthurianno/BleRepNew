@@ -29,7 +29,7 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 
 @Suppress("DEPRECATION")
-class ControlFragment : Fragment(),BleControlManager.ErrorCallback {
+class ControlFragment : Fragment() {
 
     private var _binding: FragmentControlBinding? = null
     private val binding: FragmentControlBinding get() = _binding!!
@@ -48,7 +48,6 @@ class ControlFragment : Fragment(),BleControlManager.ErrorCallback {
         controlModel = (requireActivity() as MainActivity).getControlManagerFromMain()
         (activity as? MainActivity)?.showBottomNavigationView()
         buttonProcessFiles = binding.buttonProcessFiles
-        controlModel.setErrorCallback(this)
         binding.button.setOnClickListener {
             showZipChooser()
         }
@@ -160,9 +159,7 @@ class ControlFragment : Fragment(),BleControlManager.ErrorCallback {
         super.onActivityResult(requestCode, resultCode, data)
     }
 
-    override fun onError(err: String?) {
-        showToast(err.toString())
-    }
+
 
 }
 

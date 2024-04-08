@@ -63,7 +63,7 @@ public class BleControlManager extends BleManager {
     private TimerCallback timerCallback;
     private PinCallback pinCallback;
     private AcceptedCommandCallback acceptedCommandCallback;
-    private ErrorCallback errorCallback;
+
     private int sliseSize;
     private static final byte BOOT_MODE_CMD = (byte) 0x12;
     private static final byte BOOT_MODE_SUCCESS = (byte) 0x00;
@@ -109,9 +109,6 @@ public class BleControlManager extends BleManager {
     }
     public void setAcceptedCommandCallback(AcceptedCommandCallback callback){
         this.acceptedCommandCallback = callback;
-    }
-    public void setErrorCallback(ErrorCallback callback){
-        this.errorCallback = callback;
     }
 
     public void stopTimer() {
@@ -310,6 +307,7 @@ public void loadFirmware(EntireCheck entireCheck) {
                 }
             }
             // После отправки всех данных прошивки загружаем конфигурацию
+            inputStream.close();
             loadConfiguration();
 
         } else {
@@ -963,13 +961,11 @@ public void loadFirmware(EntireCheck entireCheck) {
                         }
                     } else {
                         Logger.INSTANCE.e("BleControlManager", "Battery level is not normal.");
-                        errorCallback.onError("Ошибка входа в Boot");
                         battCheck = false;
                         disconnect().enqueue();
                     }
                 } else {
                     Logger.INSTANCE.e("BleControlManager", "Invalid battery response format. " + battLevelReponse);
-                    errorCallback.onError("Ошибка входа в Boot");
                     battCheck = false;
                 }
             }
@@ -981,11 +977,9 @@ public void loadFirmware(EntireCheck entireCheck) {
             String defaultResponse = new String(data, StandardCharsets.UTF_8);
             if (defaultResponse.contains("setraw.ok")) {
                 Logger.INSTANCE.d("BleControlManager", "RAW correct");
-                errorCallback.onError("Вход в raw успешен");
                 ControlViewModel.Companion.readDeviceProfile(sliseSize);
             }else if (defaultResponse.contains("setraw.error")) {
                 Logger.INSTANCE.d("BleControlManager", " incorrect command");
-                errorCallback.onError("Ошибка входа в raw");
             } else if (defaultResponse.contains("boot.ok")) {
                 requestConnectionPriority(ConnectionPriorityRequest.CONNECTION_PRIORITY_HIGH)
                         .done(device -> Log.e("BleControlManager", "Interval request sent"))
@@ -1000,7 +994,6 @@ public void loadFirmware(EntireCheck entireCheck) {
                 Logger.INSTANCE.d("BleControlManager", "Device entered firmware update mode successfully");
             } else if (defaultResponse.contains("boot.error")) {
                 Logger.INSTANCE.e("BleControlManager", "Error: Device failed to enter firmware update mode");
-                errorCallback.onError("Ошибка входа в boot");
                 disconnect().enqueue();
             }else if(defaultResponse.contains("time")){
                 TermItem termItem = new TermItem(defaultResponse,"TIME");
@@ -1125,7 +1118,4 @@ public void loadFirmware(EntireCheck entireCheck) {
         void onAcc(boolean acc);
     }
 
-    public interface ErrorCallback{
-        void onError(String err);
-    }
 }

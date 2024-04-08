@@ -140,7 +140,7 @@ class DevicesFragment : Fragment(), DevicesAdapter.CallBack,BleControlManager.Pi
             Logger.e("DevicesFragment", "Update address $deviceAddress")
             Log.e("DevicesFragment", "Update name $deviceName")
             Logger.e("DevicesFragment", "Update name $deviceName")
-            showPinInputDialogOrConnect(deviceAddress,deviceName)
+            showConfirmationDialog(deviceAddress,deviceName)
 
 
         }
@@ -181,6 +181,18 @@ class DevicesFragment : Fragment(), DevicesAdapter.CallBack,BleControlManager.Pi
             }
 
         alertDialogBuilder.create().show()
+    }
+
+    private fun showConfirmationDialog(deviceAddress: String, deviceName: String?) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Подключение к устройству")
+            .setMessage("Вы уверены, что хотите подключиться к устройству ${deviceAddress}?")
+            .setPositiveButton("Да") { dialog, which ->
+                // Здесь можно выполнить логику подключения к устройству
+                showPinInputDialogOrConnect(deviceAddress,deviceName)
+            }
+            .setNegativeButton("Отмена", null)
+            .show()
     }
 
     private fun showPinInputDialogOrConnect(deviceAddress: String, deviceName: String?) {

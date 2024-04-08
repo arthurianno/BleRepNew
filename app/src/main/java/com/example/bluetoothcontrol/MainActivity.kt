@@ -74,6 +74,7 @@ class MainActivity : AppCompatActivity(), DevicesAdapter.CallBack {
 
     }
 
+    @SuppressLint("MissingSuperCall")
     @Suppress("DEPRECATION")
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
@@ -93,7 +94,7 @@ class MainActivity : AppCompatActivity(), DevicesAdapter.CallBack {
                 .commit()
         } else {
             // Если текущий фрагмент уже является фрагментом устройств, закрываем активность
-            super.onBackPressed()
+            finish()
 
         }
     }

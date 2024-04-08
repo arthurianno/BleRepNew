@@ -70,7 +70,7 @@ public class BleControlManager extends BleManager {
     private static final int MAX_ADDRESS = 0x1FFFF;
     private static final byte BOOT_MODE_START = (byte) 0x24;
     private static final byte FIRMWARE_CHUNK_CMD = (byte) 0x01;
-    private static final int CHUNK_SIZE = 128;
+    private static final int CHUNK_SIZE = 156;
     private static final int CONFIGURATION_SIZE = 16;
 
     private int writeCommandCount = 0;
@@ -289,6 +289,7 @@ public void loadFirmware(EntireCheck entireCheck) {
             long fileSize = inputStream.available(); // Получаем размер файла
             int fullChunksCount = (int) (fileSize / CHUNK_SIZE);
             int remainingBytes = (int) (fileSize % CHUNK_SIZE);
+            int remainingSize = (int) fileSize;
 
             byte[] buffer = new byte[CHUNK_SIZE];
             int bytesRead;
@@ -297,13 +298,20 @@ public void loadFirmware(EntireCheck entireCheck) {
                 bytesRead = inputStream.read(buffer);
                 if (bytesRead != -1) {
                     writeFirmwareChunk(buffer, i * CHUNK_SIZE, entireCheck); // Передача данных и адреса
+                    remainingSize = (int) (fileSize - (i + 1) * CHUNK_SIZE); // Вычисление оставшегося размера после отправки чанки
+                    Log.d("BleControl", "Remaining bytes after chunk " + (i + 1) + ": " + remainingSize);
+
                 }
             }
             // Отправить остаточные байты
             if (remainingBytes > 0) {
-                bytesRead = inputStream.read(buffer);
+                byte[] remainingBuffer = new byte[remainingBytes];
+                Log.d("BleControl","Remaining bytes chunk: " + remainingBytes);
+                bytesRead = inputStream.read(remainingBuffer);
                 if (bytesRead != -1) {
-                    writeFirmwareChunk(buffer, fullChunksCount * CHUNK_SIZE, entireCheck); // Передача остаточных данных и адреса
+                    writeFirmwareChunk(remainingBuffer, fullChunksCount * CHUNK_SIZE, entireCheck);
+                    remainingSize = (int) (fileSize - fullChunksCount * CHUNK_SIZE - remainingBytes); // Вычисление оставшегося размера после отправки остаточных данных
+                    Log.d("BleControl", "Remaining bytes after remaining chunk: " + remainingSize);
                 }
             }
             // После отправки всех данных прошивки загружаем конфигурацию

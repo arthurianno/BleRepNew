@@ -34,6 +34,7 @@ class ControlFragment : Fragment() {
     private lateinit var controlModel: BleControlManager
     private lateinit var buttonProcessFiles: Button
     private val sharedViewModel: SharedViewModel by activityViewModels()
+    private var stage = false;
 
 
     override fun onCreateView(

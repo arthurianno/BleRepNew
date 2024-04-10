@@ -7,6 +7,7 @@ import android.bluetooth.BluetoothGattService;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -17,6 +18,9 @@ import com.example.bluetoothcontrol.Logger;
 import com.example.bluetoothcontrol.ReadingData.DataItem;
 import com.example.bluetoothcontrol.TerminalDevice.TermItem;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -500,14 +504,15 @@ public void loadFirmware(EntireCheck entireCheck) {
         while (offset < totalBytes) {
             int chunkSize = Math.min(CHUNK_SIZE, totalBytes - offset);
             byte[] chunk = Arrays.copyOfRange(data, offset, offset + chunkSize);
-            // Структура: <start> <cmd> <adr> <num> <data>
-            byte[] commandData = new byte[6]; // заголовок + команда + адрес + количество байт данных
+            // Создаем новый массив commandData для каждого чанка данных
+            byte[] commandData = new byte[7]; // заголовок + команда + адрес + количество байт данных
             commandData[0] = BOOT_MODE_START;
             commandData[1] = READ_STATE_CMD; // Код команды для отправки порции данных
 
             // Адрес и количество данных устанавливаются
             byte[] addressBytes = ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(address).array();
             System.arraycopy(addressBytes, 0, commandData, 2, 4); // Адрес
+            commandData[6] = (byte) chunkSize;
 
             // Отправка порции данных
             writeCharacteristic(characteristic, commandData, BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT)
@@ -1114,6 +1119,26 @@ public void loadFirmware(EntireCheck entireCheck) {
             if (data.length >= 2) {
                 byte flag = data[0];
                 byte cmd = data[1];
+                try {
+                    String downloadPath = "/storage/emulated/0/Download/";
+                    File downloadDir = new File(downloadPath);
+                    String fileName = "responses.txt"; // Имя файла, в который будут записаны все ответы
+                    File file = new File(downloadDir, fileName);
+
+                    // Открываем FileWriter в режиме добавления (append)
+                    FileWriter writer = new FileWriter(file, true);
+
+                    // Проходим по всем успешным операциям и записываем соответствующие данные в файл
+                    for (int i = 0; i < successfulOperationsCount; i++) {
+                        writer.write(bytesToHexLogs(data) + "\n"); // Записываем каждый ответ в новой строке
+                    }
+
+                    // Закрываем FileWriter после записи всех ответов
+                    writer.close();
+
+                } catch (IOException e) {
+                    Log.e("BleControlManager", "Ошибка во время записи файла");
+                }
                 switch (flag) {
                     case 0x00:
                         // Предыдущая команда выполнена успешно

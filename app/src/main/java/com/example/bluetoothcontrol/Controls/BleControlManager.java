@@ -58,7 +58,6 @@ public class BleControlManager extends BleManager {
     private long endTime;
     private String changedMode;
     private boolean battCheck = false;
-    private boolean stage = false;
     private boolean verCheck = false;
     private int versionSoft = 0;
 

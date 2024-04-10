@@ -76,7 +76,7 @@ public class BleControlManager extends BleManager {
     private static final int MAX_ADDRESS = 0x1FFFF;
     private static final byte BOOT_MODE_START = (byte) 0x24;
     private static final byte FIRMWARE_CHUNK_CMD = (byte) 0x01;
-    private static final int CHUNK_SIZE = 240;
+    private static final int CHUNK_SIZE = 128;
     private static final int CONFIGURATION_SIZE = 16;
 
     private int writeCommandCount = 0;
@@ -100,9 +100,6 @@ public class BleControlManager extends BleManager {
     public void startTimer() {
         startTime = System.currentTimeMillis();
         long durationInMillis = 0; // Начальное значение таймера
-        if (timerCallback != null) {
-            timerCallback.onTick(stage);
-        }
         Log.d("BleControlManager", "Start time: " + durationInMillis);
         Logger.INSTANCE.d("BleControlManager", "Start time: " + durationInMillis);
     }
@@ -120,9 +117,6 @@ public class BleControlManager extends BleManager {
     public void stopTimer() {
         endTime = System.currentTimeMillis();
         long durationInMillis = endTime - startTime;
-        if (timerCallback != null) {
-            timerCallback.onTick(stage);
-        }
         Log.d("BleControlManager", "End time: " + durationInMillis);
         Logger.INSTANCE.d("BleControlManager", "End time: " + durationInMillis);
     }
@@ -290,7 +284,6 @@ public void loadFirmware(EntireCheck entireCheck) {
     try (InputStream inputStream = getContext().getContentResolver().openInputStream(Uri.parse(filePath))) {
         BluetoothGattCharacteristic characteristic = controlRequest;
         if (isConnected() && characteristic != null) {
-            stage = true;
             startTimer();
             long fileSize = inputStream.available(); // Получаем размер файла
             int fullChunksCount = (int) (fileSize / CHUNK_SIZE);
@@ -1091,20 +1084,20 @@ public void loadFirmware(EntireCheck entireCheck) {
                 switch (flag) {
                     case 0x00:
                         // Добавить необходимые действия при успешном принятии команды записи конфигурации
-                        stage = true;
+                        timerCallback.onTick(true);
                         stopTimer();
                         Logger.INSTANCE.e("BleControlManager", "Configuration write command accepted " + bytesToHexLogs(data));
                         break;
                     case (byte) 0xFF:
                         Logger.INSTANCE.e("BleControlManager", "Configuration write command not accepted, invalid format or content");
                         disconnect().enqueue();
-                        stage = false;
+                        timerCallback.onTick(false);
                         stopTimer();
                         break;
                     default:
                         Logger.INSTANCE.e("BleControlManager", "Unknown response flag for configuration write command: " + flag);
                         disconnect().enqueue();
-                        stage = false;
+                        timerCallback.onTick(false);
                         stopTimer();
                         break;
                 }
@@ -1124,15 +1117,9 @@ public void loadFirmware(EntireCheck entireCheck) {
                     File downloadDir = new File(downloadPath);
                     String fileName = "responses.txt"; // Имя файла, в который будут записаны все ответы
                     File file = new File(downloadDir, fileName);
-
-                    // Открываем FileWriter в режиме добавления (append)
                     FileWriter writer = new FileWriter(file, true);
-
-                    // Проходим по всем успешным операциям и записываем соответствующие данные в файл
-                    for (int i = 0; i < successfulOperationsCount; i++) {
-                        writer.write(bytesToHexLogs(data) + "\n"); // Записываем каждый ответ в новой строке
-                    }
-
+                    // Записываем каждый ответ в новой строке
+                    writer.write(bytesToHexLogs(data) + "\n");
                     // Закрываем FileWriter после записи всех ответов
                     writer.close();
 

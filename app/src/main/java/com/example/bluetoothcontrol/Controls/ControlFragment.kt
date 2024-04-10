@@ -26,7 +26,7 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 
 @Suppress("DEPRECATION")
-class ControlFragment : Fragment() {
+class ControlFragment : Fragment(),BleControlManager.AcceptedCommandCallback {
 
     private var _binding: FragmentControlBinding? = null
     private val binding: FragmentControlBinding get() = _binding!!
@@ -34,8 +34,6 @@ class ControlFragment : Fragment() {
     private lateinit var controlModel: BleControlManager
     private lateinit var buttonProcessFiles: Button
     private val sharedViewModel: SharedViewModel by activityViewModels()
-    private var stage = false;
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -60,17 +58,12 @@ class ControlFragment : Fragment() {
                     BleControlManager.requestData.value?.clear()
                     controlViewModel.connect(deviceAddress,"BOOT")
                     Log.e(ReadingDataFragment.TAG," connection to device with address $deviceAddress")
+                    startProcess()
                 }
             }else{
                 Log.e(ReadingDataFragment.TAG,"address $deviceAddress is null ")
             }
-            controlModel.setTimerCallback { stage ->
-                if(stage){
-                    startProcess()
-                }else{
-                    finishProcess(stage)
-                }
-            }
+
         }
     }
     private fun showToast(message: String) {
@@ -157,6 +150,9 @@ class ControlFragment : Fragment() {
         super.onActivityResult(requestCode, resultCode, data)
     }
 
+    override fun onAcc(acc: Boolean) {
+        finishProcess(acc)
+    }
 
 
 }

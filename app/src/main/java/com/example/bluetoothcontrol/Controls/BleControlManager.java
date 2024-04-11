@@ -20,6 +20,8 @@ import com.example.bluetoothcontrol.TerminalDevice.TermItem;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -60,7 +62,6 @@ public class BleControlManager extends BleManager {
     private boolean battCheck = false;
     private boolean verCheck = false;
     private int versionSoft = 0;
-
     private static final byte WRITE_CMD = (byte) 0x01;
     private static final byte APPLY_CMD = (byte) 0xEE;
     private static final byte BOOT_RD = (byte) 0x81;
@@ -75,7 +76,7 @@ public class BleControlManager extends BleManager {
     private static final int MAX_ADDRESS = 0x1FFFF;
     private static final byte BOOT_MODE_START = (byte) 0x24;
     private static final byte FIRMWARE_CHUNK_CMD = (byte) 0x01;
-    private static final int CHUNK_SIZE = 128;
+    private static final int CHUNK_SIZE = 240;
     private static final int CONFIGURATION_SIZE = 16;
 
     private int writeCommandCount = 0;
@@ -102,6 +103,7 @@ public class BleControlManager extends BleManager {
         Log.d("BleControlManager", "Start time: " + durationInMillis);
         Logger.INSTANCE.d("BleControlManager", "Start time: " + durationInMillis);
     }
+
 
     public void setTimerCallback(TimerCallback callback) {
         this.timerCallback = callback;
@@ -147,8 +149,7 @@ public class BleControlManager extends BleManager {
             BluetoothGattCharacteristic characteristic = controlRequest;
             ControlViewModel.Companion.getEntireCheckQueue().add(entireCheck);
             if (characteristic != null) {
-                byte command = RAW_RD;
-                byte[] adrNumData = new byte[]{RAW_START_MARK, command, (byte) offset, (byte) length};
+                byte[] adrNumData = new byte[]{RAW_START_MARK, RAW_RD, (byte) offset, (byte) length};
                 // writeCharacteristic
                 Logger.INSTANCE.d("BleControlManager","Entire is " + entireCheck);
                 writeCharacteristic(
@@ -284,7 +285,8 @@ public void loadFirmware(EntireCheck entireCheck) {
         BluetoothGattCharacteristic characteristic = controlRequest;
         if (isConnected() && characteristic != null) {
             startTimer();
-            long fileSize = inputStream.available(); // Получаем размер файла
+            long fileSize = inputStream.available();// Получаем размер файла
+            //timerCallback.fileSize(fileSize);
             int fullChunksCount = (int) (fileSize / CHUNK_SIZE);
             int remainingBytes = (int) (fileSize % CHUNK_SIZE);
             int remainingSize = (int) fileSize;
@@ -314,7 +316,8 @@ public void loadFirmware(EntireCheck entireCheck) {
             }
             // После отправки всех данных прошивки загружаем конфигурацию
             inputStream.close();
-            readFirmware(EntireCheck.sendLastCommandResult,fileSize);
+            //readFirmware(EntireCheck.sendLastCommandResult,fileSize);
+            loadConfiguration();
 
         } else {
             Logger.INSTANCE.e("BleControlManager", "Device is not connected or Control Request characteristic is null");
@@ -331,7 +334,7 @@ public void loadFirmware(EntireCheck entireCheck) {
             if (characteristic != null) {
                 int totalBytes = data.length;
 
-                // Отправить основные порции данных размером 200 байт
+                // Отправить основные порции данных размером 128 байт
                 int offset = 0;
                 while (offset < totalBytes) {
                     int chunkSize = Math.min(CHUNK_SIZE, totalBytes - offset);
@@ -358,6 +361,7 @@ public void loadFirmware(EntireCheck entireCheck) {
 
                     offset += chunkSize;
                 }
+
             } else {
                 Logger.INSTANCE.e("BleControlManager", "Control Request characteristic is null");
             }
@@ -445,15 +449,15 @@ public void loadFirmware(EntireCheck entireCheck) {
     public void readFirmware(EntireCheck entireCheck,long fileSize) {
             BluetoothGattCharacteristic characteristic = controlRequest;
             if (isConnected() && characteristic != null) {
-                int fullChunksCount = (int) (fileSize / CHUNK_SIZE);
-                int remainingBytes = (int) (fileSize % CHUNK_SIZE);
+                int fullChunksCount = (int) (fileSize / 128);
+                int remainingBytes = (int) (fileSize % 128);
                 int remainingSize = (int) fileSize;
 
-                byte[] buffer = new byte[CHUNK_SIZE];
+                byte[] buffer = new byte[128];
 
                 for (int i = 0; i < fullChunksCount; i++) {
-                    readFirmwareChunk(buffer, i * CHUNK_SIZE, entireCheck); // Передача данных и адреса
-                    remainingSize = (int) (fileSize - (i + 1) * CHUNK_SIZE); // Вычисление оставшегося размера после отправки чанки
+                    readFirmwareChunk(buffer, i * 128, entireCheck); // Передача данных и адреса
+                    remainingSize = (int) (fileSize - (i + 1) * 128); // Вычисление оставшегося размера после отправки чанки
                     Log.d("BleControl", "Remaining bytes after chunk " + (i + 1) + ": " + remainingSize);
 
 
@@ -462,8 +466,8 @@ public void loadFirmware(EntireCheck entireCheck) {
                 if (remainingBytes > 0) {
                     byte[] remainingBuffer = new byte[remainingBytes];
                     Log.d("BleControl","Remaining bytes chunk: " + remainingBytes);
-                    readFirmwareChunk(remainingBuffer, fullChunksCount * CHUNK_SIZE, entireCheck);
-                    remainingSize = (int) (fileSize - fullChunksCount * CHUNK_SIZE - remainingBytes); // Вычисление оставшегося размера после отправки остаточных данных
+                    readFirmwareChunk(remainingBuffer, fullChunksCount * 128, entireCheck);
+                    remainingSize = (int) (fileSize - fullChunksCount * 128 - remainingBytes); // Вычисление оставшегося размера после отправки остаточных данных
                     Log.d("BleControl", "Remaining bytes after remaining chunk: " + remainingSize);
 
                 }
@@ -494,7 +498,7 @@ public void loadFirmware(EntireCheck entireCheck) {
         int offset = 0;
 
         while (offset < totalBytes) {
-            int chunkSize = Math.min(CHUNK_SIZE, totalBytes - offset);
+            int chunkSize = Math.min(128, totalBytes - offset);
             byte[] chunk = Arrays.copyOfRange(data, offset, offset + chunkSize);
             // Создаем новый массив commandData для каждого чанка данных
             byte[] commandData = new byte[7]; // заголовок + команда + адрес + количество байт данных
@@ -1055,18 +1059,22 @@ public void loadFirmware(EntireCheck entireCheck) {
                     case 0x00:
                         Logger.INSTANCE.d("BleControlManager", "Command accepted");
                         successfulOperationsCount++;
+                        //timerCallback.onTick(successfulOperationsCount);
                         break;
                     case 0x01:
                         Logger.INSTANCE.d("BleControlManager", "Device busy, retry command");
                         failedOperationsCount++;
+                        //timerCallback.onTick(failedOperationsCount);
                         break;
                     case 0x02:
                         Logger.INSTANCE.d("BleControlManager", "Previous write command failed");
                         failedOperationsCount++;
+                        //timerCallback.onTick(failedOperationsCount);
                         break;
                     case (byte) 0xFF:
                         Logger.INSTANCE.d("BleControlManager", "Invalid command format or content ");
                         failedOperationsCount++;
+                        //timerCallback.onTick(failedOperationsCount);
                         break;
                     default:
                         Logger.INSTANCE.e("BleControlManager", "Unknown response flag: " + flag);
@@ -1083,20 +1091,17 @@ public void loadFirmware(EntireCheck entireCheck) {
                 switch (flag) {
                     case 0x00:
                         // Добавить необходимые действия при успешном принятии команды записи конфигурации
-                        timerCallback.onTick(true);
                         stopTimer();
                         Logger.INSTANCE.e("BleControlManager", "Configuration write command accepted " + bytesToHexLogs(data));
                         break;
                     case (byte) 0xFF:
                         Logger.INSTANCE.e("BleControlManager", "Configuration write command not accepted, invalid format or content");
-                        disconnect().enqueue();
-                        timerCallback.onTick(false);
+                        //disconnect().enqueue();
                         stopTimer();
                         break;
                     default:
                         Logger.INSTANCE.e("BleControlManager", "Unknown response flag for configuration write command: " + flag);
-                        disconnect().enqueue();
-                        timerCallback.onTick(false);
+                        //disconnect().enqueue();
                         stopTimer();
                         break;
                 }
@@ -1116,12 +1121,9 @@ public void loadFirmware(EntireCheck entireCheck) {
                     File downloadDir = new File(downloadPath);
                     String fileName = "responses.txt"; // Имя файла, в который будут записаны все ответы
                     File file = new File(downloadDir, fileName);
-                    FileWriter writer = new FileWriter(file, true);
-                    // Записываем каждый ответ в новой строке
-                    writer.write(bytesToHexLogs(data) + "\n");
-                    // Закрываем FileWriter после записи всех ответов
-                    writer.close();
-
+                    FileOutputStream outputStream = new FileOutputStream(file, true);
+                    outputStream.write(data, 7, data.length - 7); // Записываем байты, начиная с позиции 7
+                    outputStream.close();
                 } catch (IOException e) {
                     Log.e("BleControlManager", "Ошибка во время записи файла");
                 }
@@ -1149,7 +1151,8 @@ public void loadFirmware(EntireCheck entireCheck) {
         }
    }
     public interface TimerCallback {
-        void onTick(boolean Stage);
+        void onTick(int Stage);
+        void fileSize(long size);
     }
     public interface PinCallback {
         void onPin(String pin);

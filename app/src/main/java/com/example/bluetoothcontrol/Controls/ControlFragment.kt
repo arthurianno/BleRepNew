@@ -6,6 +6,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -15,18 +16,23 @@ import android.widget.Toast
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import com.example.bluetoothcontrol.MainActivity
 import com.example.bluetoothcontrol.ReadingData.ReadingDataFragment
 import com.example.bluetoothcontrol.SharedViewModel
 import com.example.bluetoothcontrol.databinding.FragmentControlBinding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.util.Timer
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 
 @Suppress("DEPRECATION")
-class ControlFragment : Fragment(),BleControlManager.AcceptedCommandCallback {
+class ControlFragment : Fragment(),BleControlManager.AcceptedCommandCallback,BleControlManager.TimerCallback {
 
     private var _binding: FragmentControlBinding? = null
     private val binding: FragmentControlBinding get() = _binding!!
@@ -34,6 +40,8 @@ class ControlFragment : Fragment(),BleControlManager.AcceptedCommandCallback {
     private lateinit var controlModel: BleControlManager
     private lateinit var buttonProcessFiles: Button
     private val sharedViewModel: SharedViewModel by activityViewModels()
+    private var timer : CountDownTimer? = null
+    private var progressBarSize = 0
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -58,7 +66,8 @@ class ControlFragment : Fragment(),BleControlManager.AcceptedCommandCallback {
                     BleControlManager.requestData.value?.clear()
                     controlViewModel.connect(deviceAddress,"BOOT")
                     Log.e(ReadingDataFragment.TAG," connection to device with address $deviceAddress")
-                    startProcess()
+                    //startCountDownTimer(progressBarSize.toLong())
+
                 }
             }else{
                 Log.e(ReadingDataFragment.TAG,"address $deviceAddress is null ")
@@ -69,23 +78,6 @@ class ControlFragment : Fragment(),BleControlManager.AcceptedCommandCallback {
     private fun showToast(message: String) {
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
     }
-
-
-
-    private fun startProcess() {
-        binding.progressBar.visibility = View.VISIBLE
-    }
-
-    private fun finishProcess(stage : Boolean) {
-        if(stage){
-            binding.progressBar.visibility = View.GONE
-            binding.checkmark.visibility = View.VISIBLE
-        }else{
-            binding.progressBar.visibility = View.GONE
-            binding.errormark.visibility = View.VISIBLE
-        }
-    }
-
 
     companion object {
         const val TAG = "ControlFragment"
@@ -106,52 +98,79 @@ class ControlFragment : Fragment(),BleControlManager.AcceptedCommandCallback {
         if (requestCode == 101 && resultCode == Activity.RESULT_OK && data != null) {
             val uri = data.data
             uri?.let { zipUri ->
-                try {
-                    requireActivity().contentResolver.openInputStream(zipUri)?.use { inputStream ->
-                        val zipInputStream = ZipInputStream(inputStream)
-                        var entry: ZipEntry?
-                        var binFile: Uri? = null
-                        var datFile: Uri? = null
+                lifecycleScope.launch {
+                    withContext(Dispatchers.IO) {
+                        try {
+                            requireActivity().contentResolver.openInputStream(zipUri)?.use { inputStream ->
+                                val zipInputStream = ZipInputStream(inputStream)
+                                var entry: ZipEntry?
+                                var binFile: Uri? = null
+                                var datFile: Uri? = null
 
-                        while (zipInputStream.nextEntry.also { entry = it } != null) {
-                            val fileName = entry?.name ?: continue
-                            if (fileName.endsWith(".bin")) {
-                                binFile = createTempFile(fileName, ".bin").toUri()
-                                FileOutputStream(binFile.path).use { outputStream ->
-                                    zipInputStream.copyTo(outputStream)
+                                while (zipInputStream.nextEntry.also { entry = it } != null) {
+                                    val fileName = entry?.name ?: continue
+                                    if (fileName.endsWith(".bin")) {
+                                        binFile = createTempFile(fileName, ".bin").toUri()
+                                        FileOutputStream(binFile.path).use { outputStream ->
+                                            zipInputStream.copyTo(outputStream)
+                                        }
+                                    } else if (fileName.endsWith(".dat")) {
+                                        datFile = createTempFile(fileName, ".dat").toUri()
+                                        FileOutputStream(datFile.path).use { outputStream ->
+                                            zipInputStream.copyTo(outputStream)
+                                        }
+                                    }
                                 }
-                            } else if (fileName.endsWith(".dat")) {
-                                datFile = createTempFile(fileName, ".dat").toUri()
-                                FileOutputStream(datFile.path).use { outputStream ->
-                                    zipInputStream.copyTo(outputStream)
+
+                                if (binFile != null && datFile != null) {
+                                    // Оба файла найдены и их uri передаются в companion object
+                                    selectedFilePathBin = binFile.toString()
+                                    selectedFilePathDat = datFile.toString()
+                                    withContext(Dispatchers.Main) {
+                                        binding.fileOne.text = "File1: ${binFile.path?.let { File(it).name }}"
+                                        binding.fileTwo.text = "File2: ${datFile.path?.let { File(it).name }}"
+                                        binding.fileOne.setTextColor(Color.GREEN)
+                                        binding.fileTwo.setTextColor(Color.GREEN)
+                                        buttonProcessFiles.isEnabled = true
+                                    }
+                                } else {
+                                    showToast("Выберите .bin и .dat файлы внутри .zip папки")
                                 }
                             }
-                        }
-
-                        if (binFile != null && datFile != null) {
-                            // Оба файла найдены и их uri передаются в companion object
-                            selectedFilePathBin = binFile.toString()
-                            selectedFilePathDat = datFile.toString()
-                            binding.fileOne.text = "File1: ${binFile.path?.let { File(it).name }}"
-                            binding.fileTwo.text = "File2: ${datFile.path?.let { File(it).name }}"
-                            binding.fileOne.setTextColor(Color.GREEN)
-                            binding.fileTwo.setTextColor(Color.GREEN)
-                            buttonProcessFiles.isEnabled = true
-                        } else {
-                            showToast("Выберите .bin и .dat файлы внутри .zip папки")
+                        } catch (e: IOException) {
+                            e.printStackTrace()
+                            showToast("Ошибка при обработке .zip файла")
                         }
                     }
-                } catch (e: IOException) {
-                    e.printStackTrace()
-                    showToast("Ошибка при обработке .zip файла")
                 }
             }
         }
         super.onActivityResult(requestCode, resultCode, data)
     }
 
+//    private fun startCountDownTimer(timeMillis: Long){
+//        timer?.cancel()
+//        timer = object : CountDownTimer(timeMillis,1000){
+//            override fun onTick(millisUntilFinished: Long) {
+//                binding.progressBarHor.progress = millisUntilFinished.toInt()
+//            }
+//
+//            override fun onFinish() {
+//                binding.progressBarHor.setBackgroundColor(Color.GREEN)
+//            }
+//
+//        }.start()
+//    }
+
     override fun onAcc(acc: Boolean) {
-        finishProcess(acc)
+    }
+
+    override fun onTick(Stage: Int) {
+
+    }
+
+    override fun fileSize(size: Long) {
+        progressBarSize = size.toInt()
     }
 
 

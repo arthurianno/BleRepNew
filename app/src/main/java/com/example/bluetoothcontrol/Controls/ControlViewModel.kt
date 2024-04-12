@@ -26,6 +26,7 @@ class ControlViewModel(private val adapterProvider: BluetoothAdapterProvider, pr
     var pinCode: String? = null
     private var lastConnectedDevice: BluetoothDevice? = null
     private var connectionCallback: ConnectionCallback? = null
+    private var disCallback: DisconnectionCallback? = null
 
 
 
@@ -41,6 +42,13 @@ class ControlViewModel(private val adapterProvider: BluetoothAdapterProvider, pr
 
     fun setConnectionCallback(callback: ConnectionCallback) {
         connectionCallback = callback
+    }
+    fun setDisconnectionCallBack(callback: DisconnectionCallback){
+        disCallback = callback
+    }
+
+    fun removeConnectionCallback() {
+        connectionCallback = null
     }
     fun connect(deviceAddress: String,mode: String) {
         if (_isConnected.value == false) {
@@ -90,12 +98,12 @@ class ControlViewModel(private val adapterProvider: BluetoothAdapterProvider, pr
 
     private val connectionObserver = object : ConnectionObserver {
         override fun onDeviceConnecting(device: BluetoothDevice) {
-            Log.d("ControlViewModel", "onDeviceConnecting: $device")
+            Log.e("ControlViewModel", "onDeviceConnecting: $device")
             _isConnected.postValue(false)
         }
 
         override fun onDeviceConnected(device: BluetoothDevice) {
-            Log.d("ControlViewModel", "onDeviceConnected: $device")
+            Log.e("ControlViewModel", "onDeviceConnected: $device")
             _isConnected.postValue(true)
         }
 
@@ -112,14 +120,16 @@ class ControlViewModel(private val adapterProvider: BluetoothAdapterProvider, pr
         }
 
         override fun onDeviceDisconnecting(device: BluetoothDevice) {
-            Log.d("ControlViewModel", "onDeviceDisconnecting: $device")
+            Log.e("ControlViewModel", "onDeviceDisconnecting: $device")
             _isConnected.postValue(false)
+
 
         }
 
         override fun onDeviceDisconnected(device: BluetoothDevice, reason: Int) {
-            Log.d("ControlViewModel", "onDeviceDisconnected: $device, reason: $reason")
+            Log.e("ControlViewModel", "onDeviceDisconnected: $device, reason: $reason")
             _isConnected.postValue(false)
+            disCallback?.onDeviceDisconnected()
 
         }
     }
@@ -214,6 +224,9 @@ class ControlViewModel(private val adapterProvider: BluetoothAdapterProvider, pr
     }
     interface ConnectionCallback {
         fun onDeviceFailedToConnect()
+    }
+    interface DisconnectionCallback{
+        fun onDeviceDisconnected()
     }
 }
 

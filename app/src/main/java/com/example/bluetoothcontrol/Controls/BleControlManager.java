@@ -1059,22 +1059,22 @@ public void loadFirmware(EntireCheck entireCheck) {
                     case 0x00:
                         Logger.INSTANCE.d("BleControlManager", "Command accepted");
                         successfulOperationsCount++;
-                        //timerCallback.onTick(successfulOperationsCount);
+                        timerCallback.onTickSucces(successfulOperationsCount);
                         break;
                     case 0x01:
                         Logger.INSTANCE.d("BleControlManager", "Device busy, retry command");
                         failedOperationsCount++;
-                        //timerCallback.onTick(failedOperationsCount);
+                        timerCallback.onTickFailed(failedOperationsCount);
                         break;
                     case 0x02:
                         Logger.INSTANCE.d("BleControlManager", "Previous write command failed");
                         failedOperationsCount++;
-                        //timerCallback.onTick(failedOperationsCount);
+                        timerCallback.onTickFailed(failedOperationsCount);
                         break;
                     case (byte) 0xFF:
                         Logger.INSTANCE.d("BleControlManager", "Invalid command format or content ");
                         failedOperationsCount++;
-                        //timerCallback.onTick(failedOperationsCount);
+                        timerCallback.onTickFailed(failedOperationsCount);
                         break;
                     default:
                         Logger.INSTANCE.e("BleControlManager", "Unknown response flag: " + flag);
@@ -1091,17 +1091,20 @@ public void loadFirmware(EntireCheck entireCheck) {
                 switch (flag) {
                     case 0x00:
                         // Добавить необходимые действия при успешном принятии команды записи конфигурации
-                        stopTimer();
                         Logger.INSTANCE.e("BleControlManager", "Configuration write command accepted " + bytesToHexLogs(data));
+                        timerCallback.onTickSucces(successfulOperationsCount);
+                        stopTimer();
                         break;
                     case (byte) 0xFF:
                         Logger.INSTANCE.e("BleControlManager", "Configuration write command not accepted, invalid format or content");
-                        //disconnect().enqueue();
+                        timerCallback.onTickFailed(failedOperationsCount);
+                        disconnect().enqueue();
                         stopTimer();
                         break;
                     default:
                         Logger.INSTANCE.e("BleControlManager", "Unknown response flag for configuration write command: " + flag);
-                        //disconnect().enqueue();
+                        timerCallback.onTickFailed(failedOperationsCount);
+                        disconnect().enqueue();
                         stopTimer();
                         break;
                 }
@@ -1151,7 +1154,8 @@ public void loadFirmware(EntireCheck entireCheck) {
         }
    }
     public interface TimerCallback {
-        void onTick(int Stage);
+        void onTickSucces(int stage);
+        void onTickFailed(int stage);
     }
     public interface PinCallback {
         void onPin(String pin);

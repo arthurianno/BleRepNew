@@ -118,6 +118,11 @@ class DevicesFragment : Fragment(), DevicesAdapter.CallBack,BleControlManager.Pi
         subscribeOnViewModel()
     }
 
+    override fun onPause() {
+        super.onPause()
+        controlViewModel.removeConnectionCallback()
+    }
+
     private fun subscribeOnViewModel() {
         viewModel.devices.observe(viewLifecycleOwner) { devices ->
             if (devices != null) {

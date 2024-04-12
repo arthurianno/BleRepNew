@@ -32,7 +32,7 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 
 @Suppress("DEPRECATION")
-class ControlFragment : Fragment(),BleControlManager.AcceptedCommandCallback,BleControlManager.TimerCallback {
+class ControlFragment : Fragment(),BleControlManager.AcceptedCommandCallback {
 
     private var _binding: FragmentControlBinding? = null
     private val binding: FragmentControlBinding get() = _binding!!
@@ -41,7 +41,7 @@ class ControlFragment : Fragment(),BleControlManager.AcceptedCommandCallback,Ble
     private lateinit var buttonProcessFiles: Button
     private val sharedViewModel: SharedViewModel by activityViewModels()
     private var timer: CountDownTimer? = null
-    private var progressBarSize = 270
+    private var progressBarSize = 210
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -65,27 +65,64 @@ class ControlFragment : Fragment(),BleControlManager.AcceptedCommandCallback,Ble
                 binding.buttonProcessFiles.setOnClickListener {
                     BleControlManager.requestData.value?.clear()
                     controlViewModel.connect(deviceAddress, "BOOT")
-                    Log.e(
-                        ReadingDataFragment.TAG,
-                        " connection to device with address $deviceAddress"
-                    )
-
+                    Log.e(ReadingDataFragment.TAG, "connection to device with address $deviceAddress")
                 }
             } else {
                 Log.e(ReadingDataFragment.TAG, "address $deviceAddress is null ")
             }
 
         }
+        binding.progressBarHor.max = progressBarSize
+        controlModel.setTimerCallback(object : BleControlManager.TimerCallback{
+            override fun onTickSucces(stage: Int) {
+                binding.progressBarHor.progress += 1
+                if(binding.progressBarHor.progress == progressBarSize){
+                    showToast("ЗАПИСЬ ФАЙЛОВ И КОНФИГУРАЦИИ УСПЕШНА!")
+                    binding.progressBarHor.progress = 0
+                    selectedFilePathBin = null
+                    selectedFilePathDat = null
+                }
+            }
+
+            override fun onTickFailed(stage: Int) {
+                showToast("Ошибка при ЗАПИСИ/КОНФИГУРАЦИИ")
+                binding.progressBarHor.progress = 0
+                selectedFilePathBin = null
+                selectedFilePathDat = null
+                controlModel.isConnected.let {
+                    if (it) {
+                        controlModel.disconnect()
+                    }
+                }
+            }
+
+        })
+       controlViewModel.setDisconnectionCallBack(object : ControlViewModel.DisconnectionCallback{
+           override fun onDeviceDisconnected() {
+               showToast("УСТРОЙСТВО ОТКЛЮЧИЛОСЬ, попробуйте снова")
+               binding.progressBarHor.progress = 0
+               selectedFilePathBin = null
+               selectedFilePathDat = null
+
+           }
+
+       })
+        controlViewModel.setConnectionCallback(object : ControlViewModel.ConnectionCallback{
+            override fun onDeviceFailedToConnect() {
+                showToast("НЕ удалось подключиться к устройство, попробуйте снова")
+            }
+        })
     }
 
     private fun showToast(message: String) {
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
     }
 
-    fun progressBarRealese() {
-        binding.progressBarHor.max = progressBarSize
-        binding.progressBarHor.progress
+    override fun onPause() {
+        super.onPause()
+        controlViewModel.removeConnectionCallback()
     }
+
 
     companion object {
         const val TAG = "ControlFragment"
@@ -163,9 +200,6 @@ class ControlFragment : Fragment(),BleControlManager.AcceptedCommandCallback,Ble
     override fun onAcc(acc: Boolean) {
     }
 
-    override fun onTick(Stage: Int) {
-        binding.progressBarHor.progress += 1
 
-    }
 }
 

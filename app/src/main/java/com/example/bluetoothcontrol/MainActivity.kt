@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
@@ -73,6 +74,8 @@ class MainActivity : AppCompatActivity(), DevicesAdapter.CallBack {
         }
 
     }
+
+
 
     @SuppressLint("MissingSuperCall")
     @Suppress("DEPRECATION")

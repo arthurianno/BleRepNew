@@ -25,6 +25,8 @@ class ControlViewModel(private val adapterProvider: BluetoothAdapterProvider, pr
     val isConnected: LiveData<Boolean> get() = _isConnected
     var pinCode: String? = null
     private var lastConnectedDevice: BluetoothDevice? = null
+    private var connectionCallback: ConnectionCallback? = null
+
 
 
     init {
@@ -35,6 +37,10 @@ class ControlViewModel(private val adapterProvider: BluetoothAdapterProvider, pr
         }else{
             Log.e("ControlViewModel","PinCode is $pinCode")
         }
+    }
+
+    fun setConnectionCallback(callback: ConnectionCallback) {
+        connectionCallback = callback
     }
     fun connect(deviceAddress: String,mode: String) {
         if (_isConnected.value == false) {
@@ -76,7 +82,7 @@ class ControlViewModel(private val adapterProvider: BluetoothAdapterProvider, pr
     fun disconnect() {
         if (_isConnected.value == true) {
             controlManager.disconnect().enqueue()
-            showToast("DeviceDisconnected")
+            showToast("Устройство отключено")
             _isConnected.postValue(false)
             lastConnectedDevice = null
         }
@@ -96,6 +102,7 @@ class ControlViewModel(private val adapterProvider: BluetoothAdapterProvider, pr
         override fun onDeviceFailedToConnect(device: BluetoothDevice, reason: Int) {
             Log.e("ControlViewModel", "onDeviceFailedToConnect: $device, reason: $reason")
             _isConnected.postValue(false)
+            connectionCallback?.onDeviceFailedToConnect()
 
         }
 
@@ -113,6 +120,7 @@ class ControlViewModel(private val adapterProvider: BluetoothAdapterProvider, pr
         override fun onDeviceDisconnected(device: BluetoothDevice, reason: Int) {
             Log.d("ControlViewModel", "onDeviceDisconnected: $device, reason: $reason")
             _isConnected.postValue(false)
+
         }
     }
 
@@ -204,8 +212,13 @@ class ControlViewModel(private val adapterProvider: BluetoothAdapterProvider, pr
             }
         }
     }
-
+    interface ConnectionCallback {
+        fun onDeviceFailedToConnect()
+    }
 }
+
+
+
 class ControlViewModelFactory(private val adapterProvider: BluetoothAdapterProvider, private val context: Context): ViewModelProvider.NewInstanceFactory(){
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(ControlViewModel::class.java)){

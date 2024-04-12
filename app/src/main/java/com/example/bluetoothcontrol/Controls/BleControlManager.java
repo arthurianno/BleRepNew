@@ -32,6 +32,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.regex.Matcher;
@@ -76,7 +77,7 @@ public class BleControlManager extends BleManager {
     private static final int MAX_ADDRESS = 0x1FFFF;
     private static final byte BOOT_MODE_START = (byte) 0x24;
     private static final byte FIRMWARE_CHUNK_CMD = (byte) 0x01;
-    private static final int CHUNK_SIZE = 240;
+    private static final int CHUNK_SIZE = 232;
     private static final int CONFIGURATION_SIZE = 16;
 
     private int writeCommandCount = 0;
@@ -1054,7 +1055,6 @@ public void loadFirmware(EntireCheck entireCheck) {
             if (data.length >= 2) {
                 byte flag = data[0];
                 byte cmd = data[1];
-
                 switch (flag) {
                     case 0x00:
                         Logger.INSTANCE.d("BleControlManager", "Command accepted");
@@ -1152,7 +1152,6 @@ public void loadFirmware(EntireCheck entireCheck) {
    }
     public interface TimerCallback {
         void onTick(int Stage);
-        void fileSize(long size);
     }
     public interface PinCallback {
         void onPin(String pin);
@@ -1160,5 +1159,4 @@ public void loadFirmware(EntireCheck entireCheck) {
     public interface AcceptedCommandCallback {
         void onAcc(boolean acc);
     }
-
 }

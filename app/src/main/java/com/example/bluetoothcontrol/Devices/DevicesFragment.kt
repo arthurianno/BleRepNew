@@ -110,6 +110,7 @@ class DevicesFragment : Fragment(), DevicesAdapter.CallBack,BleControlManager.Pi
             }
         })
 
+
     }
 
     override fun onStart() {
@@ -142,6 +143,13 @@ class DevicesFragment : Fragment(), DevicesAdapter.CallBack,BleControlManager.Pi
             Log.e("DevicesFragment", "Update name $deviceName")
             Logger.e("DevicesFragment", "Update name $deviceName")
             showConfirmationDialog(deviceAddress,deviceName)
+            controlViewModel.setConnectionCallback(object : ControlViewModel.ConnectionCallback{
+                override fun onDeviceFailedToConnect() {
+                    showToast("НЕ удалось подключиться к устройство, попробуйте снова")
+                    devicesAdapter.setConnecting(false)
+                }
+
+            })
 
 
         }
@@ -264,6 +272,5 @@ class DevicesFragment : Fragment(), DevicesAdapter.CallBack,BleControlManager.Pi
             showPinInputDialog(devAddress.toString(),devName)
         }
     }
-
 }
 

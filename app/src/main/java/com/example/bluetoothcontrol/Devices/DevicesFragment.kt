@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.bluetooth.BluetoothDevice
+import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -39,8 +40,8 @@ class DevicesFragment : Fragment(), DevicesAdapter.CallBack,BleControlManager.Pi
     private lateinit var devicesAdapter: DevicesAdapter
     private lateinit var controlViewModel: ControlViewModel
     private lateinit var bleControlManager: BleControlManager
-    var devAddress: String? = null
-    var devName: String? = null
+    private var devAddress: String? = null
+    private var devName: String? = null
     private val viewModel: DevicesViewModel by viewModels {
         DeviceViewModelFactory((requireActivity().application as App).adapterProvider)
     }
@@ -196,6 +197,7 @@ class DevicesFragment : Fragment(), DevicesAdapter.CallBack,BleControlManager.Pi
     }
 
     private fun showPinInputDialogOrConnect(deviceAddress: String, deviceName: String?) {
+        devicesAdapter.setConnecting(true)
         val savedPinCode = controlViewModel.getSavedPinCodeForDevice(deviceAddress)
         Log.d("ControlViewModel", "Getting saved PIN-Code for device: $deviceAddress, PIN: $savedPinCode")
         Logger.d("ControlViewModel", "Getting saved PIN-Code for device: $deviceAddress, PIN: $savedPinCode")
@@ -242,6 +244,7 @@ class DevicesFragment : Fragment(), DevicesAdapter.CallBack,BleControlManager.Pi
     }
 
     override fun onPin(pin: String?) {
+        devicesAdapter.setConnecting(false)
         if(pin == "CORRECT"){
             val existingReadingDataFragment = parentFragmentManager.findFragmentByTag(ReadingDataFragment.TAG) as? ReadingDataFragment
             if (existingReadingDataFragment != null && controlViewModel.isConnected.value != false) {

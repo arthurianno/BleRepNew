@@ -23,6 +23,8 @@ class DevicesAdapter(private val callback:CallBack,private val sharedViewModel: 
     private var callBack: CallBack? = null
     private var filter: String? = null
     private var selectedItemPosition: Int = RecyclerView.NO_POSITION
+    private var connecting: Boolean = false
+
 
 
     @SuppressLint("NotifyDataSetChanged")
@@ -36,13 +38,20 @@ class DevicesAdapter(private val callback:CallBack,private val sharedViewModel: 
         this.filter = filter
         notifyDataSetChanged() // Перерисовываем список при изменении фильтра
     }
+    @SuppressLint("NotifyDataSetChanged")
+    fun setConnecting(isConnecting: Boolean) {
+        this.connecting = isConnecting
+        notifyDataSetChanged()
+    }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun setSelected(position: Int) {
         if (selectedItemPosition != position) {
             val previousSelectedItem = selectedItemPosition
             selectedItemPosition = position
             notifyItemChanged(previousSelectedItem)
             notifyItemChanged(position)
+            notifyDataSetChanged()
         }
     }
     @SuppressLint("MissingPermission", "NotifyDataSetChanged")
@@ -77,7 +86,7 @@ class DevicesAdapter(private val callback:CallBack,private val sharedViewModel: 
 
     @SuppressLint("MissingPermission")
     override fun onBindViewHolder(holder: DevicesViewHolder, position: Int) {
-        holder.bind(filteredItems[position],position == selectedItemPosition)
+        holder.bind(filteredItems[position],position == selectedItemPosition, connecting)
 
         val defaultColor = ContextCompat.getColor(holder.itemView.context, android.R.color.transparent)
         holder.itemView.setBackgroundColor(defaultColor)
@@ -89,16 +98,12 @@ class DevicesAdapter(private val callback:CallBack,private val sharedViewModel: 
 
 
         @SuppressLint("MissingPermission")
-        fun bind(item: BluetoothDevice,isSelected: Boolean) {
+        fun bind(item: BluetoothDevice, isSelected: Boolean, connecting: Boolean) {
             itemView.setOnClickListener {
-                setSelected(adapterPosition)
-                callback.onItemClick(item)
-                val highlightedColor = ContextCompat.getColor(itemView.context, R.color.highlighted_color)
-                itemView.setBackgroundColor(highlightedColor)
-
-                // Задание тени
-                val elevation = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8f, itemView.resources.displayMetrics)
-                ViewCompat.setElevation(itemView, elevation)
+                if (!connecting) {
+                    setSelected(adapterPosition)
+                    callback.onItemClick(item)
+                }
             }
             binding.apply {
                 textName.text = item.name ?: textName.context.getString(R.string.unnamed_device)
@@ -108,7 +113,8 @@ class DevicesAdapter(private val callback:CallBack,private val sharedViewModel: 
         }
     }
 
-    interface CallBack{
+
+        interface CallBack{
         fun onItemClick(device: BluetoothDevice)
     }
 }

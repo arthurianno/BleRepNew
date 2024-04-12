@@ -3271,7 +3271,6 @@ int id chain2 0x7f090076
 int id chains 0x7f090077
 int id checkbox 0x7f090078
 int id checked 0x7f090079
-int id checkmark 0x7f09007a
 int id chronometer 0x7f09007b
 int id circle_center 0x7f09007c
 int id clear_text 0x7f09007d
@@ -3344,7 +3343,6 @@ int id end 0x7f0900bf
 int id endToStart 0x7f0900c0
 int id enterAlways 0x7f0900c1
 int id enterAlwaysCollapsed 0x7f0900c2
-int id errormark 0x7f0900c3
 int id exitUntilCollapsed 0x7f0900c4
 int id expand_activities_button 0x7f0900c5
 int id expanded_menu 0x7f0900c6
@@ -3537,7 +3535,7 @@ int id pooling_container_listener_holder_tag 0x7f090180
 int id position 0x7f090181
 int id postLayout 0x7f090182
 int id pressed 0x7f090183
-int id progressBar 0x7f090184
+int id progressBarHor 0x7f090221
 int id progress_circular 0x7f090185
 int id progress_horizontal 0x7f090186
 int id radio 0x7f090187

@@ -3272,7 +3272,6 @@ id chain2
 id chains
 id checkbox
 id checked
-id checkmark
 id chronometer
 id circle_center
 id clear_text
@@ -3345,7 +3344,6 @@ id end
 id endToStart
 id enterAlways
 id enterAlwaysCollapsed
-id errormark
 id exitUntilCollapsed
 id expand_activities_button
 id expanded_menu
@@ -3538,7 +3536,7 @@ id pooling_container_listener_holder_tag
 id position
 id postLayout
 id pressed
-id progressBar
+id progressBarHor
 id progress_circular
 id progress_horizontal
 id radio

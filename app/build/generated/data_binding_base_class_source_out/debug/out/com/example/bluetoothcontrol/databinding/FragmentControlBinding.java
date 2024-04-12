@@ -5,7 +5,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
@@ -29,35 +28,26 @@ public final class FragmentControlBinding implements ViewBinding {
   public final Button buttonProcessFiles;
 
   @NonNull
-  public final ImageView checkmark;
-
-  @NonNull
-  public final ImageView errormark;
-
-  @NonNull
   public final TextView fileOne;
 
   @NonNull
   public final TextView fileTwo;
 
   @NonNull
-  public final ProgressBar progressBar;
+  public final ProgressBar progressBarHor;
 
   @NonNull
   public final TextView textViewHint;
 
   private FragmentControlBinding(@NonNull ConstraintLayout rootView, @NonNull Button button,
-      @NonNull Button buttonProcessFiles, @NonNull ImageView checkmark,
-      @NonNull ImageView errormark, @NonNull TextView fileOne, @NonNull TextView fileTwo,
-      @NonNull ProgressBar progressBar, @NonNull TextView textViewHint) {
+      @NonNull Button buttonProcessFiles, @NonNull TextView fileOne, @NonNull TextView fileTwo,
+      @NonNull ProgressBar progressBarHor, @NonNull TextView textViewHint) {
     this.rootView = rootView;
     this.button = button;
     this.buttonProcessFiles = buttonProcessFiles;
-    this.checkmark = checkmark;
-    this.errormark = errormark;
     this.fileOne = fileOne;
     this.fileTwo = fileTwo;
-    this.progressBar = progressBar;
+    this.progressBarHor = progressBarHor;
     this.textViewHint = textViewHint;
   }
 
@@ -100,18 +90,6 @@ public final class FragmentControlBinding implements ViewBinding {
         break missingId;
       }
 
-      id = R.id.checkmark;
-      ImageView checkmark = ViewBindings.findChildViewById(rootView, id);
-      if (checkmark == null) {
-        break missingId;
-      }
-
-      id = R.id.errormark;
-      ImageView errormark = ViewBindings.findChildViewById(rootView, id);
-      if (errormark == null) {
-        break missingId;
-      }
-
       id = R.id.fileOne;
       TextView fileOne = ViewBindings.findChildViewById(rootView, id);
       if (fileOne == null) {
@@ -124,9 +102,9 @@ public final class FragmentControlBinding implements ViewBinding {
         break missingId;
       }
 
-      id = R.id.progressBar;
-      ProgressBar progressBar = ViewBindings.findChildViewById(rootView, id);
-      if (progressBar == null) {
+      id = R.id.progressBarHor;
+      ProgressBar progressBarHor = ViewBindings.findChildViewById(rootView, id);
+      if (progressBarHor == null) {
         break missingId;
       }
 
@@ -137,7 +115,7 @@ public final class FragmentControlBinding implements ViewBinding {
       }
 
       return new FragmentControlBinding((ConstraintLayout) rootView, button, buttonProcessFiles,
-          checkmark, errormark, fileOne, fileTwo, progressBar, textViewHint);
+          fileOne, fileTwo, progressBarHor, textViewHint);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

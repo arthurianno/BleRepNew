@@ -165,7 +165,7 @@ class DevicesFragment : Fragment(), DevicesAdapter.CallBack,BleControlManager.Pi
         val alertDialogBuilder = AlertDialog.Builder(requireContext())
             .setTitle("Введите ПИН-КОД для устройства $deviceName")
             .setView(editTextPin)
-            .setPositiveButton("OK") { dialog, _ ->
+            .setPositiveButton("OK") { _, _ ->
                 val pinCode = editTextPin.text.toString()
                 controlViewModel.savePinCodeForDevice(deviceAddress,pinCode)
                 controlViewModel.connect(deviceAddress,"CHECKPIN")
@@ -192,6 +192,8 @@ class DevicesFragment : Fragment(), DevicesAdapter.CallBack,BleControlManager.Pi
                     }
                 }
 
+            }.setNegativeButton("NO"){ _, _ ->
+                devicesAdapter.setConnecting(false)
             }
 
         alertDialogBuilder.create().show()

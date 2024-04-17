@@ -47,6 +47,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:screenOrientation="portrait"
         android:supportsRtl="true"
+        android:testOnly="true"
         android:theme="@style/Theme.BluetoothControl" >
         <activity
             android:name="com.example.bluetoothcontrol.MainActivity"

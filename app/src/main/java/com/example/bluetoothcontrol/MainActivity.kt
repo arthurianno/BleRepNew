@@ -1,5 +1,9 @@
 package com.example.bluetoothcontrol
 import android.annotation.SuppressLint
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.content.BroadcastReceiver
@@ -200,29 +204,56 @@ class MainActivity : AppCompatActivity(), DevicesAdapter.CallBack {
 //    }
 
 
-    private fun enableBluetooth(){
+    private fun enableBluetooth() {
         adapter = BluetoothAdapterProvider.Base(applicationContext)
-        if(!adapter.getAdapter().isEnabled){
+        if (!adapter.getAdapter().isEnabled) {
             showEnableBluetoothMessage()
         }
         requestEnableBluetooth.launch(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
+        requestBluetoothPermission()
     }
 
-    private val requestEnableBluetooth = registerForActivityResult(ActivityResultContracts.StartActivityForResult()
-    ){result ->
-    if (result.resultCode == RESULT_CANCELED){
-        showEnableBluetoothMessage()
-    }
+    private val requestEnableBluetooth = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == RESULT_CANCELED) {
+            showEnableBluetoothMessage()
+        }
     }
 
-    private fun showEnableBluetoothMessage(){
+    private val requestBluetoothPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
+            if (isGranted) {
+                // Разрешение получено, выполните необходимые действия
+            } else {
+                // Разрешение не получено, выполните необходимые действия, например, покажите диалоговое окно или информирующее сообщение
+                Toast.makeText(this, "Разрешение на использование Bluetooth не предоставлено", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+    @SuppressLint("InlinedApi")
+    private fun requestBluetoothPermission() {
+        when (PackageManager.PERMISSION_GRANTED) {
+            ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.BLUETOOTH_ADMIN
+            ) -> {
+                // Разрешение уже предоставлено
+                // Выполните необходимые действия
+            }
+            else -> {
+                // Разрешение не предоставлено, запрашиваем его у пользователя
+                requestBluetoothPermissionLauncher.launch(Manifest.permission.BLUETOOTH_ADMIN)
+            }
+        }
+    }
+
+    private fun showEnableBluetoothMessage() {
         AlertDialog.Builder(this)
             .setTitle("Enable Bluetooth")
             .setMessage("Для работы приложения необходимо включить Bluetooth. Вк..")
-            .setPositiveButton("OK"){_,_ ->
+            .setPositiveButton("OK") { _, _ ->
                 enableBluetooth()
             }
-            .setNegativeButton("Cancel"){dialogInterface,_ ->
+            .setNegativeButton("Cancel") { dialogInterface, _ ->
                 dialogInterface.dismiss()
                 finish()
             }

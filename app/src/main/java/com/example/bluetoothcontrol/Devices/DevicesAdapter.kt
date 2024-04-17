@@ -51,7 +51,7 @@ class DevicesAdapter(private val callback:CallBack,private val sharedViewModel: 
             selectedItemPosition = position
             notifyItemChanged(previousSelectedItem)
             notifyItemChanged(position)
-            notifyDataSetChanged()
+            //notifyDataSetChanged()
         }
     }
     @SuppressLint("MissingPermission", "NotifyDataSetChanged")

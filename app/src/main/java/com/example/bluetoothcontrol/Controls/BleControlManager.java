@@ -1,6 +1,7 @@
 package com.example.bluetoothcontrol.Controls;
 
 import android.annotation.SuppressLint;
+import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
@@ -40,6 +41,7 @@ import java.util.regex.Pattern;
 
 import no.nordicsemi.android.ble.BleManager;
 import no.nordicsemi.android.ble.ConnectionPriorityRequest;
+import no.nordicsemi.android.ble.callback.ConnectionPriorityCallback;
 import no.nordicsemi.android.ble.callback.DataReceivedCallback;
 
 public class BleControlManager extends BleManager {
@@ -1034,6 +1036,17 @@ public void loadFirmware(EntireCheck entireCheck) {
             } else if (defaultResponse.contains("boot.ok")) {
                 requestConnectionPriority(ConnectionPriorityRequest.CONNECTION_PRIORITY_HIGH)
                         .done(device -> Log.e("BleControlManager", "Interval request sent"))
+                        .with(new ConnectionPriorityCallback() {
+                            @SuppressLint("Range")
+                            @Override
+                            public void onConnectionUpdated(@NonNull BluetoothDevice device, int interval, int latency, int timeout) {
+                                Log.e("BleControlManager","Interval is changed " + interval);
+                                if(interval == ConnectionPriorityRequest.CONNECTION_PRIORITY_BALANCED || interval == ConnectionPriorityRequest.CONNECTION_PRIORITY_LOW_POWER){
+                                    requestConnectionPriority(ConnectionPriorityRequest.CONNECTION_PRIORITY_HIGH);
+                                }
+
+                            }
+                        })
                         .fail((device, status) -> Log.e("BleControlManager", "Failed to send Interval request: " + status))
                         .enqueue();
                 requestMtu(247)

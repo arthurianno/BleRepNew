@@ -7,13 +7,17 @@ import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.os.CountDownTimer
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 import android.widget.Button
 import android.widget.Toast
 import androidx.core.net.toUri
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -41,7 +45,7 @@ class ControlFragment : Fragment(),BleControlManager.AcceptedCommandCallback {
     private lateinit var buttonProcessFiles: Button
     private val sharedViewModel: SharedViewModel by activityViewModels()
     private var timer: CountDownTimer? = null
-    private var progressBarSize = 210
+    private var progressBarSize = 379
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -60,19 +64,47 @@ class ControlFragment : Fragment(),BleControlManager.AcceptedCommandCallback {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        controlModel.setChunkSize(128) // изначально меняем на 128
+        binding.progressBarHor.max = (48600.0/128).toInt()
+        progressBarSize = (48600.0/128).toInt()
         sharedViewModel.selectedDeviceAddress.observe(viewLifecycleOwner) { deviceAddress ->
             if (deviceAddress != null && !controlModel.isConnected) {
                 binding.buttonProcessFiles.setOnClickListener {
-                    BleControlManager.requestData.value?.clear()
-                    controlViewModel.connect(deviceAddress, "BOOT")
-                    Log.e(ReadingDataFragment.TAG, "connection to device with address $deviceAddress")
+                    if (selectedFilePathBin != null && selectedFilePathDat != null) {
+                        BleControlManager.requestData.value?.clear()
+                        controlViewModel.connect(deviceAddress, "BOOT")
+                        Log.e(
+                            ReadingDataFragment.TAG,
+                            "connection to device with address $deviceAddress"
+                        )
+                    } else {
+                        showToast("Выберите .bin и .dat файлы внутри .zip папки")
+                    }
                 }
             } else {
                 Log.e(ReadingDataFragment.TAG, "address $deviceAddress is null ")
             }
-
+            binding.editTextNumber.setOnEditorActionListener { _, actionId, _ ->
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    val input = binding.editTextNumber.text.toString()
+                    val size = input.toIntOrNull()
+                    sizeOfChunk = if (size in 32..240) {
+                        size?.let { controlModel.setChunkSize(it) }
+                        showToast("Размер пакета установлен!")
+                        binding.progressBarHor.max = (48600.0 / input.toInt()).toInt()
+                        progressBarSize = (48600.0 / input.toInt()).toInt()
+                        size // Возвращаем корректное значение
+                    } else {
+                        showToast("Размер пакета должен быть в диапазоне от 32 до 240")
+                        controlModel.setChunkSize(128)
+                        null // Сбрасываем значение sizeOfChunk
+                    }
+                    true // Возвращаем true, чтобы указать, что обработка события завершена
+                } else {
+                    false // Возвращаем false для обработки других действий
+                }
+            }
         }
-        binding.progressBarHor.max = progressBarSize
         controlModel.setTimerCallback(object : BleControlManager.TimerCallback{
             override fun onTickSucces(stage: Int) {
                 binding.progressBarHor.progress += 1
@@ -81,6 +113,8 @@ class ControlFragment : Fragment(),BleControlManager.AcceptedCommandCallback {
                     binding.progressBarHor.progress = 0
                     selectedFilePathBin = null
                     selectedFilePathDat = null
+                    binding.fileOne.text = null
+                    binding.fileTwo.text = null
                 }
             }
 
@@ -89,6 +123,8 @@ class ControlFragment : Fragment(),BleControlManager.AcceptedCommandCallback {
                 binding.progressBarHor.progress = 0
                 selectedFilePathBin = null
                 selectedFilePathDat = null
+                binding.fileOne.text = null
+                binding.fileTwo.text = null
                 controlModel.isConnected.let {
                     if (it) {
                         controlModel.disconnect()
@@ -103,6 +139,8 @@ class ControlFragment : Fragment(),BleControlManager.AcceptedCommandCallback {
                binding.progressBarHor.progress = 0
                selectedFilePathBin = null
                selectedFilePathDat = null
+               binding.fileOne.text = null
+               binding.fileTwo.text = null
 
            }
 
@@ -128,6 +166,7 @@ class ControlFragment : Fragment(),BleControlManager.AcceptedCommandCallback {
         const val TAG = "ControlFragment"
         var selectedFilePathBin: String? = null
         var selectedFilePathDat: String? = null
+        var sizeOfChunk: Int? = null
         fun newInstance() = ControlFragment()
     }
 

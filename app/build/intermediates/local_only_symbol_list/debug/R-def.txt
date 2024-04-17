@@ -44,6 +44,7 @@ id dataRecView
 id descriptionLog
 id deviceName
 id devicesRecycler
+id editTextNumber
 id fileOne
 id fileTwo
 id filterDevices
@@ -64,6 +65,7 @@ id terminalWrite
 id textAddress
 id textName
 id textView3
+id textViewChunk
 id textViewHint
 id wrapStartScan
 id writingDataFragment

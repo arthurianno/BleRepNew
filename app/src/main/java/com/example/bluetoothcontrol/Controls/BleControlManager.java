@@ -77,7 +77,7 @@ public class BleControlManager extends BleManager {
     private static final int MAX_ADDRESS = 0x1FFFF;
     private static final byte BOOT_MODE_START = (byte) 0x24;
     private static final byte FIRMWARE_CHUNK_CMD = (byte) 0x01;
-    private static final int CHUNK_SIZE = 232;
+    private static int CHUNK_SIZE = 240;
     private static final int CONFIGURATION_SIZE = 16;
 
     private int writeCommandCount = 0;
@@ -114,6 +114,15 @@ public class BleControlManager extends BleManager {
     }
     public void setAcceptedCommandCallback(AcceptedCommandCallback callback){
         this.acceptedCommandCallback = callback;
+    }
+    public void setChunkSize(int sizeChunk){
+        if(sizeChunk != 0){
+            CHUNK_SIZE = sizeChunk;
+            Logger.INSTANCE.e("BleControlManager","CHUNK SIZE IS CHANGED " + CHUNK_SIZE);
+        }else {
+            CHUNK_SIZE = 128;
+        }
+
     }
 
     public void stopTimer() {
@@ -231,13 +240,19 @@ public class BleControlManager extends BleManager {
     public void sendPinCommand(String pinCode, EntireCheck entireCheck, String mode) {
         if (isConnected() && controlRequest != null) {
             BluetoothGattCharacteristic characteristic = controlRequest;
+            ControlViewModel.Companion.getEntireCheckQueue().clear();
             if(Objects.equals(mode,"CHECKPIN")){
+                Log.e("BleControl","Mode " + changedMode);
+                Log.e("BleControl","Entire " + entireCheck);
                 ControlViewModel.Companion.getEntireCheckQueue().add(EntireCheck.CHECK_PIN_RESULT);
             }else{
+                Log.e("BleControl","Mode " + changedMode);
+                Log.e("BleControl","Entire " + entireCheck);
                 ControlViewModel.Companion.getEntireCheckQueue().add(entireCheck);
             }
-
             changedMode = mode;
+
+
             if (characteristic != null) {
                 // Добавляем префикс "pin." к пин-коду
                 String formattedPinCode = "pin." + pinCode;
@@ -291,6 +306,7 @@ public void loadFirmware(EntireCheck entireCheck) {
             int fullChunksCount = (int) (fileSize / CHUNK_SIZE);
             int remainingBytes = (int) (fileSize % CHUNK_SIZE);
             int remainingSize = (int) fileSize;
+
 
             byte[] buffer = new byte[CHUNK_SIZE];
             int bytesRead;
@@ -956,9 +972,9 @@ public void loadFirmware(EntireCheck entireCheck) {
                         sliseSize = 128;
                         Logger.INSTANCE.e("BleControlManager", "Software version is 4.5.0.");
                         sendCommand("setraw", EntireCheck.default_command);
-                    } else {
+                    } else if (softwareVersion.equals("4.5.0") && Objects.equals(mode, "BOOT")) {
                         // Проверка версии программного обеспечения на соответствие диапазону
-                        if (isSoftwareVersionInRange(Objects.requireNonNull(softwareVersion), "4.0.9", "4.9.9")) {
+                        if (isSoftwareVersionInRange(Objects.requireNonNull(softwareVersion), "4.0.9", "4.9.9") && Objects.equals(mode, "BOOT")) {
                             // Версия программного обеспечения находится в диапазоне
                             Logger.INSTANCE.d("BleControlManager", "Software version is in range.");
                             verCheck = true;

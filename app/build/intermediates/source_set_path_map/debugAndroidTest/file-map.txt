@@ -1,0 +1,6 @@
+com.example.bluetoothcontrol.test.app-core-1.5.0-0 C:\Users\user\.gradle\caches\transforms-3\563857da36f3b276ffcd898805d62fc8\transformed\core-1.5.0\res
+com.example.bluetoothcontrol.test.app-annotation-experimental-1.3.0-1 C:\Users\user\.gradle\caches\transforms-3\ecc2d013c63ead9313a43c1354b136a1\transformed\annotation-experimental-1.3.0\res
+com.example.bluetoothcontrol.test.app-androidTest-2 C:\Users\user\Documents\GitHub\BleRepNew\BleRepNew\app\build\generated\res\resValues\androidTest\debug
+com.example.bluetoothcontrol.test.app-mergeDebugAndroidTestResources-3 C:\Users\user\Documents\GitHub\BleRepNew\BleRepNew\app\build\intermediates\incremental\debugAndroidTest\mergeDebugAndroidTestResources\merged.dir
+com.example.bluetoothcontrol.test.app-mergeDebugAndroidTestResources-4 C:\Users\user\Documents\GitHub\BleRepNew\BleRepNew\app\build\intermediates\incremental\debugAndroidTest\mergeDebugAndroidTestResources\stripped.dir
+com.example.bluetoothcontrol.test.app-merged_res-5 C:\Users\user\Documents\GitHub\BleRepNew\BleRepNew\app\build\intermediates\merged_res\debugAndroidTest

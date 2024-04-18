@@ -80,6 +80,8 @@ class ControlViewModel(private val adapterProvider: BluetoothAdapterProvider, pr
         }else{
             Log.e("ControlViewModel","PinCode is $pinCode")
         }
+
+        adapterProvider.getAdapter()
     }
 
 

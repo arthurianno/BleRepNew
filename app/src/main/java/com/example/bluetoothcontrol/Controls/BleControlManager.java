@@ -41,6 +41,7 @@ import java.util.regex.Pattern;
 
 import no.nordicsemi.android.ble.BleManager;
 import no.nordicsemi.android.ble.ConnectionPriorityRequest;
+import no.nordicsemi.android.ble.PhyRequest;
 import no.nordicsemi.android.ble.callback.ConnectionPriorityCallback;
 import no.nordicsemi.android.ble.callback.DataReceivedCallback;
 
@@ -974,9 +975,7 @@ public void loadFirmware(EntireCheck entireCheck) {
                         sliseSize = 128;
                         Logger.INSTANCE.e("BleControlManager", "Software version is 4.5.0.");
                         sendCommand("setraw", EntireCheck.default_command);
-                    } else if (softwareVersion.equals("4.5.0") && Objects.equals(mode, "BOOT")) {
-                        // Проверка версии программного обеспечения на соответствие диапазону
-                        if (isSoftwareVersionInRange(Objects.requireNonNull(softwareVersion), "4.0.9", "4.9.9") && Objects.equals(mode, "BOOT")) {
+                    } else if (isSoftwareVersionInRange(Objects.requireNonNull(softwareVersion), "4.5.0", "4.9.9") && Objects.equals(mode, "BOOT")) {
                             // Версия программного обеспечения находится в диапазоне
                             Logger.INSTANCE.d("BleControlManager", "Software version is in range.");
                             verCheck = true;
@@ -989,7 +988,7 @@ public void loadFirmware(EntireCheck entireCheck) {
                     }
                 }else {
                     Logger.INSTANCE.e("BleControlManager", "Software version not found in response.");
-                }
+
             }
         }
         private void handleCheckBattLevel(byte[] data, String mode) {
@@ -1026,6 +1025,7 @@ public void loadFirmware(EntireCheck entireCheck) {
 
 
 
+        @SuppressLint("WrongConstant")
         private void handleDefaultCommand(byte[] data) {
             String defaultResponse = new String(data, StandardCharsets.UTF_8);
             if (defaultResponse.contains("setraw.ok")) {
@@ -1034,22 +1034,12 @@ public void loadFirmware(EntireCheck entireCheck) {
             }else if (defaultResponse.contains("setraw.error")) {
                 Logger.INSTANCE.d("BleControlManager", " incorrect command");
             } else if (defaultResponse.contains("boot.ok")) {
+                setPreferredPhy(BluetoothDevice.PHY_LE_2M,BluetoothDevice.PHY_LE_2M,BluetoothDevice.PHY_OPTION_S2);
                 requestConnectionPriority(ConnectionPriorityRequest.CONNECTION_PRIORITY_HIGH)
                         .done(device -> Log.e("BleControlManager", "Interval request sent"))
-                        .with(new ConnectionPriorityCallback() {
-                            @SuppressLint("Range")
-                            @Override
-                            public void onConnectionUpdated(@NonNull BluetoothDevice device, int interval, int latency, int timeout) {
-                                Log.e("BleControlManager","Interval is changed " + interval);
-                                if(interval == ConnectionPriorityRequest.CONNECTION_PRIORITY_BALANCED || interval == ConnectionPriorityRequest.CONNECTION_PRIORITY_LOW_POWER){
-                                    requestConnectionPriority(ConnectionPriorityRequest.CONNECTION_PRIORITY_HIGH);
-                                }
-
-                            }
-                        })
                         .fail((device, status) -> Log.e("BleControlManager", "Failed to send Interval request: " + status))
                         .enqueue();
-                requestMtu(247)
+                requestMtu(251)
                         .done(device -> Log.e("BleControlManager", "MTU request sent "))
                         .fail((device, status) -> Log.e("BleControlManager", "Failed to send MTU request: " + status))
                         .enqueue();

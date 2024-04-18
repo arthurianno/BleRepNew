@@ -20,6 +20,7 @@ interface BluetoothAdapterProvider {
 
     fun getAdapter(): BluetoothAdapter
 
+
     fun getContext(): Context
 
     fun reloadBluetooth()
@@ -30,6 +31,7 @@ interface BluetoothAdapterProvider {
             val manager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
             return manager.adapter
         }
+
 
         override fun getContext(): Context {
             return context

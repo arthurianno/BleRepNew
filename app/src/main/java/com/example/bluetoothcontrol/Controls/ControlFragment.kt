@@ -31,6 +31,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.util.Locale
 import java.util.Timer
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
@@ -194,12 +195,12 @@ class ControlFragment : Fragment(),BleControlManager.AcceptedCommandCallback {
 
                                     while (zipInputStream.nextEntry.also { entry = it } != null) {
                                         val fileName = entry?.name ?: continue
-                                        if (fileName.endsWith(".bin")) {
+                                        if (fileName.toLowerCase(Locale.ROOT).endsWith(".bin")) {
                                             binFile = createTempFile(fileName, ".bin").toUri()
                                             FileOutputStream(binFile.path).use { outputStream ->
                                                 zipInputStream.copyTo(outputStream)
                                             }
-                                        } else if (fileName.endsWith(".dat")) {
+                                        } else if (fileName.toLowerCase(Locale.ROOT).endsWith(".dat")) {
                                             datFile = createTempFile(fileName, ".dat").toUri()
                                             FileOutputStream(datFile.path).use { outputStream ->
                                                 zipInputStream.copyTo(outputStream)

@@ -1034,12 +1034,12 @@ public void loadFirmware(EntireCheck entireCheck) {
             }else if (defaultResponse.contains("setraw.error")) {
                 Logger.INSTANCE.d("BleControlManager", " incorrect command");
             } else if (defaultResponse.contains("boot.ok")) {
-                setPreferredPhy(BluetoothDevice.PHY_LE_2M,BluetoothDevice.PHY_LE_2M,BluetoothDevice.PHY_OPTION_S2);
-                requestConnectionPriority(ConnectionPriorityRequest.CONNECTION_PRIORITY_HIGH)
-                        .done(device -> Log.e("BleControlManager", "Interval request sent"))
-                        .fail((device, status) -> Log.e("BleControlManager", "Failed to send Interval request: " + status))
-                        .enqueue();
-                requestMtu(251)
+                //setPreferredPhy(BluetoothDevice.PHY_LE_2M,BluetoothDevice.PHY_LE_2M,BluetoothDevice.PHY_OPTION_S2);
+//                requestConnectionPriority(ConnectionPriorityRequest.CONNECTION_PRIORITY_HIGH)
+//                        .done(device -> Log.e("BleControlManager", "Interval request sent"))
+//                        .fail((device, status) -> Log.e("BleControlManager", "Failed to send Interval request: " + status))
+//                        .enqueue();
+                requestMtu(247)
                         .done(device -> Log.e("BleControlManager", "MTU request sent "))
                         .fail((device, status) -> Log.e("BleControlManager", "Failed to send MTU request: " + status))
                         .enqueue();

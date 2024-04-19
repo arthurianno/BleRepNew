@@ -1,4 +1,4 @@
-#Thu Apr 18 13:24:41 MSK 2024
+#Fri Apr 19 13:33:45 MSK 2024
 base.0=C\:\\Users\\user\\Documents\\GitHub\\BleRepNew\\BleRepNew\\app\\build\\intermediates\\dex\\debug\\mergeExtDexDebug\\classes.dex
 base.1=C\:\\Users\\user\\Documents\\GitHub\\BleRepNew\\BleRepNew\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\0\\classes.dex
 base.2=C\:\\Users\\user\\Documents\\GitHub\\BleRepNew\\BleRepNew\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\10\\classes.dex

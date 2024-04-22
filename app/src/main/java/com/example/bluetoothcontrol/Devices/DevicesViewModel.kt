@@ -13,7 +13,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.bluetoothcontrol.BluetoothAdapterProvider
 import com.example.bluetoothcontrol.Logger
-import com.example.bluetoothcontrol.ReadingData.ReadingDataFragment
 
 
 class DevicesViewModel(adapterProvider: BluetoothAdapterProvider): ViewModel() {
@@ -27,7 +26,7 @@ class DevicesViewModel(adapterProvider: BluetoothAdapterProvider): ViewModel() {
     private val settings: ScanSettings
     private val filters: List<ScanFilter>
 
-    private val foundDevices = HashMap<String, BluetoothDevice>()
+    private val foundDevices = LinkedHashMap<String, BluetoothDevice>()
 
     init {
         settings = buildSettings()
@@ -89,7 +88,9 @@ class DevicesViewModel(adapterProvider: BluetoothAdapterProvider): ViewModel() {
 
 
         override fun onBatchScanResults(results: MutableList<ScanResult>?) {
-            results?.forEach{ result -> foundDevices[result.device.address] = result.device}
+            results?.forEach { result ->
+                foundDevices[result.device.address] = result.device
+            }
             _devices.postValue(foundDevices.values.toList())
             super.onBatchScanResults(results)
         }
@@ -99,9 +100,10 @@ class DevicesViewModel(adapterProvider: BluetoothAdapterProvider): ViewModel() {
             if (result != null) {
                 foundDevices[result.device.address] = result.device
             }
-            _devices.postValue(foundDevices.values.toList())
+            _devices.postValue(foundDevices.values.toList()) // reverse the list
             super.onScanResult(callbackType, result)
         }
+
 
         override fun onScanFailed(errorCode: Int) {
             foundDevices.clear()

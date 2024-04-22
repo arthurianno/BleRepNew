@@ -73,10 +73,8 @@
   <component name="ChangeListManager">
     <list default="true" id="a8314497-fcb8-4ed6-a36e-c40f8c41b73d" name="Changes" comment="UPD MAIN AND BLUETOOTH PERMISSION">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/bluetoothcontrol/Controls/BleControlManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/bluetoothcontrol/Controls/BleControlManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/bluetoothcontrol/Controls/ControlFragment.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/bluetoothcontrol/Controls/ControlFragment.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/bluetoothcontrol/Devices/DevicesAdapter.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/bluetoothcontrol/Devices/DevicesAdapter.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/bluetoothcontrol/Devices/DevicesFragment.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/bluetoothcontrol/Devices/DevicesFragment.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/bluetoothcontrol/Devices/DevicesViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/bluetoothcontrol/Devices/DevicesViewModel.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -86,7 +84,7 @@
   <component name="ClangdSettings">
     <option name="formatViaClangd" value="false" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[467980af]" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[320014eec080b54b]" />
   <component name="ExternalProjectsData">
     <projectState path="$PROJECT_DIR$">
       <ProjectState />
@@ -225,22 +223,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1710404991714</updated>
-    </task>
-    <task id="LOCAL-00015" summary="Upd checkmark errorMark and progress bar">
-      <option name="closed" value="true" />
-      <created>1711445929646</created>
-      <option name="number" value="00015" />
-      <option name="presentableId" value="LOCAL-00015" />
-      <option name="project" value="LOCAL" />
-      <updated>1711445929646</updated>
-    </task>
-    <task id="LOCAL-00016" summary="Upd checkmark errorMark and progress bar">
-      <option name="closed" value="true" />
-      <created>1711448209981</created>
-      <option name="number" value="00016" />
-      <option name="presentableId" value="LOCAL-00016" />
-      <option name="project" value="LOCAL" />
-      <updated>1711448209981</updated>
     </task>
     <task id="LOCAL-00017" summary="Upd checkmark errorMark and progress bar">
       <option name="closed" value="true" />
@@ -618,7 +600,23 @@
       <option name="project" value="LOCAL" />
       <updated>1713436455979</updated>
     </task>
-    <option name="localTasksCounter" value="64" />
+    <task id="LOCAL-00064" summary="UPD MAIN AND BLUETOOTH PERMISSION">
+      <option name="closed" value="true" />
+      <created>1713523031809</created>
+      <option name="number" value="00064" />
+      <option name="presentableId" value="LOCAL-00064" />
+      <option name="project" value="LOCAL" />
+      <updated>1713523031809</updated>
+    </task>
+    <task id="LOCAL-00065" summary="UPD MAIN AND BLUETOOTH PERMISSION">
+      <option name="closed" value="true" />
+      <created>1713523048710</created>
+      <option name="number" value="00065" />
+      <option name="presentableId" value="LOCAL-00065" />
+      <option name="project" value="LOCAL" />
+      <updated>1713523048710</updated>
+    </task>
+    <option name="localTasksCounter" value="66" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">

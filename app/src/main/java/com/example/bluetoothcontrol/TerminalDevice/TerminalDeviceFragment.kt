@@ -1,11 +1,10 @@
 package com.example.bluetoothcontrol.TerminalDevice
 
 import android.os.Bundle
-import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -57,7 +56,6 @@ class TerminalDeviceFragment(): Fragment() {
                     Logger.e(ReadingDataFragment.TAG,"Toggle connection to device with address $deviceAddress")
                 }
             }else{
-                Log.e(ReadingDataFragment.TAG,"address $deviceAddress is null ")
                 Logger.e(ReadingDataFragment.TAG,"address $deviceAddress is null ")
             }
         }

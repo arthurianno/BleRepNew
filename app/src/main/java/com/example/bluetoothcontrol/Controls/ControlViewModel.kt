@@ -1,6 +1,5 @@
 package com.example.bluetoothcontrol.Controls
-import android.annotation.SuppressLint
-import android.bluetooth.BluetoothAdapter
+
 import android.bluetooth.BluetoothDevice
 import android.content.Context
 import android.util.Log
@@ -12,7 +11,6 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.bluetoothcontrol.BluetoothAdapterProvider
 import com.example.bluetoothcontrol.MainActivity
 import com.example.bluetoothcontrol.MainActivity.Companion.controlManager
-
 import no.nordicsemi.android.ble.observer.ConnectionObserver
 import java.util.LinkedList
 import java.util.Queue
@@ -215,12 +213,11 @@ class ControlViewModel(private val adapterProvider: BluetoothAdapterProvider, pr
 
         fun readTerminalCommands(){
             if(controlManager.isConnected){
-                controlManager.sendCommand("gettime",EntireCheck.default_command)
+                controlManager.sendCommand("gettim",EntireCheck.default_command)
                 controlManager.sendCommand("version",EntireCheck.default_command)
                 controlManager.sendCommand("battery",EntireCheck.default_command)
                 controlManager.sendCommand("serial",EntireCheck.default_command)
                 controlManager.sendCommand("mac",EntireCheck.default_command)
-
             }
         }
     }

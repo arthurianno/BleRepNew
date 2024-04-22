@@ -1,14 +1,12 @@
 package com.example.bluetoothcontrol.Controls;
 
 import android.annotation.SuppressLint;
-import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Environment;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -19,11 +17,8 @@ import com.example.bluetoothcontrol.Logger;
 import com.example.bluetoothcontrol.ReadingData.DataItem;
 import com.example.bluetoothcontrol.TerminalDevice.TermItem;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -33,16 +28,12 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import no.nordicsemi.android.ble.BleManager;
-import no.nordicsemi.android.ble.ConnectionPriorityRequest;
-import no.nordicsemi.android.ble.PhyRequest;
-import no.nordicsemi.android.ble.callback.ConnectionPriorityCallback;
 import no.nordicsemi.android.ble.callback.DataReceivedCallback;
 
 public class BleControlManager extends BleManager {
@@ -744,6 +735,12 @@ public void loadFirmware(EntireCheck entireCheck) {
                     //Log.d("BleControlManager","data " + Arrays.toString(data));
                     handleDefaultCommand(data);
                     break;
+                case bootMode:
+                    handleBootResponse(data);
+                    break;
+                case rawMode:
+                    handleRawResponse(data);
+                    break;
                 case BootModeResponse:
                     Logger.INSTANCE.d("BleControlManager", " data HEX type " + bytesToHexLogs(data));
                     handleBootWriteResponse(data);
@@ -974,7 +971,7 @@ public void loadFirmware(EntireCheck entireCheck) {
                         // Устанавливаем значение переменной в 128
                         sliseSize = 128;
                         Logger.INSTANCE.e("BleControlManager", "Software version is 4.5.0.");
-                        sendCommand("setraw", EntireCheck.default_command);
+                        sendCommand("setraw", EntireCheck.rawMode);
                     } else if (isSoftwareVersionInRange(Objects.requireNonNull(softwareVersion), "4.5.0", "4.9.9") && Objects.equals(mode, "BOOT")) {
                             // Версия программного обеспечения находится в диапазоне
                             Logger.INSTANCE.d("BleControlManager", "Software version is in range.");
@@ -1005,9 +1002,9 @@ public void loadFirmware(EntireCheck entireCheck) {
                         battCheck = true;
                         // Отправить команду только если режим BOOT
                         if (Objects.equals(mode, "BOOT")) {
-                            sendCommand("boot", EntireCheck.default_command);
+                            sendCommand("boot", EntireCheck.bootMode);
                         } else if (Objects.equals(mode, "RAW")) {
-                            sendCommand("setraw", EntireCheck.default_command);
+                            sendCommand("setraw", EntireCheck.rawMode);
                         } else {
                             Logger.INSTANCE.e("BleControlManager", "Mode is undefined" + mode);
                         }
@@ -1023,22 +1020,9 @@ public void loadFirmware(EntireCheck entireCheck) {
             }
         }
 
-
-
-        @SuppressLint("WrongConstant")
-        private void handleDefaultCommand(byte[] data) {
-            String defaultResponse = new String(data, StandardCharsets.UTF_8);
-            if (defaultResponse.contains("setraw.ok")) {
-                Logger.INSTANCE.d("BleControlManager", "RAW correct");
-                ControlViewModel.Companion.readDeviceProfile(sliseSize);
-            }else if (defaultResponse.contains("setraw.error")) {
-                Logger.INSTANCE.d("BleControlManager", " incorrect command");
-            } else if (defaultResponse.contains("boot.ok")) {
-                //setPreferredPhy(BluetoothDevice.PHY_LE_2M,BluetoothDevice.PHY_LE_2M,BluetoothDevice.PHY_OPTION_S2);
-//                requestConnectionPriority(ConnectionPriorityRequest.CONNECTION_PRIORITY_HIGH)
-//                        .done(device -> Log.e("BleControlManager", "Interval request sent"))
-//                        .fail((device, status) -> Log.e("BleControlManager", "Failed to send Interval request: " + status))
-//                        .enqueue();
+        private void handleBootResponse(byte[] data){
+            String defaultBootResponse = new String(data, StandardCharsets.UTF_8);
+            if (defaultBootResponse.contains("boot.ok")){
                 requestMtu(247)
                         .done(device -> Log.e("BleControlManager", "MTU request sent "))
                         .fail((device, status) -> Log.e("BleControlManager", "Failed to send MTU request: " + status))
@@ -1046,30 +1030,53 @@ public void loadFirmware(EntireCheck entireCheck) {
                 loadFirmware(EntireCheck.BootModeResponse);
                 //readFirmware(EntireCheck.writingBootModeData);
                 Logger.INSTANCE.d("BleControlManager", "Device entered firmware update mode successfully");
-            } else if (defaultResponse.contains("boot.error")) {
+            }else{
                 Logger.INSTANCE.e("BleControlManager", "Error: Device failed to enter firmware update mode");
                 disconnect().enqueue();
-            }else if(defaultResponse.contains("time")){
-                TermItem termItem = new TermItem(defaultResponse,"TIME");
-                listOfTermItem.add(termItem);
-            }else if(defaultResponse.contains("hw")){
-                TermItem termItem = new TermItem(defaultResponse,"VERSION");
-                listOfTermItem.add(termItem);
-            }
-            else if(defaultResponse.contains(".t")){
-                TermItem termItem = new TermItem(defaultResponse,"BATTERY");
-                listOfTermItem.add(termItem);
-            }else if(defaultResponse.contains("ser.")){
-                TermItem termItem = new TermItem(defaultResponse,"SERIAL NUMBER");
-                listOfTermItem.add(termItem);
-            }else if(defaultResponse.contains("mac.")){
-                TermItem termItem = new TermItem(defaultResponse,"MAC ADDRESS");
-                listOfTermItem.add(termItem);
-                disconnect().enqueue();
-            }else {
-                Logger.INSTANCE.e("BleControlManager", "Invalid response: " + defaultResponse);
             }
         }
+
+        private void handleRawResponse(byte[] data){
+            String rawResponse = new String(data, StandardCharsets.UTF_8);
+            if (rawResponse.contains("setraw.ok")) {
+                Logger.INSTANCE.d("BleControlManager", "RAW correct");
+                ControlViewModel.Companion.readDeviceProfile(sliseSize);
+            }else{
+                Logger.INSTANCE.d("BleControlManager", " incorrect command");
+            }
+        }
+
+
+
+
+        @SuppressLint("WrongConstant")
+        private void handleDefaultCommand(byte[] data) {
+            String defaultResponse = new String(data, StandardCharsets.UTF_8);
+            TermItem termItem = null;
+
+            if (defaultResponse.contains("time")) {
+                termItem = new TermItem(defaultResponse, "TIME");
+            } else if (defaultResponse.contains("hw")) {
+                termItem = new TermItem(defaultResponse, "VERSION");
+            } else if (defaultResponse.contains(".t")) {
+                termItem = new TermItem(defaultResponse, "BATTERY");
+            } else if (defaultResponse.contains("ser.")) {
+                termItem = new TermItem(defaultResponse, "SERIAL NUMBER");
+            } else if (defaultResponse.contains("mac.")) {
+                termItem = new TermItem(defaultResponse, "MAC ADDRESS");
+                disconnect().enqueue();
+            } else {
+                Logger.INSTANCE.e("BleControlManager", "Invalid response: " + defaultResponse);
+                termItem = new TermItem(defaultResponse, "INVALID RESPONSE");
+                // Обработка некорректного ответа
+            }
+
+            if (termItem != null) {
+                listOfTermItem.add(termItem);
+            }
+        }
+
+
         private void handleBootWriteResponse(byte[] data) {
             if (data.length >= 2) {
                 byte flag = data[0];

@@ -4,12 +4,12 @@ import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.bluetoothcontrol.ReadingData.DataItem
 import com.example.bluetoothcontrol.databinding.ItemTermBinding
 
 class TerminalAdapter : RecyclerView.Adapter<TerminalAdapter.TerminalViewHolder>() {
 
      val items = ArrayList<TermItem>()
+    var listLabels = arrayListOf("TIME", "VERSION", "BATTERY", "SERIAL NUMBER", "MAC ADDRESS")
 
     @SuppressLint("NotifyDataSetChanged")
     fun update(items:ArrayList<TermItem>){
@@ -17,6 +17,7 @@ class TerminalAdapter : RecyclerView.Adapter<TerminalAdapter.TerminalViewHolder>
         this.items.addAll(items)
         notifyDataSetChanged()
     }
+
 
     @SuppressLint("NotifyDataSetChanged")
     fun clear() {
@@ -29,9 +30,13 @@ class TerminalAdapter : RecyclerView.Adapter<TerminalAdapter.TerminalViewHolder>
     }
 
      inner class TerminalViewHolder(private var binding: ItemTermBinding): RecyclerView.ViewHolder(binding.root) {
-         fun bind(termItem: TermItem){
+         fun bind(termItem: TermItem) {
              binding.nameOfData.text = termItem.nameOfTerm
              binding.nameOfAtributeData.text = termItem.name
+             val position = absoluteAdapterPosition
+             if (position != RecyclerView.NO_POSITION && position < listLabels.size) {
+                 binding.textViewAttribute.text = listLabels[position]
+             }
          }
     }
 

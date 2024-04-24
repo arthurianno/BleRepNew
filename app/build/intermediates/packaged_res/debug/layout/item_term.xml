@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
     android:layout_margin="@dimen/marginSmall"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
@@ -21,7 +20,19 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/marginSmall"
+        android:layout_below="@id/nameOfAtributeData"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         tools:text="Name of Data" />
 
-</LinearLayout>
+    <TextView
+        android:id="@+id/textViewAttribute"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/nameOfAtributeData"
+        android:layout_alignBottom="@id/nameOfData"
+        android:layout_alignParentEnd="true"
+        android:gravity="center_vertical"
+        android:text="Атрибут"
+        android:textColor="@android:color/darker_gray" />
+
+</RelativeLayout>

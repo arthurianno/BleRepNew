@@ -28,8 +28,8 @@
         "source": "C:\\Users\\user\\.gradle\\daemon\\8.3\\com.example.bluetoothcontrol.app-main-50:\\layout\\item_device.xml"
     },
     {
-        "merged": "com.example.bluetoothcontrol.app-mergeDebugResources-47:/layout/fragment_control.xml",
-        "source": "com.example.bluetoothcontrol.app-main-50:/layout/fragment_control.xml"
+        "merged": "com.example.bluetoothcontrol.app-mergeDebugResources-47:/layout/item_term.xml",
+        "source": "com.example.bluetoothcontrol.app-main-50:/layout/item_term.xml"
     },
     {
         "merged": "C:\\Users\\user\\.gradle\\daemon\\8.3\\com.example.bluetoothcontrol.app-mergeDebugResources-47:\\layout\\item_reading_data.xml",

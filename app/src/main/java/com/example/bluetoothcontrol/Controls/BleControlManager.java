@@ -966,7 +966,7 @@ public void loadFirmware(EntireCheck entireCheck) {
                         Logger.INSTANCE.e("BleControlManager", "Software version less then 4.5.0.");
                         disconnect().enqueue();
                         Logger.INSTANCE.e("BleControlManager", "Disconnect");
-                    } else if (softwareVersion.equals("4.5.0") && Objects.equals(mode, "RAW")) {
+                    } else if (compareSoftwareVersion(Objects.requireNonNull(softwareVersion), "4.5.0") >= 0 && Objects.equals(mode, "RAW")) {
                         // Версия равна 4.5.0
                         // Устанавливаем значение переменной в 128
                         sliseSize = 128;

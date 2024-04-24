@@ -4,7 +4,7 @@ package com.example.bluetoothcontrol.databinding;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -17,7 +17,7 @@ import java.lang.String;
 
 public final class ItemTermBinding implements ViewBinding {
   @NonNull
-  private final LinearLayout rootView;
+  private final RelativeLayout rootView;
 
   @NonNull
   public final TextView nameOfAtributeData;
@@ -25,16 +25,20 @@ public final class ItemTermBinding implements ViewBinding {
   @NonNull
   public final TextView nameOfData;
 
-  private ItemTermBinding(@NonNull LinearLayout rootView, @NonNull TextView nameOfAtributeData,
-      @NonNull TextView nameOfData) {
+  @NonNull
+  public final TextView textViewAttribute;
+
+  private ItemTermBinding(@NonNull RelativeLayout rootView, @NonNull TextView nameOfAtributeData,
+      @NonNull TextView nameOfData, @NonNull TextView textViewAttribute) {
     this.rootView = rootView;
     this.nameOfAtributeData = nameOfAtributeData;
     this.nameOfData = nameOfData;
+    this.textViewAttribute = textViewAttribute;
   }
 
   @Override
   @NonNull
-  public LinearLayout getRoot() {
+  public RelativeLayout getRoot() {
     return rootView;
   }
 
@@ -71,7 +75,14 @@ public final class ItemTermBinding implements ViewBinding {
         break missingId;
       }
 
-      return new ItemTermBinding((LinearLayout) rootView, nameOfAtributeData, nameOfData);
+      id = R.id.textViewAttribute;
+      TextView textViewAttribute = ViewBindings.findChildViewById(rootView, id);
+      if (textViewAttribute == null) {
+        break missingId;
+      }
+
+      return new ItemTermBinding((RelativeLayout) rootView, nameOfAtributeData, nameOfData,
+          textViewAttribute);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

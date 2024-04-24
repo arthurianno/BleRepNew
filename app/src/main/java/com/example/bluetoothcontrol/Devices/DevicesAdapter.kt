@@ -1,11 +1,8 @@
 package com.example.bluetoothcontrol.Devices
 
-import android.animation.AnimatorInflater
-import android.animation.AnimatorSet
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
 import android.util.Log
-import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
@@ -86,13 +83,15 @@ class DevicesAdapter(private val callback:CallBack,private val sharedViewModel: 
 
     @SuppressLint("MissingPermission")
     override fun onBindViewHolder(holder: DevicesViewHolder, position: Int) {
-        holder.bind(filteredItems[position],position == selectedItemPosition, connecting)
+        holder.bind(filteredItems[position], position == selectedItemPosition, connecting)
 
-        val defaultColor = ContextCompat.getColor(holder.itemView.context, android.R.color.transparent)
-        holder.itemView.setBackgroundColor(defaultColor)
-        ViewCompat.setElevation(holder.itemView, 0f)
+        // Отложенное выполнение прорисовки в другом потоке
+        holder.itemView.post {
+            val defaultColor = ContextCompat.getColor(holder.itemView.context, android.R.color.transparent)
+            holder.itemView.setBackgroundColor(defaultColor)
+            ViewCompat.setElevation(holder.itemView, 0f)
+        }
     }
-
     @SuppressLint("ResourceType")
     inner class DevicesViewHolder(private val binding: ItemDeviceBinding) : RecyclerView.ViewHolder(binding.root) {
 

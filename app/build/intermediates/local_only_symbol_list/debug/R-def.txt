@@ -65,6 +65,7 @@ id terminalWrite
 id textAddress
 id textName
 id textView3
+id textViewAttribute
 id textViewChunk
 id textViewHint
 id wrapStartScan

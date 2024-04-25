@@ -3395,6 +3395,7 @@ id immediateStop
 id included
 id indeterminate
 id info
+id inputSwitch
 id invisible
 id inward
 id is_pooling_container_tag
@@ -3596,6 +3597,7 @@ id snapMargins
 id south
 id spacer
 id special_effects_controller_view_tag
+id spinner
 id spline
 id split_action_bar
 id spread

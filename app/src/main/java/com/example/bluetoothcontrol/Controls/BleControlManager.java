@@ -53,6 +53,8 @@ public class BleControlManager extends BleManager {
     private static final byte RAW_RD = (byte) 0x81;
     private long startTime;
     private long endTime;
+
+    private String termCommand = null;
     private String changedMode;
     private boolean battCheck = false;
     private boolean verCheck = false;
@@ -125,7 +127,8 @@ public class BleControlManager extends BleManager {
         Log.d("BleControlManager", "End time: " + durationInMillis);
         Logger.INSTANCE.d("BleControlManager", "End time: " + durationInMillis);
     }
-    public void sendCommand(String command, EntireCheck entireCheck) {
+    public void sendCommand(String command, EntireCheck entireCheck, String commandTerm) {
+        termCommand = commandTerm;
         if (isConnected() && controlRequest != null) {
             BluetoothGattCharacteristic characteristic = controlRequest;
             ControlViewModel.Companion.getEntireCheckQueue().add(entireCheck);
@@ -921,8 +924,10 @@ public void loadFirmware(EntireCheck entireCheck) {
                 if(Objects.equals(changedMode,"TERMINAL")){
                     Logger.INSTANCE.d("BleControlManager", "TERMINAL MODE");
                     ControlViewModel.Companion.readTerminalCommands();
-                }else{
-                    sendCommand("version",EntireCheck.softVer);
+                } else if (Objects.equals(changedMode,"TERMINALspinner")) {
+                    pinCallback.onPin("CORRECT");
+                } else{
+                    sendCommand("version",EntireCheck.softVer,"version");
                 }
             } else if (pinResponse.contains("pin.error")) {
                 Logger.INSTANCE.d("BleControlManager", "Pin code is incorrect");
@@ -971,12 +976,12 @@ public void loadFirmware(EntireCheck entireCheck) {
                         // Устанавливаем значение переменной в 128
                         sliseSize = 128;
                         Logger.INSTANCE.e("BleControlManager", "Software version is 4.5.0.");
-                        sendCommand("setraw", EntireCheck.rawMode);
+                        sendCommand("setraw", EntireCheck.rawMode,"raw");
                     } else if (isSoftwareVersionInRange(Objects.requireNonNull(softwareVersion), "4.5.0", "4.9.9") && Objects.equals(mode, "BOOT")) {
                             // Версия программного обеспечения находится в диапазоне
                             Logger.INSTANCE.d("BleControlManager", "Software version is in range.");
                             verCheck = true;
-                            sendCommand("battery", EntireCheck.batteryLevel);
+                            sendCommand("battery", EntireCheck.batteryLevel,"battery");
                         } else {
                             // Версия программного обеспечения НЕ находится в диапазоне
                             Logger.INSTANCE.d("BleControlManager", "Software version is not in range.");
@@ -1002,9 +1007,9 @@ public void loadFirmware(EntireCheck entireCheck) {
                         battCheck = true;
                         // Отправить команду только если режим BOOT
                         if (Objects.equals(mode, "BOOT")) {
-                            sendCommand("boot", EntireCheck.bootMode);
+                            sendCommand("boot", EntireCheck.bootMode,"boot");
                         } else if (Objects.equals(mode, "RAW")) {
-                            sendCommand("setraw", EntireCheck.rawMode);
+                            sendCommand("setraw", EntireCheck.rawMode,"boot");
                         } else {
                             Logger.INSTANCE.e("BleControlManager", "Mode is undefined" + mode);
                         }
@@ -1053,21 +1058,19 @@ public void loadFirmware(EntireCheck entireCheck) {
         private void handleDefaultCommand(byte[] data) {
             String defaultResponse = new String(data, StandardCharsets.UTF_8);
             TermItem termItem = null;
-
             if (defaultResponse.contains("time")) {
-                termItem = new TermItem(defaultResponse, "TIME");
+                termItem = new TermItem(defaultResponse, "TIME",termCommand);
             } else if (defaultResponse.contains("hw")) {
-                termItem = new TermItem(defaultResponse, "VERSION");
+                termItem = new TermItem(defaultResponse, "VERSION",termCommand);
             } else if (defaultResponse.contains(".t")) {
-                termItem = new TermItem(defaultResponse, "BATTERY");
+                termItem = new TermItem(defaultResponse, "BATTERY",termCommand);
             } else if (defaultResponse.contains("ser.")) {
-                termItem = new TermItem(defaultResponse, "SERIAL NUMBER");
+                termItem = new TermItem(defaultResponse, "SERIAL NUMBER",termCommand);
             } else if (defaultResponse.contains("mac.")) {
-                termItem = new TermItem(defaultResponse, "MAC ADDRESS");
-                disconnect().enqueue();
+                termItem = new TermItem(defaultResponse, "MAC ADDRESS",termCommand);
             } else {
                 Logger.INSTANCE.e("BleControlManager", "Invalid response: " + defaultResponse);
-                termItem = new TermItem(defaultResponse, "INVALID RESPONSE");
+                termItem = new TermItem(defaultResponse, "INVALID RESPONSE",termCommand);
                 // Обработка некорректного ответа
             }
 

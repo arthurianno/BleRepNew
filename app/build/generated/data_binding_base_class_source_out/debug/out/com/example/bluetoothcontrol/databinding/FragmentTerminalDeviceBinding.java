@@ -5,6 +5,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Spinner;
+import android.widget.Switch;
+import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -21,16 +24,29 @@ public final class FragmentTerminalDeviceBinding implements ViewBinding {
   private final ConstraintLayout rootView;
 
   @NonNull
+  public final Switch inputSwitch;
+
+  @NonNull
   public final RecyclerView recyclerView;
+
+  @NonNull
+  public final Spinner spinner;
 
   @NonNull
   public final Button terminalWrite;
 
+  @NonNull
+  public final TextView textViewHint;
+
   private FragmentTerminalDeviceBinding(@NonNull ConstraintLayout rootView,
-      @NonNull RecyclerView recyclerView, @NonNull Button terminalWrite) {
+      @NonNull Switch inputSwitch, @NonNull RecyclerView recyclerView, @NonNull Spinner spinner,
+      @NonNull Button terminalWrite, @NonNull TextView textViewHint) {
     this.rootView = rootView;
+    this.inputSwitch = inputSwitch;
     this.recyclerView = recyclerView;
+    this.spinner = spinner;
     this.terminalWrite = terminalWrite;
+    this.textViewHint = textViewHint;
   }
 
   @Override
@@ -60,9 +76,21 @@ public final class FragmentTerminalDeviceBinding implements ViewBinding {
     // This is done to optimize the compiled bytecode for size and performance.
     int id;
     missingId: {
+      id = R.id.inputSwitch;
+      Switch inputSwitch = ViewBindings.findChildViewById(rootView, id);
+      if (inputSwitch == null) {
+        break missingId;
+      }
+
       id = R.id.recyclerView;
       RecyclerView recyclerView = ViewBindings.findChildViewById(rootView, id);
       if (recyclerView == null) {
+        break missingId;
+      }
+
+      id = R.id.spinner;
+      Spinner spinner = ViewBindings.findChildViewById(rootView, id);
+      if (spinner == null) {
         break missingId;
       }
 
@@ -72,8 +100,14 @@ public final class FragmentTerminalDeviceBinding implements ViewBinding {
         break missingId;
       }
 
-      return new FragmentTerminalDeviceBinding((ConstraintLayout) rootView, recyclerView,
-          terminalWrite);
+      id = R.id.textViewHint;
+      TextView textViewHint = ViewBindings.findChildViewById(rootView, id);
+      if (textViewHint == null) {
+        break missingId;
+      }
+
+      return new FragmentTerminalDeviceBinding((ConstraintLayout) rootView, inputSwitch,
+          recyclerView, spinner, terminalWrite, textViewHint);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

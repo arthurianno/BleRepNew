@@ -213,11 +213,22 @@ class ControlViewModel(private val adapterProvider: BluetoothAdapterProvider, pr
 
         fun readTerminalCommands(){
             if(controlManager.isConnected){
-                controlManager.sendCommand("gettim",EntireCheck.default_command)
-                controlManager.sendCommand("version",EntireCheck.default_command)
-                controlManager.sendCommand("battery",EntireCheck.default_command)
-                controlManager.sendCommand("serial",EntireCheck.default_command)
-                controlManager.sendCommand("mac",EntireCheck.default_command)
+                controlManager.sendCommand("gettime",EntireCheck.default_command,"Time")
+                controlManager.sendCommand("version",EntireCheck.default_command,"Version")
+                controlManager.sendCommand("battery",EntireCheck.default_command,"Battery")
+                controlManager.sendCommand("serial",EntireCheck.default_command,"Serial")
+                controlManager.sendCommand("mac",EntireCheck.default_command,"Mac address")
+            }
+        }
+        fun readTerminalCommandSpinner(command:String){
+            if(controlManager.isConnected){
+                when(command){
+                    "TIME" -> controlManager.sendCommand("gettime",EntireCheck.default_command,"Time")
+                    "VERSION" -> controlManager.sendCommand("version",EntireCheck.default_command,"Version")
+                    "BATTERY" -> controlManager.sendCommand("battery",EntireCheck.default_command,"Battery")
+                    "SERIAL" ->  controlManager.sendCommand("serial",EntireCheck.default_command,"Serial")
+                    "MAC" -> controlManager.sendCommand("mac",EntireCheck.default_command,"Mac address")
+                }
             }
         }
     }

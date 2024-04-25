@@ -3394,6 +3394,7 @@ int id immediateStop 0x7f0900f1
 int id included 0x7f0900f2
 int id indeterminate 0x7f0900f3
 int id info 0x7f0900f4
+int id inputSwitch 0x7f090222
 int id invisible 0x7f0900f5
 int id inward 0x7f0900f6
 int id is_pooling_container_tag 0x7f0900f7
@@ -3595,6 +3596,7 @@ int id snapMargins 0x7f0901ba
 int id south 0x7f0901bb
 int id spacer 0x7f0901bc
 int id special_effects_controller_view_tag 0x7f0901bd
+int id spinner 0x7f090223
 int id spline 0x7f0901be
 int id split_action_bar 0x7f0901bf
 int id spread 0x7f0901c0

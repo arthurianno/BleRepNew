@@ -50,6 +50,7 @@ id fileTwo
 id filterDevices
 id fragmentContainer
 id hexData
+id inputSwitch
 id logFragment
 id logRecView
 id my_nav
@@ -60,6 +61,7 @@ id nestedScrollView
 id progressBarHor
 id readingDataFragment
 id recyclerView
+id spinner
 id tagLog
 id terminalWrite
 id textAddress

@@ -7,15 +7,15 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <ImageView
-        android:id="@+id/connectionStatusImageView"
+    <TextView
+        android:id="@+id/connectionStatusTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="@+id/fragmentContainer"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0"
-        app:srcCompat="@drawable/baseline_circle_green" />
+        android:text="Соединение: НЕТ" />
 
     <TextView
         android:id="@+id/deviceName"
@@ -23,7 +23,7 @@
         android:layout_height="wrap_content"
         android:text="Not aviable device"
         android:textAlignment="center"
-        app:layout_constraintEnd_toStartOf="@+id/connectionStatusImageView"
+        app:layout_constraintEnd_toStartOf="@+id/connectionStatusTextView"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

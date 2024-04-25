@@ -38,7 +38,7 @@ id button
 id buttonProcessFiles
 id buttonRDData
 id buttonWRData
-id connectionStatusImageView
+id connectionStatusTextView
 id containerLayout
 id dataRecView
 id descriptionLog

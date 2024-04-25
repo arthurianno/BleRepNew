@@ -1,16 +1,13 @@
 package com.example.bluetoothcontrol
-import android.annotation.SuppressLint
 import android.Manifest
-import android.content.pm.PackageManager
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
+import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import androidx.appcompat.app.AppCompatActivity
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
@@ -18,17 +15,19 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import com.example.bluetoothcontrol.Devices.DevicesFragment
-import com.example.bluetoothcontrol.ReadingData.ReadingDataFragment
-import com.example.bluetoothcontrol.TerminalDevice.TerminalDeviceFragment
 import com.example.bluetoothcontrol.Controls.BleControlManager
 import com.example.bluetoothcontrol.Controls.ControlFragment
 import com.example.bluetoothcontrol.Controls.ControlViewModel
 import com.example.bluetoothcontrol.Controls.ControlViewModelFactory
 import com.example.bluetoothcontrol.Devices.DevicesAdapter
+import com.example.bluetoothcontrol.Devices.DevicesFragment
 import com.example.bluetoothcontrol.Logs.LogFragment
+import com.example.bluetoothcontrol.ReadingData.ReadingDataFragment
+import com.example.bluetoothcontrol.TerminalDevice.TerminalDeviceFragment
 import com.example.bluetoothcontrol.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity(), DevicesAdapter.CallBack {
@@ -71,9 +70,11 @@ class MainActivity : AppCompatActivity(), DevicesAdapter.CallBack {
         }
         controlViewModel.isConnected.observe(this){
             if(it == true){
-                binding.connectionStatusImageView.setImageResource(R.drawable.baseline_circle_green)
+                binding.connectionStatusTextView.text = "Соединение: ЕСТЬ"
+                binding.connectionStatusTextView.setTextColor(ContextCompat.getColor(this, R.color.green))
             }else{
-                binding.connectionStatusImageView.setImageResource(R.drawable.baseline_circle_red)
+                binding.connectionStatusTextView.text = "Соединение: НЕТ"
+                binding.connectionStatusTextView.setTextColor(ContextCompat.getColor(this, R.color.red))
             }
         }
 

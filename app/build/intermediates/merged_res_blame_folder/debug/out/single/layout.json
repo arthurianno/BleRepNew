@@ -36,15 +36,15 @@
         "source": "C:\\Users\\user\\.gradle\\daemon\\8.3\\com.example.bluetoothcontrol.app-main-50:\\layout\\dropdown_item.xml"
     },
     {
-        "merged": "com.example.bluetoothcontrol.app-mergeDebugResources-47:/layout/activity_main.xml",
-        "source": "com.example.bluetoothcontrol.app-main-50:/layout/activity_main.xml"
-    },
-    {
         "merged": "C:\\Users\\user\\.gradle\\daemon\\8.3\\com.example.bluetoothcontrol.app-mergeDebugResources-47:\\layout\\fragment_reading_data.xml",
         "source": "C:\\Users\\user\\.gradle\\daemon\\8.3\\com.example.bluetoothcontrol.app-main-50:\\layout\\fragment_reading_data.xml"
     },
     {
         "merged": "C:\\Users\\user\\.gradle\\daemon\\8.3\\com.example.bluetoothcontrol.app-mergeDebugResources-47:\\layout\\activity_main.xml",
         "source": "C:\\Users\\user\\.gradle\\daemon\\8.3\\com.example.bluetoothcontrol.app-main-50:\\layout\\activity_main.xml"
+    },
+    {
+        "merged": "com.example.bluetoothcontrol.app-mergeDebugResources-47:/layout/fragment_terminal_device.xml",
+        "source": "com.example.bluetoothcontrol.app-main-50:/layout/fragment_terminal_device.xml"
     }
 ]

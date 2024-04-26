@@ -54,7 +54,7 @@ public class BleControlManager extends BleManager {
     private long startTime;
     private long endTime;
 
-    private String termCommand = null;
+    ArrayList<String> termCommand = new ArrayList<>();
     private String changedMode;
     private boolean battCheck = false;
     private boolean verCheck = false;
@@ -128,7 +128,8 @@ public class BleControlManager extends BleManager {
         Logger.INSTANCE.d("BleControlManager", "End time: " + durationInMillis);
     }
     public void sendCommand(String command, EntireCheck entireCheck, String commandTerm) {
-        termCommand = commandTerm;
+        termCommand.add(commandTerm);
+        Log.e("BleControlManager","termIsChanged " + termCommand);
         if (isConnected() && controlRequest != null) {
             BluetoothGattCharacteristic characteristic = controlRequest;
             ControlViewModel.Companion.getEntireCheckQueue().add(entireCheck);
@@ -136,7 +137,6 @@ public class BleControlManager extends BleManager {
                 byte[] data = command.getBytes();
                 writeCharacteristic(characteristic, data, BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT)
                         .done(device -> {
-                            Log.e("BleControlManager", "Command sent: " + command);
                             Logger.INSTANCE.e("BleControlManager", "Command sent: " + command);
                         })
                         .fail((device, status) -> Logger.INSTANCE.e("BleControlManager", "Failed to send command: " + status))
@@ -1058,25 +1058,114 @@ public void loadFirmware(EntireCheck entireCheck) {
         private void handleDefaultCommand(byte[] data) {
             String defaultResponse = new String(data, StandardCharsets.UTF_8);
             TermItem termItem = null;
-            if (defaultResponse.contains("time")) {
-                termItem = new TermItem(defaultResponse, "TIME",termCommand);
+            if (defaultResponse.startsWith("time.") && defaultResponse.length() >= 10) {
+                int hourIndex = 11; // Индекс начала часов в строке defaultResponse
+                int hour = Integer.parseInt(defaultResponse.substring(hourIndex, hourIndex + 2)); // Получаем часы из строки
+                hour = (hour + 3) % 24; // Добавляем три часа и обрабатываем случай перехода через полночь
+                @SuppressLint("DefaultLocale") String updatedHour = String.format("%02d", hour); // Форматируем часы обратно в двузначный формат
+                String updatedResponse = defaultResponse.substring(0, hourIndex) + updatedHour + defaultResponse.substring(hourIndex + 2);
+                Log.e("BLE", " TIME - " + updatedResponse); // Выводим обновленное значение времени в лог
+                termItem = new TermItem(updatedResponse, "TIME","Time");
             } else if (defaultResponse.contains("hw")) {
-                termItem = new TermItem(defaultResponse, "VERSION",termCommand);
+                termItem = new TermItem(defaultResponse, "VERSION","Version");
             } else if (defaultResponse.contains(".t")) {
-                termItem = new TermItem(defaultResponse, "BATTERY",termCommand);
+                termItem = new TermItem(defaultResponse, "BATTERY","Battery");
             } else if (defaultResponse.contains("ser.")) {
-                termItem = new TermItem(defaultResponse, "SERIAL NUMBER",termCommand);
+                termItem = new TermItem(defaultResponse, "SERIAL NUMBER","Serial Number");
             } else if (defaultResponse.contains("mac.")) {
-                termItem = new TermItem(defaultResponse, "MAC ADDRESS",termCommand);
-            } else {
-                Logger.INSTANCE.e("BleControlManager", "Invalid response: " + defaultResponse);
-                termItem = new TermItem(defaultResponse, "INVALID RESPONSE",termCommand);
-                // Обработка некорректного ответа
+                termItem = new TermItem(defaultResponse, "MAC ADDRESS","Mac Address");
+            }else if (defaultResponse.toLowerCase().contains("rd")) {
+                Logger.INSTANCE.e("BleControlManager", "response: " + defaultResponse);
+                termItem = parseRD(defaultResponse);
+            }else if (defaultResponse.toLowerCase().contains("erase.ok") || defaultResponse.toLowerCase().contains("erase.error")) {
+                termItem = new TermItem(defaultResponse, "ERASE","Erase");
+            }else if (defaultResponse.toLowerCase().contains("time.ok") || defaultResponse.toLowerCase().contains("time.error")) {
+                Logger.INSTANCE.e("BleControlManager", "response: " + defaultResponse);
+                termItem = new TermItem(defaultResponse, "SET TIME","Time settings");
+            }else if (defaultResponse.toLowerCase().contains("find.ok") || defaultResponse.toLowerCase().contains("find.error")) {
+                Logger.INSTANCE.e("BleControlManager", "response: " + defaultResponse);
+                termItem = new TermItem(defaultResponse, "FIND","Find device");
+            }else {
+                String foundItem = null;
+                for (String element : termCommand) {
+                    foundItem = null;
+                    switch (element) {
+                        case "Time":
+                            foundItem = "Time";
+                            break;
+                        case "Version":
+                            foundItem = "Version";
+                            break;
+                        case "Battery":
+                            foundItem = "Battery";
+                            break;
+                        case "Serial Number":
+                            foundItem = "Serial Number";
+                            break;
+                        case "Mac Address":
+                            foundItem = "Mac Address";
+                            break;
+                        case "RD":
+                            foundItem = "RD";
+                            break;
+                    }
+                    if (foundItem != null) {
+                        Logger.INSTANCE.e("BleControlManager", "Found item is : " + foundItem);
+                        break; // Выход из цикла, когда найден элемент
+                    }
+                }
+
+                if (foundItem != null) {
+                    Logger.INSTANCE.e("BleControlManager", "Invalid response: " + defaultResponse);
+                    termItem = new TermItem(defaultResponse, "INVALID RESPONSE", foundItem);
+                }
             }
 
             if (termItem != null) {
                 listOfTermItem.add(termItem);
             }
+        }
+
+
+        // Метод для расшифровки ответа "rd."
+        private TermItem parseRD(String response) {
+
+            if (response.equals("rd000000000000000000")) {
+                return new TermItem(response, "Данных нет", "Measurement");
+            }
+
+            String dateTime = response.substring(2, 14); // Получаем строку с датой и временем
+            String temperatureStr = response.substring(14, 17); // Получаем строку с температурой
+            String glucoseLevelStr = response.substring(17, 20); // Получаем строку с уровнем глюкозы
+
+            // Преобразование строк в соответствующие типы данных
+            int year = Integer.parseInt(dateTime.substring(0, 2)) + 2000; // Прибавляем 2000, чтобы получить полный год
+            int month = Integer.parseInt(dateTime.substring(2, 4));
+            int day = Integer.parseInt(dateTime.substring(4, 6));
+            int hour = Integer.parseInt(dateTime.substring(6, 8));
+            int minute = Integer.parseInt(dateTime.substring(8, 10));
+            int second = Integer.parseInt(dateTime.substring(10, 12));
+            int temperature = Integer.parseInt(temperatureStr);
+            int glucoseLevel = Integer.parseInt(glucoseLevelStr);
+
+            // Обработка особых случаев для температуры и уровня глюкозы
+            if (temperature >= 600 && temperature <= 850) {
+                temperature -= 500; // Вычитаем 500 для получения реальной температуры
+            }
+
+            // Создание строки для описания статуса измерения (до/после еды)
+            String status = "Before meal"; // По умолчанию считаем, что это до еды
+            if (glucoseLevel >= 600 && glucoseLevel <= 850) {
+                status = "After meal"; // Если уровень глюкозы находится в этом диапазоне, это после еды
+                glucoseLevel -= 500; // Вычитаем 500 для получения реального уровня глюкозы
+            }
+
+            // Формирование строки для отображения
+            @SuppressLint("DefaultLocale") String description = String.format("Measurement at %02d-%02d-%02d %02d:%02d:%02d,\nTemperature: %.1f°C,\nGlucose Level: %.1f mmol/L,\nStatus: %s",
+                    year, month, day, hour, minute, second, temperature / 10.0, glucoseLevel / 10.0, status);
+
+            // Создание объекта TermItem с расшифрованными данными
+            return new TermItem(response, description, "Measurement");
         }
 
 

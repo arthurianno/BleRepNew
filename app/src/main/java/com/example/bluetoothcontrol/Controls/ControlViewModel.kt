@@ -213,14 +213,15 @@ class ControlViewModel(private val adapterProvider: BluetoothAdapterProvider, pr
 
         fun readTerminalCommands(){
             if(controlManager.isConnected){
-                controlManager.sendCommand("gettime",EntireCheck.default_command,"Time")
+                BleControlManager.requestDataTermItem.value?.clear()
+                controlManager.sendCommand("gettim",EntireCheck.default_command,"Time")
                 controlManager.sendCommand("version",EntireCheck.default_command,"Version")
                 controlManager.sendCommand("battery",EntireCheck.default_command,"Battery")
                 controlManager.sendCommand("serial",EntireCheck.default_command,"Serial")
                 controlManager.sendCommand("mac",EntireCheck.default_command,"Mac address")
             }
         }
-        fun readTerminalCommandSpinner(command:String){
+        fun readTerminalCommandSpinner(command:String,number:String){
             if(controlManager.isConnected){
                 when(command){
                     "TIME" -> controlManager.sendCommand("gettime",EntireCheck.default_command,"Time")
@@ -228,7 +229,12 @@ class ControlViewModel(private val adapterProvider: BluetoothAdapterProvider, pr
                     "BATTERY" -> controlManager.sendCommand("battery",EntireCheck.default_command,"Battery")
                     "SERIAL" ->  controlManager.sendCommand("serial",EntireCheck.default_command,"Serial")
                     "MAC" -> controlManager.sendCommand("mac",EntireCheck.default_command,"Mac address")
+                    "RD" -> controlManager.sendCommand("rd.$number",EntireCheck.default_command,"RD")
+                    "ERASE" -> controlManager.sendCommand("erase",EntireCheck.default_command,"ERASE")
+                    "SETTIME" -> controlManager.sendCommand("settime.$number",EntireCheck.default_command,"SETTIME")
+                    "FIND" -> controlManager.sendCommand("find",EntireCheck.default_command,"FIND")
                 }
+                Log.e("ControlViewModel", "settime.$number")
             }
         }
     }

@@ -62,7 +62,7 @@ class TerminalDeviceFragment(): Fragment(){
         }
         controlViewModel.setConnectionCallback(object : ControlViewModel.ConnectionCallback{
             override fun onDeviceFailedToConnect() {
-                showToast("Устройство отключено!")
+                showToast("Проблема с подключением повторите команду!")
             }
 
         })
@@ -93,6 +93,8 @@ class TerminalDeviceFragment(): Fragment(){
         binding.inputSwitch.setOnCheckedChangeListener{ _, isChecked ->
             if(isChecked){
                 binding.spinner.visibility = View.VISIBLE
+                binding.terminalWrite.isEnabled = false
+
 
             }else{
                 if(controlViewModel.isConnected.value == true){
@@ -102,6 +104,8 @@ class TerminalDeviceFragment(): Fragment(){
                     }
                 }
                 binding.spinner.visibility = View.INVISIBLE
+                binding.terminalWrite.isEnabled = true
+                terminalAdapter.clear()
             }
         }
         binding.spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
@@ -208,13 +212,8 @@ class TerminalDeviceFragment(): Fragment(){
         builder.show()
     }
 
-
-    private fun isValidTime(time: String): Boolean {
-        return time.length == 14 && time.matches("[0-9]+".toRegex())
-    }
-
     private fun isValidBufferNumber(number: String): Boolean {
-        return number.length in 1..3 && number.matches("[0-9]+".toRegex())
+        return number.length == 3 && number.matches("\\d{3}".toRegex())
     }
 
 

@@ -1,5 +1,6 @@
 package com.example.bluetoothcontrol.Controls
 
+import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
 import android.content.Context
 import android.util.Log
@@ -12,8 +13,11 @@ import com.example.bluetoothcontrol.BluetoothAdapterProvider
 import com.example.bluetoothcontrol.MainActivity
 import com.example.bluetoothcontrol.MainActivity.Companion.controlManager
 import no.nordicsemi.android.ble.observer.ConnectionObserver
+import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.LinkedList
 import java.util.Queue
+import java.util.TimeZone
 
 class ControlViewModel(private val adapterProvider: BluetoothAdapterProvider, private val context: Context): ViewModel() {
     private val controlManager = MainActivity.controlManager
@@ -211,14 +215,29 @@ class ControlViewModel(private val adapterProvider: BluetoothAdapterProvider, pr
             }
         }
 
+        @SuppressLint("SimpleDateFormat")
         fun readTerminalCommands(){
             if(controlManager.isConnected){
+                val calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"))
+                calendar.timeInMillis = System.currentTimeMillis()
+                // Отнимаем 3 часа
+                calendar.add(Calendar.HOUR_OF_DAY, -3)
+                val dateFormat = SimpleDateFormat("yyMMddHHmmss")
+                val formattedTime = dateFormat.format(calendar.time)
                 BleControlManager.requestDataTermItem.value?.clear()
-                controlManager.sendCommand("gettim",EntireCheck.default_command,"Time")
+                controlManager.sendCommand("settime.$formattedTime",EntireCheck.default_command,"SETTIME")
+                controlManager.sendCommand("gettime",EntireCheck.default_command,"Time")
                 controlManager.sendCommand("version",EntireCheck.default_command,"Version")
                 controlManager.sendCommand("battery",EntireCheck.default_command,"Battery")
                 controlManager.sendCommand("serial",EntireCheck.default_command,"Serial")
                 controlManager.sendCommand("mac",EntireCheck.default_command,"Mac address")
+                controlManager.sendCommand("find",EntireCheck.default_command,"FIND")
+                controlManager.sendCommand("rd.$000",EntireCheck.default_command,"RD")
+                controlManager.sendCommand("rd.$001",EntireCheck.default_command,"RD")
+                controlManager.sendCommand("rd.$002",EntireCheck.default_command,"RD")
+                controlManager.sendCommand("rd.$003",EntireCheck.default_command,"RD")
+                controlManager.sendCommand("rd.$004",EntireCheck.default_command,"RD")
+
             }
         }
         fun readTerminalCommandSpinner(command:String,number:String){

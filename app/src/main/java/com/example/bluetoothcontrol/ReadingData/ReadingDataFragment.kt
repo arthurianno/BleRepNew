@@ -2,8 +2,6 @@ package com.example.bluetoothcontrol.ReadingData
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
-import android.content.Context
-import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -33,7 +31,7 @@ import java.util.Arrays
 import kotlin.math.min
 
 
-class ReadingDataFragment : Fragment(),ReadingDataAdapter.CallBackOnReadingItem,BleControlManager.AcceptedCommandCallback {
+class ReadingDataFragment : Fragment(),ReadingDataAdapter.CallBackOnReadingItem,BleControlManager.AcceptedCommandCallback{
 
     private var _binding: FragmentReadingDataBinding? = null
     private val binding: FragmentReadingDataBinding get() = _binding!!
@@ -93,6 +91,9 @@ class ReadingDataFragment : Fragment(),ReadingDataAdapter.CallBackOnReadingItem,
                 Toast.makeText(requireContext(),"Connection lost",Toast.LENGTH_SHORT).show()
             }
         }
+    }
+    private fun showToast(message: String) {
+        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
     }
 
     companion object {

@@ -149,7 +149,7 @@ class DevicesFragment : Fragment(), DevicesAdapter.CallBack,BleControlManager.Pi
             showConfirmationDialog(deviceAddress,deviceName)
             controlViewModel.setConnectionCallback(object : ControlViewModel.ConnectionCallback{
                 override fun onDeviceFailedToConnect() {
-                    showToast("НЕ удалось подключиться к устройство, попробуйте снова")
+                    showToast("Проблема с подключением повторите команду!")
                     devicesAdapter.setConnecting(false)
                 }
 
@@ -201,7 +201,7 @@ class DevicesFragment : Fragment(), DevicesAdapter.CallBack,BleControlManager.Pi
     private fun showConfirmationDialog(deviceAddress: String, deviceName: String?) {
         AlertDialog.Builder(requireContext())
             .setTitle("Подключение к устройству")
-            .setMessage("Вы уверены, что хотите подключиться к устройству ${deviceAddress}?")
+            .setMessage("Вы уверены, что хотите подключиться к устройству  ${deviceName}?  MAC - ($deviceAddress)")
             .setPositiveButton("Да") { dialog, which ->
                 // Здесь можно выполнить логику подключения к устройству
                 showPinInputDialogOrConnect(deviceAddress,deviceName)

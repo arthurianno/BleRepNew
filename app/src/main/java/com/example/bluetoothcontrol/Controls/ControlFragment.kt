@@ -7,8 +7,6 @@ import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.os.CountDownTimer
-import android.text.Editable
-import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -17,7 +15,6 @@ import android.view.inputmethod.EditorInfo
 import android.widget.Button
 import android.widget.Toast
 import androidx.core.net.toUri
-import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -32,7 +29,6 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.util.Locale
-import java.util.Timer
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 
@@ -136,7 +132,7 @@ class ControlFragment : Fragment(),BleControlManager.AcceptedCommandCallback {
         })
        controlViewModel.setDisconnectionCallBack(object : ControlViewModel.DisconnectionCallback{
            override fun onDeviceDisconnected() {
-               showToast("УСТРОЙСТВО ОТКЛЮЧИЛОСЬ, попробуйте снова")
+               showToast("Устройство отключено, попробуйте снова")
                binding.progressBarHor.progress = 0
                selectedFilePathBin = null
                selectedFilePathDat = null
@@ -148,7 +144,7 @@ class ControlFragment : Fragment(),BleControlManager.AcceptedCommandCallback {
        })
         controlViewModel.setConnectionCallback(object : ControlViewModel.ConnectionCallback{
             override fun onDeviceFailedToConnect() {
-                showToast("НЕ удалось подключиться к устройство, попробуйте снова")
+                showToast("Проблема с подключением повторите команду!")
             }
         })
     }

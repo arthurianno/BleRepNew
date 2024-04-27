@@ -985,6 +985,7 @@ public void loadFirmware(EntireCheck entireCheck) {
                         } else {
                             // Версия программного обеспечения НЕ находится в диапазоне
                             Logger.INSTANCE.d("BleControlManager", "Software version is not in range.");
+                        disconnect().enqueue();
                             verCheck = false;
                         }
                     }
@@ -1059,13 +1060,12 @@ public void loadFirmware(EntireCheck entireCheck) {
             String defaultResponse = new String(data, StandardCharsets.UTF_8);
             TermItem termItem = null;
             if (defaultResponse.startsWith("time.") && defaultResponse.length() >= 10) {
-                int hourIndex = 11; // Индекс начала часов в строке defaultResponse
-                int hour = Integer.parseInt(defaultResponse.substring(hourIndex, hourIndex + 2)); // Получаем часы из строки
-                hour = (hour + 3) % 24; // Добавляем три часа и обрабатываем случай перехода через полночь
-                @SuppressLint("DefaultLocale") String updatedHour = String.format("%02d", hour); // Форматируем часы обратно в двузначный формат
-                String updatedResponse = defaultResponse.substring(0, hourIndex) + updatedHour + defaultResponse.substring(hourIndex + 2);
-                Log.e("BLE", " TIME - " + updatedResponse); // Выводим обновленное значение времени в лог
-                termItem = new TermItem(updatedResponse, "TIME","Time");
+//                int hourIndex = 11; // Индекс начала часов в строке defaultResponse
+//                int hour = Integer.parseInt(defaultResponse.substring(hourIndex, hourIndex + 2)); // Получаем часы из строки
+//                hour = (hour + 3) % 24; // Добавляем три часа и обрабатываем случай перехода через полночь
+//                @SuppressLint("DefaultLocale") String updatedHour = String.format("%02d", hour); // Форматируем часы обратно в двузначный формат
+//                String updatedResponse = defaultResponse.substring(0, hourIndex) + updatedHour + defaultResponse.substring(hourIndex + 2);
+                termItem = new TermItem(defaultResponse, "TIME","Time ( +3 RU )");
             } else if (defaultResponse.contains("hw")) {
                 termItem = new TermItem(defaultResponse, "VERSION","Version");
             } else if (defaultResponse.contains(".t")) {

@@ -33,7 +33,7 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 
 @Suppress("DEPRECATION")
-class ControlFragment : Fragment(),BleControlManager.AcceptedCommandCallback {
+class ControlFragment : Fragment(),BleControlManager.AcceptedCommandCallback{
 
     private var _binding: FragmentControlBinding? = null
     private val binding: FragmentControlBinding get() = _binding!!
@@ -147,10 +147,17 @@ class ControlFragment : Fragment(),BleControlManager.AcceptedCommandCallback {
                 showToast("Проблема с подключением повторите команду!")
             }
         })
+        controlViewModel.setConnectingCallBack(object : ControlViewModel.ConnectingCallback{
+            override fun onDeviceConnecting() {
+                showToast("Идет подключение к устройству")
+            }
+        })
     }
 
     private fun showToast(message: String) {
-        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+        if (isAdded) {
+            Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun onPause() {
@@ -235,6 +242,7 @@ class ControlFragment : Fragment(),BleControlManager.AcceptedCommandCallback {
 
     override fun onAcc(acc: Boolean) {
     }
+
 
 
 }

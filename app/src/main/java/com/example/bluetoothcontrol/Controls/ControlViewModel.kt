@@ -29,6 +29,7 @@ class ControlViewModel(private val adapterProvider: BluetoothAdapterProvider, pr
     private var lastConnectedDevice: BluetoothDevice? = null
     private var connectionCallback: ConnectionCallback? = null
     private var disCallback: DisconnectionCallback? = null
+    private var connectingCallBack: ConnectingCallback? = null
 
 
 
@@ -51,6 +52,16 @@ class ControlViewModel(private val adapterProvider: BluetoothAdapterProvider, pr
 
     fun removeConnectionCallback() {
         connectionCallback = null
+    }
+    fun setConnectingCallBack(callBack: ConnectingCallback){
+        connectingCallBack = callBack
+    }
+
+    private fun retryConnect(deviceAddress: String, mode: String) {
+        // Повторно пытаемся подключиться только если текущее соединение не активно
+        if (_isConnected.value == false) {
+            connect(deviceAddress, mode)
+        }
     }
     fun connect(deviceAddress: String,mode: String) {
         if (_isConnected.value == false) {
@@ -76,6 +87,7 @@ class ControlViewModel(private val adapterProvider: BluetoothAdapterProvider, pr
                 .fail { _, status ->
                     _isConnected.postValue(false)
                     Log.d("ControlViewModel", "Connection failed ${_isConnected.value}")
+                    retryConnect(deviceAddress,mode)
                 }
                 .enqueue()
             controlManager.setConnectionObserver(connectionObserver)
@@ -94,7 +106,7 @@ class ControlViewModel(private val adapterProvider: BluetoothAdapterProvider, pr
     fun disconnect() {
         if (_isConnected.value == true) {
             controlManager.disconnect().enqueue()
-            showToast("Устройство отключено")
+            //showToast("Устройство отключено")
             _isConnected.postValue(false)
             lastConnectedDevice = null
         }
@@ -103,6 +115,7 @@ class ControlViewModel(private val adapterProvider: BluetoothAdapterProvider, pr
     private val connectionObserver = object : ConnectionObserver {
         override fun onDeviceConnecting(device: BluetoothDevice) {
             Log.e("ControlViewModel", "onDeviceConnecting: $device")
+            connectingCallBack?.onDeviceConnecting()
             _isConnected.postValue(false)
         }
 
@@ -237,6 +250,7 @@ class ControlViewModel(private val adapterProvider: BluetoothAdapterProvider, pr
                 controlManager.sendCommand("rd.$002",EntireCheck.default_command,"RD")
                 controlManager.sendCommand("rd.$003",EntireCheck.default_command,"RD")
                 controlManager.sendCommand("rd.$004",EntireCheck.default_command,"RD")
+                controlManager.disconnect().enqueue()
 
             }
         }
@@ -263,6 +277,10 @@ class ControlViewModel(private val adapterProvider: BluetoothAdapterProvider, pr
     interface DisconnectionCallback{
         fun onDeviceDisconnected()
     }
+    interface ConnectingCallback{
+        fun onDeviceConnecting()
+    }
+
 }
 
 

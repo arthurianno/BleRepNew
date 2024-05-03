@@ -59,6 +59,7 @@ public class BleControlManager extends BleManager {
     private boolean battCheck = false;
     private boolean verCheck = false;
     private int versionSoft = 0;
+    private String versionRange = null;
     private static final byte WRITE_CMD = (byte) 0x01;
     private static final byte APPLY_CMD = (byte) 0xEE;
     private static final byte BOOT_RD = (byte) 0x81;
@@ -140,6 +141,24 @@ public class BleControlManager extends BleManager {
                             Logger.INSTANCE.e("BleControlManager", "Command sent: " + command);
                         })
                         .fail((device, status) -> Logger.INSTANCE.e("BleControlManager", "Failed to send command: " + status))
+                        .enqueue();
+            } else {
+                Logger.INSTANCE.e("BleControlManager", "Control Request characteristic is null");
+            }
+        } else {
+            Logger.INSTANCE.e("BleControlManager", "Device is not connected");
+        }
+    }
+    public void sendCommandVoid(String command) {
+        if (isConnected() && controlRequest != null) {
+            BluetoothGattCharacteristic characteristic = controlRequest;
+            if (characteristic != null) {
+                byte[] data = command.getBytes();
+                writeCharacteristic(characteristic, data, BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT)
+                        .done(device -> {
+                            Logger.INSTANCE.e("BleControlManager", "Command void sent: " + command);
+                        })
+                        .fail((device, status) -> Logger.INSTANCE.e("BleControlManager", "Failed to send void command: " + status))
                         .enqueue();
             } else {
                 Logger.INSTANCE.e("BleControlManager", "Control Request characteristic is null");
@@ -1065,7 +1084,7 @@ public void loadFirmware(EntireCheck entireCheck) {
 //                hour = (hour + 3) % 24; // Добавляем три часа и обрабатываем случай перехода через полночь
 //                @SuppressLint("DefaultLocale") String updatedHour = String.format("%02d", hour); // Форматируем часы обратно в двузначный формат
 //                String updatedResponse = defaultResponse.substring(0, hourIndex) + updatedHour + defaultResponse.substring(hourIndex + 2);
-                termItem = new TermItem(defaultResponse, "TIME","Time ( +3 RU )");
+                termItem = new TermItem(defaultResponse, "TIME","Time ( UTC +3 )");
             } else if (defaultResponse.contains("hw")) {
                 termItem = new TermItem(defaultResponse, "VERSION","Version");
             } else if (defaultResponse.contains(".t")) {

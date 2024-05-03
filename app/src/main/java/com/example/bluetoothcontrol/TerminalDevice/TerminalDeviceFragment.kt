@@ -27,6 +27,8 @@ import com.example.bluetoothcontrol.databinding.FragmentTerminalDeviceBinding
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.TimeZone
+import java.util.Timer
+import java.util.TimerTask
 
 
 class TerminalDeviceFragment(): Fragment(){
@@ -37,6 +39,9 @@ class TerminalDeviceFragment(): Fragment(){
     private lateinit var bleControlManager: BleControlManager
     private lateinit var controlViewModel: ControlViewModel
     private val sharedViewModel: SharedViewModel by activityViewModels()
+    private var timer: Timer? = null
+    private var isFragmentActive: Boolean = false
+
 
 
     override fun onCreateView(
@@ -62,7 +67,7 @@ class TerminalDeviceFragment(): Fragment(){
         }
         controlViewModel.setConnectionCallback(object : ControlViewModel.ConnectionCallback{
             override fun onDeviceFailedToConnect() {
-                showToast("Проблема с подключением повторите команду!")
+                showToast("Проблема с подключением, попытка переподключения!")
             }
 
         })
@@ -72,7 +77,11 @@ class TerminalDeviceFragment(): Fragment(){
             }
 
         })
-
+        controlViewModel.setConnectingCallBack(object : ControlViewModel.ConnectingCallback{
+            override fun onDeviceConnecting() {
+                showToast("Идет подключение к устройству")
+            }
+        })
         sharedViewModel.selectedDeviceAddress.observe(viewLifecycleOwner){deviceAddress ->
             if(deviceAddress != null){
                 binding.terminalWrite.setOnClickListener{
@@ -89,7 +98,7 @@ class TerminalDeviceFragment(): Fragment(){
         spinnerAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item)
         binding.spinner.adapter = spinnerAdapter
         binding.spinner.setSelection(0, false)
-
+        isFragmentActive = true
         binding.inputSwitch.setOnCheckedChangeListener{ _, isChecked ->
             if(isChecked){
                 binding.spinner.visibility = View.VISIBLE
@@ -139,8 +148,52 @@ class TerminalDeviceFragment(): Fragment(){
         super.onViewCreated(view, savedInstanceState)
 
     }
+
+
     private fun showToast(message: String) {
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun startTimer() {
+        timer = Timer()
+        val deviceAddress = sharedViewModel.selectedDeviceAddress.value
+        timer?.scheduleAtFixedRate(object : TimerTask() {
+            override fun run() {
+                if (isVisible) { // Проверяем видимость фрагмента
+                    if(controlViewModel.isConnected.value == true){
+                        bleControlManager.sendCommandVoid("version")
+                    }else{
+                        controlViewModel.connect(deviceAddress.toString(),"TERMINALspinner")
+                        bleControlManager.setPinCallback {
+                            if(it.equals("CORRECT")){
+                                bleControlManager.sendCommandVoid("version")
+                            }
+                        }
+                    }
+                } else {
+                    stopTimer() // Останавливаем таймер, если фрагмент невидим
+                }
+            }
+        }, 0, 30 * 1000)
+    }
+
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        if (hidden) {
+            // Фрагмент стал невидимым
+            stopTimer()
+
+        } else {
+            // Фрагмент стал видимым
+            startTimer()
+
+        }
+    }
+
+    private fun stopTimer() {
+        timer?.cancel()
+        timer = null
+        controlViewModel.disconnect()
     }
 
     private fun connectToDevice(selectedItem : String,size:String){
@@ -157,6 +210,7 @@ class TerminalDeviceFragment(): Fragment(){
                             }
                             ControlViewModel.readTerminalCommandSpinner(selectedItem,size)
                             Logger.d(TAG," connected and Sending terminal command spinner type $selectedItem")
+                            startTimer()
                         }
                     }
                 }
@@ -164,6 +218,7 @@ class TerminalDeviceFragment(): Fragment(){
 
                     ControlViewModel.readTerminalCommandSpinner(selectedItem,size)
                     Logger.d(TAG,"Sending terminal command spinner type $selectedItem")
+                    startTimer()
                 }
 
             }
@@ -224,8 +279,6 @@ class TerminalDeviceFragment(): Fragment(){
         @JvmStatic
         fun newInstance() = TerminalDeviceFragment()
     }
-
-
 
 
 }

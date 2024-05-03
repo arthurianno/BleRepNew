@@ -91,6 +91,22 @@ class ReadingDataFragment : Fragment(),ReadingDataAdapter.CallBackOnReadingItem,
                 Toast.makeText(requireContext(),"Connection lost",Toast.LENGTH_SHORT).show()
             }
         }
+        controlViewModel.setConnectingCallBack(object : ControlViewModel.ConnectingCallback{
+            override fun onDeviceConnecting() {
+                showToast("Идет подключение к устройству")
+            }
+        })
+        controlViewModel.setConnectionCallback(object : ControlViewModel.ConnectionCallback{
+            override fun onDeviceFailedToConnect() {
+                showToast("Проблема с подключением повторите команду!")
+            }
+        })
+        controlViewModel.setDisconnectionCallBack(object : ControlViewModel.DisconnectionCallback{
+            override fun onDeviceDisconnected() {
+                showToast("Устройство отключено")
+            }
+
+        })
     }
     private fun showToast(message: String) {
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()

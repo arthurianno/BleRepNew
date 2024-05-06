@@ -171,7 +171,7 @@ class TerminalDeviceFragment(): Fragment(){
                         }
                     }
                 } else {
-                    stopTimer() // Останавливаем таймер, если фрагмент невидим
+                    //stopTimer() // Останавливаем таймер, если фрагмент невидим
                 }
             }
         }, 0, 30 * 1000)
@@ -181,12 +181,11 @@ class TerminalDeviceFragment(): Fragment(){
         super.onHiddenChanged(hidden)
         if (hidden) {
             // Фрагмент стал невидимым
-            stopTimer()
-
-        } else {
-            // Фрагмент стал видимым
-            startTimer()
-
+            sharedViewModel.timerFragmentActive.observe(viewLifecycleOwner) {
+                if (!it) {
+                    stopTimer()
+                }
+            }
         }
     }
 

@@ -21,6 +21,7 @@ import com.example.bluetoothcontrol.Controls.DataType
 import com.example.bluetoothcontrol.Controls.EntireCheck
 import com.example.bluetoothcontrol.Devices.DevicesFragment
 import com.example.bluetoothcontrol.Logger
+import com.example.bluetoothcontrol.Logs.LogFragment
 import com.example.bluetoothcontrol.MainActivity
 import com.example.bluetoothcontrol.R
 import com.example.bluetoothcontrol.SharedViewModel
@@ -64,6 +65,8 @@ class ReadingDataFragment : Fragment(),ReadingDataAdapter.CallBackOnReadingItem,
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         (activity as? MainActivity)?.showBottomNavigationView()
+        sharedViewModel.timerFragmentActive.value = false
+        Logger.d(LogFragment.TAG, "from readDataFragm changed data  " +  sharedViewModel.timerFragmentActive.value)
         binding.dataRecView.apply {
             addItemDecoration(DividerItemDecoration(requireContext(), RecyclerView.VERTICAL))
             layoutManager = LinearLayoutManager(requireContext())
@@ -110,6 +113,14 @@ class ReadingDataFragment : Fragment(),ReadingDataAdapter.CallBackOnReadingItem,
     }
     private fun showToast(message: String) {
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        if(!hidden){
+            sharedViewModel.timerFragmentActive.value = false
+            Logger.d(LogFragment.TAG, "from readDataFragm changed data  " +  sharedViewModel.timerFragmentActive.value)
+        }
     }
 
     companion object {

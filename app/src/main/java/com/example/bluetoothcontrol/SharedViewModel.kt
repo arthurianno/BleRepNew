@@ -11,6 +11,7 @@ class SharedViewModel : ViewModel() {
     val devName = MutableLiveData<String>()
     val mtuValue = MutableLiveData<String>()
     val intervalValue = MutableLiveData<String>()
+    var timerFragmentActive = MutableLiveData<Boolean>()
 
 
 

@@ -18,6 +18,8 @@ import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
+import com.example.bluetoothcontrol.Logger
+import com.example.bluetoothcontrol.Logs.LogFragment
 import com.example.bluetoothcontrol.MainActivity
 import com.example.bluetoothcontrol.ReadingData.ReadingDataFragment
 import com.example.bluetoothcontrol.SharedViewModel
@@ -64,6 +66,8 @@ class ControlFragment : Fragment(),BleControlManager.AcceptedCommandCallback{
         controlModel.setChunkSize(128) // изначально меняем на 128
         binding.progressBarHor.max = (48600.0/128).toInt()
         progressBarSize = (48600.0/128).toInt()
+        sharedViewModel.timerFragmentActive.value = false
+        Logger.d(LogFragment.TAG, "from CONTROLFRAGMENT changed data  " +  sharedViewModel.timerFragmentActive.value)
         sharedViewModel.selectedDeviceAddress.observe(viewLifecycleOwner) { deviceAddress ->
             if (deviceAddress != null && !controlModel.isConnected) {
                 binding.buttonProcessFiles.setOnClickListener {
@@ -152,6 +156,14 @@ class ControlFragment : Fragment(),BleControlManager.AcceptedCommandCallback{
                 showToast("Идет подключение к устройству")
             }
         })
+    }
+
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        if(!hidden){
+            sharedViewModel.timerFragmentActive.value = false
+            Logger.d(LogFragment.TAG, "from CONTROLFRAGMENT changed data  " +  sharedViewModel.timerFragmentActive.value)
+        }
     }
 
     private fun showToast(message: String) {

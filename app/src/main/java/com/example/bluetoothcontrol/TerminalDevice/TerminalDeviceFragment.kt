@@ -76,12 +76,15 @@ class TerminalDeviceFragment(): Fragment(){
         controlViewModel.setConnectionCallback(object : ControlViewModel.ConnectionCallback{
             override fun onDeviceFailedToConnect() {
                 showToast("Проблема с подключением, повторите действие!")
+                binding.inputSwitch.isChecked = false
+
             }
 
         })
         controlViewModel.setDisconnectionCallBack(object : ControlViewModel.DisconnectionCallback{
             override fun onDeviceDisconnected() {
                 showToast("Устройство отключено!")
+                binding.inputSwitch.isChecked = false
             }
 
         })

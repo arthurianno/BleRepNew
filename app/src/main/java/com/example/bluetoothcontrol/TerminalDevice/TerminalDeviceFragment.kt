@@ -13,13 +13,13 @@ import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.bluetoothcontrol.Controls.BleControlManager
 import com.example.bluetoothcontrol.Controls.ControlViewModel
 import com.example.bluetoothcontrol.Logger
+import com.example.bluetoothcontrol.Logs.LogFragment
 import com.example.bluetoothcontrol.MainActivity
 import com.example.bluetoothcontrol.ReadingData.ReadingDataFragment
 import com.example.bluetoothcontrol.SharedViewModel
@@ -38,7 +38,9 @@ class TerminalDeviceFragment(): Fragment(){
     private val terminalAdapter = TerminalAdapter()
     private lateinit var bleControlManager: BleControlManager
     private lateinit var controlViewModel: ControlViewModel
-    private val sharedViewModel: SharedViewModel by activityViewModels()
+    private val sharedViewModel: SharedViewModel by lazy {
+        (requireActivity() as MainActivity).getSharedViewModelFromMain()
+    }
     private var timer: Timer? = null
     private var isFragmentActive: Boolean = false
 
@@ -64,6 +66,12 @@ class TerminalDeviceFragment(): Fragment(){
             addItemDecoration(DividerItemDecoration(requireContext(), RecyclerView.VERTICAL))
             layoutManager = LinearLayoutManager(requireContext())
             adapter = terminalAdapter
+        }
+        sharedViewModel.timerActiveFragment.observe(viewLifecycleOwner) { active ->
+            if (!active) {
+                stopTimer()
+                binding.inputSwitch.isChecked = false
+            }
         }
         controlViewModel.setConnectionCallback(object : ControlViewModel.ConnectionCallback{
             override fun onDeviceFailedToConnect() {
@@ -103,11 +111,13 @@ class TerminalDeviceFragment(): Fragment(){
             if(isChecked){
                 binding.spinner.visibility = View.VISIBLE
                 binding.terminalWrite.isEnabled = false
+                startTimer()
 
 
             }else{
                 if(controlViewModel.isConnected.value == true){
                     controlViewModel.disconnect()
+                    stopTimer()
                     if(terminalAdapter.itemCount > 0){
                         terminalAdapter.clear()
                     }
@@ -159,7 +169,8 @@ class TerminalDeviceFragment(): Fragment(){
         val deviceAddress = sharedViewModel.selectedDeviceAddress.value
         timer?.scheduleAtFixedRate(object : TimerTask() {
             override fun run() {
-                if (isVisible) { // Проверяем видимость фрагмента
+                val currentFragment = requireActivity().supportFragmentManager.findFragmentByTag("LogFragment")
+                if (isVisible || currentFragment is LogFragment) { // Проверяем видимость фрагмента
                     if(controlViewModel.isConnected.value == true){
                         bleControlManager.sendCommandVoid("version")
                     }else{
@@ -171,24 +182,29 @@ class TerminalDeviceFragment(): Fragment(){
                         }
                     }
                 } else {
-                    stopTimer() // Останавливаем таймер, если фрагмент невидим
+                    //stopTimer() // Останавливаем таймер, если фрагмент невидим
                 }
             }
         }, 0, 30 * 1000)
     }
 
-    override fun onHiddenChanged(hidden: Boolean) {
-        super.onHiddenChanged(hidden)
-        if (hidden) {
-            // Фрагмент стал невидимым
-            stopTimer()
-
-        } else {
-            // Фрагмент стал видимым
-            startTimer()
-
-        }
-    }
+//    override fun onHiddenChanged(hidden: Boolean) {
+//        super.onHiddenChanged(hidden)
+//        if (hidden) {
+//            // Фрагмент стал невидимым
+//            //val currentFragment = requireActivity().supportFragmentManager.findFragmentByTag("LogFragment")
+////            if(currentFragment !is LogFragment){
+////                stopTimer()
+////                binding.inputSwitch.isChecked = false
+////            }
+//            sharedViewModel.timerActiveFragment.observe(requireActivity()) {
+//                if (!it ) {
+//                    stopTimer()
+//                    binding.inputSwitch.isChecked = false
+//                }
+//            }
+//        }
+//    }
 
     private fun stopTimer() {
         timer?.cancel()
@@ -210,7 +226,6 @@ class TerminalDeviceFragment(): Fragment(){
                             }
                             ControlViewModel.readTerminalCommandSpinner(selectedItem,size)
                             Logger.d(TAG," connected and Sending terminal command spinner type $selectedItem")
-                            startTimer()
                         }
                     }
                 }
@@ -218,7 +233,6 @@ class TerminalDeviceFragment(): Fragment(){
 
                     ControlViewModel.readTerminalCommandSpinner(selectedItem,size)
                     Logger.d(TAG,"Sending terminal command spinner type $selectedItem")
-                    startTimer()
                 }
 
             }

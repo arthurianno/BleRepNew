@@ -15,7 +15,6 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -35,7 +34,9 @@ class DevicesFragment : Fragment(), DevicesAdapter.CallBack,BleControlManager.Pi
 
     private var _binding: FragmentDevicesBinding? = null
     private val binding: FragmentDevicesBinding get() = _binding!!
-    private val sharedViewModel: SharedViewModel by activityViewModels()
+    private val sharedViewModel: SharedViewModel by lazy {
+        (requireActivity() as MainActivity).getSharedViewModelFromMain()
+    }
     private lateinit var devicesAdapter: DevicesAdapter
     private lateinit var controlViewModel: ControlViewModel
     private lateinit var bleControlManager: BleControlManager

@@ -110,6 +110,9 @@ class MainActivity : AppCompatActivity(), DevicesAdapter.CallBack {
     fun getControlViewModelFromMain(): ControlViewModel {
         return controlViewModel
     }
+    fun getSharedViewModelFromMain(): SharedViewModel {
+        return sharedViewModel
+    }
     fun getControlManagerFromMain(): BleControlManager{
         return controlManager
     }

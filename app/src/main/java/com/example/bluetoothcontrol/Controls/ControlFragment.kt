@@ -16,7 +16,6 @@ import android.widget.Button
 import android.widget.Toast
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import com.example.bluetoothcontrol.MainActivity
 import com.example.bluetoothcontrol.ReadingData.ReadingDataFragment
@@ -40,7 +39,9 @@ class ControlFragment : Fragment(),BleControlManager.AcceptedCommandCallback{
     private lateinit var controlViewModel: ControlViewModel
     private lateinit var controlModel: BleControlManager
     private lateinit var buttonProcessFiles: Button
-    private val sharedViewModel: SharedViewModel by activityViewModels()
+    private val sharedViewModel: SharedViewModel by lazy {
+        (requireActivity() as MainActivity).getSharedViewModelFromMain()
+    }
     private var timer: CountDownTimer? = null
     private var progressBarSize = 379
 
@@ -63,6 +64,7 @@ class ControlFragment : Fragment(),BleControlManager.AcceptedCommandCallback{
         super.onViewCreated(view, savedInstanceState)
         controlModel.setChunkSize(128) // изначально меняем на 128
         binding.progressBarHor.max = (48600.0/128).toInt()
+        sharedViewModel.timerActiveFragment.value = false
         progressBarSize = (48600.0/128).toInt()
         sharedViewModel.selectedDeviceAddress.observe(viewLifecycleOwner) { deviceAddress ->
             if (deviceAddress != null && !controlModel.isConnected) {
@@ -165,6 +167,12 @@ class ControlFragment : Fragment(),BleControlManager.AcceptedCommandCallback{
         controlViewModel.removeConnectionCallback()
     }
 
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        if(!hidden){
+            sharedViewModel.timerActiveFragment.value = false
+        }
+    }
 
     companion object {
         const val TAG = "ControlFragment"

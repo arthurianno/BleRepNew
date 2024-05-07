@@ -10,7 +10,6 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -41,7 +40,9 @@ class ReadingDataFragment : Fragment(),ReadingDataAdapter.CallBackOnReadingItem,
     private lateinit var controlViewModel: ControlViewModel
     private var checkItem = false
     private var dialogAgree = false
-    private val sharedViewModel: SharedViewModel by activityViewModels()
+    private val sharedViewModel: SharedViewModel by lazy {
+        (requireActivity() as MainActivity).getSharedViewModelFromMain()
+    }
     private val itemsMassive = ArrayList<DataItem>()
 
     override fun onCreateView(
@@ -64,6 +65,7 @@ class ReadingDataFragment : Fragment(),ReadingDataAdapter.CallBackOnReadingItem,
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         (activity as? MainActivity)?.showBottomNavigationView()
+        sharedViewModel.timerActiveFragment.value = false
         binding.dataRecView.apply {
             addItemDecoration(DividerItemDecoration(requireContext(), RecyclerView.VERTICAL))
             layoutManager = LinearLayoutManager(requireContext())
@@ -154,6 +156,13 @@ class ReadingDataFragment : Fragment(),ReadingDataAdapter.CallBackOnReadingItem,
                 dialog.cancel()
             }
             .show()
+    }
+
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        if(!hidden){
+            sharedViewModel.timerActiveFragment.value = false
+        }
     }
 
     @SuppressLint("NotifyDataSetChanged")

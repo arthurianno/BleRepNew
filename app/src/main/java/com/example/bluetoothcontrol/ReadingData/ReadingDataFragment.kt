@@ -100,7 +100,7 @@ class ReadingDataFragment : Fragment(),ReadingDataAdapter.CallBackOnReadingItem,
         })
         controlViewModel.setConnectionCallback(object : ControlViewModel.ConnectionCallback{
             override fun onDeviceFailedToConnect() {
-                showToast("Проблема с подключением повторите команду!")
+                showToast("Проблема с подключением повторите действие!")
             }
         })
         controlViewModel.setDisconnectionCallBack(object : ControlViewModel.DisconnectionCallback{

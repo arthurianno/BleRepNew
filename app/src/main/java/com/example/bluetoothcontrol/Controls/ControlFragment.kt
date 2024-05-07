@@ -138,7 +138,7 @@ class ControlFragment : Fragment(),BleControlManager.AcceptedCommandCallback{
         })
        controlViewModel.setDisconnectionCallBack(object : ControlViewModel.DisconnectionCallback{
            override fun onDeviceDisconnected() {
-               showToast("Устройство отключено, попробуйте снова")
+               showToast("Устройство отключено")
                binding.progressBarHor.progress = 0
                selectedFilePathBin = null
                selectedFilePathDat = null
@@ -150,7 +150,7 @@ class ControlFragment : Fragment(),BleControlManager.AcceptedCommandCallback{
        })
         controlViewModel.setConnectionCallback(object : ControlViewModel.ConnectionCallback{
             override fun onDeviceFailedToConnect() {
-                showToast("Проблема с подключением повторите команду!")
+                showToast("Проблема с подключением повторите действие!")
             }
         })
         controlViewModel.setConnectingCallBack(object : ControlViewModel.ConnectingCallback{

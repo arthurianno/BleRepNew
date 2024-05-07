@@ -57,12 +57,6 @@ class ControlViewModel(private val adapterProvider: BluetoothAdapterProvider, pr
         connectingCallBack = callBack
     }
 
-    private fun retryConnect(deviceAddress: String, mode: String) {
-        // Повторно пытаемся подключиться только если текущее соединение не активно
-        if (_isConnected.value == false) {
-            connect(deviceAddress, mode)
-        }
-    }
     fun connect(deviceAddress: String,mode: String) {
         if (_isConnected.value == false) {
             val device = adapterProvider.getAdapter().getRemoteDevice(deviceAddress)
@@ -87,7 +81,6 @@ class ControlViewModel(private val adapterProvider: BluetoothAdapterProvider, pr
                 .fail { _, status ->
                     _isConnected.postValue(false)
                     Log.d("ControlViewModel", "Connection failed ${_isConnected.value}")
-                    retryConnect(deviceAddress,mode)
                 }
                 .enqueue()
             controlManager.setConnectionObserver(connectionObserver)

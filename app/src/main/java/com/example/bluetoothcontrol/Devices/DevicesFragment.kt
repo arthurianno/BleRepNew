@@ -150,7 +150,7 @@ class DevicesFragment : Fragment(), DevicesAdapter.CallBack,BleControlManager.Pi
             showConfirmationDialog(deviceAddress,deviceName)
             controlViewModel.setConnectionCallback(object : ControlViewModel.ConnectionCallback{
                 override fun onDeviceFailedToConnect() {
-                    showToast("Проблема с подключением повторите команду!")
+                    showToast("Проблема с подключением повторите действие!")
                     devicesAdapter.setConnecting(false)
                 }
 

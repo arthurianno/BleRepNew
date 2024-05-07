@@ -25,6 +25,7 @@ class DevicesViewModel(adapterProvider: BluetoothAdapterProvider): ViewModel() {
     private var callback: BleScanCallBack? = null
     private val settings: ScanSettings
     private val filters: List<ScanFilter>
+    private var isFilterApplied: Boolean = true
 
     private val foundDevices = LinkedHashMap<String, BluetoothDevice>()
 
@@ -54,7 +55,6 @@ class DevicesViewModel(adapterProvider: BluetoothAdapterProvider): ViewModel() {
         if(callback == null) {
             callback = BleScanCallBack()
             scanner = adapter.bluetoothLeScanner
-
             scanner?.startScan(filters, settings, callback)
             Log.e("DevicesViewModel","StartScanning")
             Logger.e("DevicesViewModel","StartScanning")
@@ -87,9 +87,12 @@ class DevicesViewModel(adapterProvider: BluetoothAdapterProvider): ViewModel() {
     inner class BleScanCallBack: ScanCallback(){
 
 
+        @SuppressLint("MissingPermission")
         override fun onBatchScanResults(results: MutableList<ScanResult>?) {
             results?.forEach { result ->
-                foundDevices[result.device.address] = result.device
+                if(result.device.name?.contains("satellite", ignoreCase = true) == true) {
+                    foundDevices[result.device.address] = result.device
+                }
             }
             _devices.postValue(foundDevices.values.toList())
             super.onBatchScanResults(results)
@@ -97,7 +100,7 @@ class DevicesViewModel(adapterProvider: BluetoothAdapterProvider): ViewModel() {
 
         @SuppressLint("MissingPermission")
         override fun onScanResult(callbackType: Int, result: ScanResult?) {
-            if (result != null) {
+            if (result != null && result.device.name?.contains("satellite", ignoreCase = true) == true) {
                 foundDevices[result.device.address] = result.device
             }
             _devices.postValue(foundDevices.values.toList()) // reverse the list

@@ -75,7 +75,7 @@ class TerminalDeviceFragment(): Fragment(){
         }
         controlViewModel.setConnectionCallback(object : ControlViewModel.ConnectionCallback{
             override fun onDeviceFailedToConnect() {
-                showToast("Проблема с подключением, попытка переподключения!")
+                showToast("Проблема с подключением, повторите действие!")
             }
 
         })

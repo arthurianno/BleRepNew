@@ -68,8 +68,8 @@ class ControlFragment : Fragment(),BleControlManager.AcceptedCommandCallback{
         binding.progressBarHor.max = (48600.0/128).toInt()
         sharedViewModel.timerActiveFragment.value = false
         progressBarSize = (48600.0/128).toInt()
-        sharedViewModel.timerFragmentActive.value = false
-        Logger.d(LogFragment.TAG, "from CONTROLFRAGMENT changed data  " +  sharedViewModel.timerFragmentActive.value)
+        sharedViewModel.timerActiveFragment.value = false
+        Logger.d(LogFragment.TAG, "from CONTROLFRAGMENT changed data  " +  sharedViewModel.timerActiveFragment.value)
         sharedViewModel.selectedDeviceAddress.observe(viewLifecycleOwner) { deviceAddress ->
             if (deviceAddress != null && !controlModel.isConnected) {
                 binding.buttonProcessFiles.setOnClickListener {
@@ -163,8 +163,8 @@ class ControlFragment : Fragment(),BleControlManager.AcceptedCommandCallback{
     override fun onHiddenChanged(hidden: Boolean) {
         super.onHiddenChanged(hidden)
         if(!hidden){
-            sharedViewModel.timerFragmentActive.value = false
-            Logger.d(LogFragment.TAG, "from CONTROLFRAGMENT changed data  " +  sharedViewModel.timerFragmentActive.value)
+            sharedViewModel.timerActiveFragment.value = false
+            Logger.d(LogFragment.TAG, "from CONTROLFRAGMENT changed data  " +  sharedViewModel.timerActiveFragment.value)
         }
     }
 
@@ -179,12 +179,6 @@ class ControlFragment : Fragment(),BleControlManager.AcceptedCommandCallback{
         controlViewModel.removeConnectionCallback()
     }
 
-    override fun onHiddenChanged(hidden: Boolean) {
-        super.onHiddenChanged(hidden)
-        if(!hidden){
-            sharedViewModel.timerActiveFragment.value = false
-        }
-    }
 
     companion object {
         const val TAG = "ControlFragment"
